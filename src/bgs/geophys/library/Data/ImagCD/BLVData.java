@@ -61,6 +61,8 @@ public class BLVData {
 
 
 
+
+
     
 /**
  * Main method for getting the data from a BLV file
@@ -475,6 +477,26 @@ public class BLVData {
        if(observedValues.get(i).getDay()==day) return observedValues.get(i);
       }
         return null;
+    }
+
+    public BLVObservedValue getObservedValueAtDay(int day, int observationNumber) {
+      // look for observed value for that day, according to observationNumber
+      for(int i=0, j=0;i<observedValues.size();i++){
+       if(observedValues.get(i).getDay()==day) {
+           if(j==observationNumber) return observedValues.get(i);
+           j++;
+       }
+      }
+        return null;
+    }
+
+    public int getNumberObservedValuesAtDay(int day) {
+      // look for observed value for that day        
+      int nvals = 0;
+      for(int i=0;i<observedValues.size();i++){
+       if(observedValues.get(i).getDay()==day) nvals++;
+      }
+        return nvals;
     }
 
     public BLVObservedValue getObservedValue(int i) {

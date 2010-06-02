@@ -319,7 +319,7 @@ public class BLVPanel extends javax.swing.JPanel {
 //*/
     private static XYDataset[] createDataset(BLVData bLV, int index) {
 
-//        System.out.println("creating dataset..");
+        System.out.println("creating dataset..");
         int nplots = bLV.nSeperatePlots;  //number of discontinuities
         XYSeries[] datasetArrayObserved = new XYSeries[nplots];
         XYSeries[] datasetArrayAdopted = new XYSeries[nplots];
@@ -334,11 +334,11 @@ public class BLVPanel extends javax.swing.JPanel {
         dataset[series] = new XYSeriesCollection();
         dataset[series+1] = new XYSeriesCollection();
         // put in adopted values....
-//        System.out.println("Adding adopted values: "+index+" "+series);
+        System.out.println("Adding adopted values: "+index+" "+series);
          // get the indexs of the start and finish of the discontinuity
          int start = bLV.getDiscontinuityStartIndex(nextDiscontinuity);
          int end = bLV.getDiscontinuityEndIndex(nextDiscontinuity);
-//         System.out.println("start and end "+start +" "+end);
+         System.out.println("start and end "+start +" "+end);
 
          datasetArrayAdopted[nextDiscontinuity] = new XYSeries("Adopted Values");
 //        for(int i=0;i<bLV.getAdoptedValues().size();i++){
@@ -386,19 +386,25 @@ public class BLVPanel extends javax.swing.JPanel {
 //         System.out.println("start and end "+start +" "+end);
 
          datasetArrayObserved[nextDiscontinuity] = new XYSeries("Observed Values");
-        for(int i=start;i<end;i++){
+        for(int i=start;i<=end;i++){
 
        try{
 //          observedValue = bLV.getObservedValue(i).getComponentValue(bLV.getComponentAt(index));
 //          observedValueReal = observedValue.doubleValue()/BLVData.getScalingFromFile();
-          if(bLV.getObservedValueAtDay(i) != null){
-             observedValueReal = bLV.getObservedValueAtDay(i).getComponentValue(bLV.getComponentAt(index));
-             observedValueReal /= BLVData.getScalingFromFile();
+           int nvals = bLV.getNumberObservedValuesAtDay(i);
+           if(nvals >0 ) {
+               System.out.println("nvals for day "+i+" "+nvals);
+            if(bLV.getObservedValueAtDay(i) != null){
+             for(int j=0;j<nvals;j++){
+               observedValueReal = bLV.getObservedValueAtDay(i,j).getComponentValue(bLV.getComponentAt(index));
+               observedValueReal /= BLVData.getScalingFromFile();
 
-             datasetArrayObserved[nextDiscontinuity].add(bLV.getObservedValueAtDay(i).getDay(),
-                observedValueReal);
+               datasetArrayObserved[nextDiscontinuity].add(bLV.getObservedValueAtDay(i).getDay(),
+                  observedValueReal);
+             }
            }
           }
+       }
        catch(Exception e){ //just don't add it to the dataset if it is null
            }
         }
