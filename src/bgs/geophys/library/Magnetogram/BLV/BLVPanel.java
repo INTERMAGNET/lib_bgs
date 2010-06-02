@@ -319,7 +319,7 @@ public class BLVPanel extends javax.swing.JPanel {
 //*/
     private static XYDataset[] createDataset(BLVData bLV, int index) {
 
-        System.out.println("creating dataset..");
+//        System.out.println("creating dataset..");
         int nplots = bLV.nSeperatePlots;  //number of discontinuities
         XYSeries[] datasetArrayObserved = new XYSeries[nplots];
         XYSeries[] datasetArrayAdopted = new XYSeries[nplots];
