@@ -334,11 +334,11 @@ public class BLVPanel extends javax.swing.JPanel {
         dataset[series] = new XYSeriesCollection();
         dataset[series+1] = new XYSeriesCollection();
         // put in adopted values....
-        System.out.println("Adding adopted values: "+index+" "+series);
+//        System.out.println("Adding adopted values: "+index+" "+series);
          // get the indexs of the start and finish of the discontinuity
          int start = bLV.getDiscontinuityStartIndex(nextDiscontinuity);
          int end = bLV.getDiscontinuityEndIndex(nextDiscontinuity);
-         System.out.println("start and end "+start +" "+end);
+//         System.out.println("start and end "+start +" "+end);
 
          datasetArrayAdopted[nextDiscontinuity] = new XYSeries("Adopted Values");
 //        for(int i=0;i<bLV.getAdoptedValues().size();i++){
@@ -393,7 +393,7 @@ public class BLVPanel extends javax.swing.JPanel {
 //          observedValueReal = observedValue.doubleValue()/BLVData.getScalingFromFile();
            int nvals = bLV.getNumberObservedValuesAtDay(i);
            if(nvals >0 ) {
-               System.out.println("nvals for day "+i+" "+nvals);
+ //              System.out.println("nvals for day "+i+" "+nvals);
             if(bLV.getObservedValueAtDay(i) != null){
              for(int j=0;j<nvals;j++){
                observedValueReal = bLV.getObservedValueAtDay(i,j).getComponentValue(bLV.getComponentAt(index));
