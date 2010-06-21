@@ -459,10 +459,14 @@ public class ImagCDDataDay
         n_samps_reqd = 60 - ((max_missing_pc * 60) / 100);
         for (comp_count=0; comp_count<N_COMPONENTS; comp_count++)
         {
-            for (hour_count=0; hour_count<N_HOURLY_MEAN_VALUES; hour_count++)
-            {
-                if ((getHourData (comp_count, hour_count) == MISSING_DATA) || overwrite_existing)
+                
+              for (hour_count=0; hour_count<N_HOURLY_MEAN_VALUES; hour_count++)
+              {
+               if(comp_count == 3 && this.getYear()>=2009) setHourData(MISSING_DATA,comp_count,hour_count);
+               else
                 {
+                  if ((getHourData (comp_count, hour_count) == MISSING_DATA) || overwrite_existing)
+                  {
                     minute_end = (hour_count +1) * 60;
                     sample_count = 0;
                     accumulator = 0l;
@@ -478,8 +482,9 @@ public class ImagCDDataDay
                     if (sample_count >= n_samps_reqd)
                         setHourData ((int) (accumulator / (long) sample_count), comp_count, hour_count);
                 }
-            }
-        }
+              }
+          }
+      }
     }
     
     /** calculate daily mean values from minute means
@@ -496,8 +501,10 @@ public class ImagCDDataDay
         n_samps_reqd = 1440 - ((max_missing_pc * 1440) / 100);
         for (comp_count=0; comp_count<N_COMPONENTS; comp_count++)
         {
-            if ((getDayData(comp_count) == MISSING_DATA) || overwrite_existing)
-            {
+            if(comp_count == 3 && this.getYear()>=2009) setDayData(MISSING_DATA,comp_count);
+            else {
+              if ((getDayData(comp_count) == MISSING_DATA) || overwrite_existing)
+              {
                 sample_count = 0;
                 accumulator = 0l;
                 for (minute_count=0; minute_count<N_MINUTE_MEAN_VALUES; minute_count++)
@@ -511,6 +518,7 @@ public class ImagCDDataDay
                 }
                 if (sample_count >= n_samps_reqd)
                     setDayData ((int) (accumulator / (long) sample_count), comp_count);
+              }
             }
         }
     }

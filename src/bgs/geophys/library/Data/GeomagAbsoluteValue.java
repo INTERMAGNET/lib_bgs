@@ -185,11 +185,16 @@ public class GeomagAbsoluteValue
         switch (FScalarType)
         {
             case COMPONENT_F_DIFF:
-                if (FScalar == missingDataValue) FScalar_ok = false;
+                if (FScalar == missingDataValue){
+                    FScalar_ok = false;
+                    FDiff_ok = false;
+                }
                 else if (FScalar < -10000.0) 
                 {
                     this.FScalar = - FScalar;
+                    this.FDiff = FScalar;
                     FScalar_ok = true;
+                    FDiff_ok = true;
                 }
                 else
                 {
@@ -198,9 +203,14 @@ public class GeomagAbsoluteValue
                     {
                         // F(s)      = F(v) - dF
                         this.FScalar = F - FScalar;
+                        this.FDiff = FScalar;
                         FScalar_ok = true;
+                        FDiff_ok = true;
                     }
-                    else FScalar_ok = false;
+                    else {
+                        FScalar_ok = false;
+                        FDiff_ok = false;
+                    }
                 }
                 break;
             case COMPONENT_F_SCALAR:
@@ -210,13 +220,14 @@ public class GeomagAbsoluteValue
                     this.FScalar = FScalar;
                     FScalar_ok = true;
                 }
+                FDiff_ok = false;
                 break;
             default:
                 FScalar_ok = false;
+                FDiff_ok = false;
                 break;
         }
         
-        FDiff_ok = false;
     }
 
     /** Creates a new instance of GeomagAbsoluteValue from absolute vector data only
@@ -374,6 +385,8 @@ public class GeomagAbsoluteValue
         }
         native_orientation = orientation;
     }
+
+
     
     /** get the vector data that was originally supplied at
      * the time this object was created - this method is more
@@ -636,6 +649,24 @@ public class GeomagAbsoluteValue
             }
         }
         if (FDiff_ok) return FDiff;
+        return missingDataValue;
+    }
+
+    // get F difference (If available)
+    //for IMF2009 - returns -FScalar if FDiff not defined
+    public double getFDiffIAF2009 ()
+    {
+        if (! FDiff_ok)
+        {
+            if (! F_ok) getF();
+            if (F_ok && FScalar_ok)
+            {
+                FDiff = F - FScalar;
+                FDiff_ok = true;
+            }
+        }
+        if (FDiff_ok) return FDiff;
+        if(FScalar_ok) return -FScalar;
         return missingDataValue;
     }
 
