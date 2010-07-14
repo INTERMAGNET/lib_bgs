@@ -78,13 +78,34 @@ implements Comparable<YearMean>
     {
         this ();
         year = (first.getYear() + second.getYear()) / 2.0;
-        this.x = first.x - second.x;
-        this.y = first.y - second.y;
-        this.z = first.z - second.z;
-        this.h = first.h - second.h;
-        this.d = first.d - second.d;
-        this.i = first.i - second.i;
-        this.f = first.f - second.f;
+        if (first.x == MISSING_ELEMENT || second.x == MISSING_ELEMENT)
+            this.x = MISSING_ELEMENT;
+        else
+            this.x = first.x - second.x;
+        if (first.y == MISSING_ELEMENT || second.y == MISSING_ELEMENT)
+            this.y = MISSING_ELEMENT;
+        else
+            this.y = first.y - second.y;
+        if (first.z == MISSING_ELEMENT || second.z == MISSING_ELEMENT)
+            this.z = MISSING_ELEMENT;
+        else
+            this.z = first.z - second.z;
+        if (first.h == MISSING_ELEMENT || second.h == MISSING_ELEMENT)
+            this.h = MISSING_ELEMENT;
+        else
+            this.h = first.h - second.h;
+        if (first.d == MISSING_ELEMENT || second.d == MISSING_ELEMENT)
+            this.d = MISSING_ELEMENT;
+        else
+            this.d = first.d - second.d;
+        if (first.i == MISSING_ELEMENT || second.i == MISSING_ELEMENT)
+            this.i = MISSING_ELEMENT;
+        else
+            this.i = first.i - second.i;
+        if (first.f == MISSING_ELEMENT || second.f == MISSING_ELEMENT)
+            this.f = MISSING_ELEMENT;
+        else
+            this.f = first.f - second.f;
         this.type = first.type;
         this.recorded_elements = first.recorded_elements;
         this.note_number = "";
