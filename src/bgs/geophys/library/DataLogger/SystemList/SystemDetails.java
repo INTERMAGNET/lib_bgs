@@ -26,8 +26,11 @@ public class SystemDetails
     /** the name that the user sees */
     private String display_name;
     
-    /** the ip address to connect to */
+    /** the public IP address to connect to */
     private String ip_address;
+
+    /** the private IP address to connect to */
+    private String ip_address_priv;
     
     /** the data server IP port */
     private int data_ip_port;
@@ -67,6 +70,24 @@ public class SystemDetails
         this.ping_type = ping_type;
         groups = new Vector<ChannelGroupDetails> ();
     }
+
+    /** construct a new system with private IP
+     * @param protocol_name the type of system
+     * @param display_name the name the user sees to identify the system
+     * @param ip_address the system ip address
+     * @param ip_address_priv this system private ip address
+     * @param data_ip_port the IP port for the data server
+     * @param telnet_ip_port the telnet listening port on the server
+     * @param ssh_server the ssh server details
+     * @param ping_type the type of ping to use */
+    public SystemDetails(String protocol_name, String display_name, String ip_address, String ip_address_priv,
+                         int data_ip_port, int telnet_ip_port, String ssh_server, int ping_type)
+    {
+        // call default constructor
+        this(protocol_name, display_name, ip_address, data_ip_port, telnet_ip_port, ssh_server, ping_type);
+        this.ip_address_priv = ip_address_priv;
+    }
+
     
     /** construct a new system from a document
      * @params system_node the node containing the system
@@ -82,6 +103,7 @@ public class SystemDetails
         protocol_name = null;
         display_name = null;
         ip_address = null;
+        ip_address_priv = null;
         data_ip_port = -1;
         telnet_ip_port = 23;
         ssh_server = null;
@@ -112,6 +134,8 @@ public class SystemDetails
             {
                 if (node.getNodeName().equalsIgnoreCase("ip-address"))
                     ip_address = node.getFirstChild().getNodeValue();
+                else if (node.getNodeName().equalsIgnoreCase("ip-address-priv"))
+                    ip_address_priv = node.getFirstChild().getNodeValue();
                 else if (node.getNodeName().equalsIgnoreCase("data-port"))
                     data_ip_port = Integer.parseInt (node.getFirstChild().getNodeValue());
                 else if (node.getNodeName().equalsIgnoreCase("telnet-port"))
@@ -160,6 +184,10 @@ public class SystemDetails
     /** Getter for property ip_address.
      * @return Value of property ip_address. */
     public String getIpAddress() { return ip_address; }
+
+    /** Getter for property ip_address.
+     * @return Value of property ip_address. */
+    public String getPrivIpAddress() { return ip_address_priv; }
     
     /** Getter for property data_ip_port.
      * @return Value of property data_ip_port. */
@@ -197,7 +225,7 @@ public class SystemDetails
     /** The syntax for the ssh server string is: user@host:port
      * @return the host portion of the ssh server string - may be null */
     public String getSshServerHostname()
-    {
+    {       
         return sshTunnel.findHostInHostname (ssh_server);
     }
     

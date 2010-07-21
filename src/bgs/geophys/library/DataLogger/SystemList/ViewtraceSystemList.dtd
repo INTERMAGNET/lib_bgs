@@ -40,6 +40,9 @@
 <!ELEMENT ip-address (#PCDATA)>
 
 <!--- Put your DTDDoc comment here. -->
+<!ELEMENT ip-address-priv (#PCDATA)>
+
+<!--- Put your DTDDoc comment here. -->
 <!ELEMENT system (channel-group|ping-type|protocol-name|ssh-server|data-port|ip-address)*>
 <!ATTLIST system
     name CDATA #IMPLIED
