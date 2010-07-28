@@ -1,0 +1,472 @@
+INTERMAGNET Data Viewing Software
+=================================
+
+Release Notes - Version 1.4, May 2010
+=====================================
+
+Final version for release with 2008 INTERMAGNET data. This release has one
+known bug. Output of data in any form (on screen or two export files) may
+show rounding errors. The software uses a round even algorithm, but this
+algorithm appears to have problems rounding correctly in a small number of
+cases. In these cases only the least significant digit is affected.
+
+
+Release Notes - Version 1.35, May 2010
+======================================
+
+Bug Fixes
+---------
+Baseline viewer: fixed to cope with missing values on a discontinuity
+
+
+Release Notes - Version 1.34, March 2010
+========================================
+
+New Features
+------------
+Import icons changed so that warnings are less severe looking
+
+Bug Fixes
+---------
+Baseline viewer: new filename with 4 digit year now accepted
+Baseline viewer: adopted values in auto scale plotted correctly
+Baseline viewer: missing Delta F values displayed as missing, not 999.0 
+
+Release Notes - Version 1.33, March 2010
+========================================
+
+New Features
+------------
+
+Added the "Format Version" field to the Metadata display of the data plot and 
+the binary data display dialog.
+
+
+Bug Fixes
+---------
+
+Total field (F) component is now shown when user is using 'recorded' data
+type in the plotting options.
+
+
+Release Notes - Version 1.32, March 2010
+========================================
+
+New Features
+------------
+
+Base Line Data is now plotted from the new format IBFV2.00 for all new BLV files.
+Discontinuities in the data will be shown with a red line, and the new field 
+scalar F is shown. All files in the old format will continue to display properly.
+
+
+Bug Fixes
+---------
+
+In some circumstances the calculation for delta-F was incorrect, this has been 
+addressed. We have assumed that if the Delta-F field is less then -10,000 nT the 
+Vector F value is missing, and the value given is the scalar F value. Previously 
+this was set to 0.0nT, causing the DataViewer to assume that if delta-F was small 
+and negative the value was scalar-F, which was wrong.
+
+BLV plots can now be saved and printed with the selected scaling, and not just 
+the default.
+
+Using the DataViewer to look at the table of values was causing the date on the
+chart axis to display incorrectly. This has been fixed.
+
+Station DRV situated between magnetic south and geographic south had calculated 
+D values with big steps caused by the values 'flipping' between -180 and +180. 
+This has been addressed by testing the range of values on D. If the range > 180, 
+then 360 was added to all negative values just before display, so that the
+values are reconciled in the plot, and the plot makes visual sense. Currently 
+the values in the table have been left, so they appear to flip from very large 
+to very small.
+
+
+Release Notes - Version 1.31, October 2009
+==========================================
+
+New Features
+------------
+
+Data sources may now be enabled / disabled in the data source selection
+dialog.
+
+A new dialog allows setting of export options. The option controlling
+what is placed in the fourth element of exported files has been moved
+from the export dialog to this new dialog. Additionally, some of the
+IAGA 2002 header fields may be set using this dialog.
+
+
+Bug Fixes
+---------
+
+There was a fault reading annual mean data, whereby a missing value
+could be incorrectly interpreted as a field value following a jump.
+This has been fixed.
+
+There was a fault which affected data import when attempting to import
+more than one year of data at a time. The first month of data would be 
+moved to the wrong year directory. This has been fixed.
+
+When raising viewing dialogs from the Explorer window, the correct
+data source was not always used. This fault has been fixed.
+
+A bug has been fixed which made some windows incorrectly forced to
+the front of the display when a dialog was opened.
+
+
+Release Notes - Version 1.3, March 2009
+=======================================
+
+New Features
+------------
+
+The new 'import' menu item (in the database menu) allows you to
+import data from IAGA 2002, IMF V1.22 and DKA (K index) files
+into the INTERMAGNET archive format. Editors allow you
+to modify the contents of the files.
+
+A new option in the explorer window allows you to view the contents
+of an INTERMAGNET archive file.
+
+Another new option in the explorer window allows you to compare
+annual means from the yearmean file against values calculated from
+minute, hour and day data.
+
+The magnetogram display has been updated with a number of new features.
+You can now display a number of products derived from the original data:
+    o All geomagnetic components (X, Y, Z, H, D, I, F), independant
+      of the components recorded.
+    o Total field (F) from an independant instrument (if provided).
+    o The difference between total field from the independant instrument
+      and the main observatory instrument.
+You can configure which of these components are displayed.
+
+Further products are available as new panels on the data viewer:
+    o The 1st difference in all of these elements.
+    o The difference with a nearby observatory
+    o The metadata from the INTERMAGNET archive file
+
+You can extend the display in time by up to 50% - the idea of this is to
+allow data discontinuities at day / month / year boundaries to be seen.
+
+Annual means can be plotted.
+
+The majority of the viewing dialogs offer the ability to:
+    1.) Copy the data you are viewing to the clipboard
+    2.) Save the data to file
+    3.) Print the data
+The exceptions to this are cases where it does not make sense to offer
+the option (e.g. the main data viewer - to save data from here, use the
+export dialog) or the option is not helpful (e.g. offering to save PCX
+graphics files would not be helpful, as the format is now obsolete).
+
+A new element code 'G' is now supported in the binary data format.
+'G' is the suggested code for Delta-F - the difference between
+the vector and scalar instruments.
+
+A new spreadsheet has been created which describes the type of F data
+supplied by each observatory for each year that INTERMAGNET has collected
+data. The spreadsheet is copied to the user's home directory (along with
+the observatory and country spreadsheets) the first time the program
+runs. The filename for the spreadsheet is scf_vVVV.csv where VVV is the
+version number (the version number for this release is 100). A new "Data
+Options" item in the "Options" menu allows you to choose whether this
+database is used and what rules to use to decide the type of F data
+that has been provided when the spreadsheet is not used. These options
+also enable the new Delta-F component to be used in INTERMAGNET binary
+files - the rules are:
+
+o   If the binary data file contains 'G' in the 4th element the 4th data
+    element is Delta-F
+o   Otherwise consult the spreadsheet - the 'Data Options' dialog allows the
+    user to override the spreadsheet settings.
+
+Base Line plots have been updated so that the user can now control
+the look of the base line plots with normal plot options. The plots
+default to a standard scale of 20nT or 5 minutes,unless it will not 
+fit very well, in which case the software will plot to a more appropriate 
+scale, but highlight this by writing the scale bar values in red.
+
+
+Data quality control
+--------------------
+
+A number of these changes have been designed to improve the program's
+ability to check data produced by observatories. The program can be
+used to check the following parameters:
+    o Scalar / Vector F comparison (this is done in the data viewer).
+    o Binary header check (this check is performed during data import).
+      This includes checking that D conversion is set to 10000 when
+      orientation is set to XYZF.
+    o Review K indices (this is done in the K index viewer).
+    o Review BLV data (this is done in the BLV viewer).
+    o Near IMO (2 obsy) comparison - this is available in the data viewer.
+    o Check annual mean calculated from data against annual means file.
+    o Check yearmean file - check XYZFHDI consistency and format errors.
+      These last two can be done using the annual mean check in the
+      explorer window.
+
+
+Bug Fixes
+---------
+
+Minor corrections made to observatory database.
+
+IAGA 2002 missing values changed from "99999.99" to "99999.00".
+
+IAGA 2002 header field "Data Interval Type" corrected for hourly mean data
+
+IAGA 2002 header field "Digital Sampling" taken from equivalent data in
+binary file (where available).
+
+
+
+Release Notes - Version 1.2, March 2007
+=======================================
+
+The country and observatory databases have been updated. New versions
+of each of these files are provided with this release. Both files are
+now at version number 101.
+
+
+Bug Fixes
+---------
+
+The memory allocation bug that caused the program to crash after displaying 
+daily mean data has been fixed (this was also reported as a fault with the
+K-index viewer, but the problem is more likely to be use of the daily mean
+data screen before the K-index viewer). This required a major re-write of the 
+code that loads data into the data display dialog (Bill Worthington, 
+Ellen Clarke, Jan Reda).
+
+A bug with the PCX viewer has been fixed. This bug (reported by Peter 
+Crossthwaite) caused the program to crach when reading 256 colour PCX image 
+files (16 colour files worked OK).
+
+A bug with the display of graphics files prevented the window from starting
+the correct size - this was particularly noticeable on the base line plots.
+This is fixed so that the window is the correct size (Don Herzog).
+
+
+New Features
+------------
+
+A data catalogue window has been added, showing what data is available
+(Jeff Love).
+
+The progress meter in the export window has been enhanced to give
+better information.
+
+The user may now turn off the warning and error messages that may occur
+during an export - this allows unattended bulk data export (Jeff Love).
+
+New data formats have been added to the export dialog:
+    o WDC minute mean data format
+    o WDC hourly mean data format
+    o INTERMAGNET minute mean data format
+    o A plain text format for minute, hourly and daily data
+
+The length of data files may be varied. Data files may be put into
+zip files.
+
+The help for new users has been improved. An option to scan for data on the
+'new user' dialog makes it easier for new users to find data.
+
+The process of scanning for data sources has been speeded up by the addition
+of options to limit the amount of directory recursion and to ignore
+system directories.
+
+A text search for observatories has been added to the main menu bar (Bill 
+Worthington).
+
+The tabulation for the index column on the data viewer has been changed. It
+now shows hours:minutes for minute means, days and hours for hourly means
+and day numbers for daily means (Joachim Linthe).
+
+The program splash screen (the Welcome screen) remains up for a minimum of
+3 seconds (so that it is always visible) (Don Herzog, Jennifer Parmelee).
+
+The directory selector has been replaced with the operating system's
+file selection tool. This also fixes a number of bugs with the old
+directory selection dialog. The directory selector is used:
+    1.) In the export dialog when the 'write' button is pressed
+    2.) In the data source dialog when the 'add' button is pressed
+
+A new memory usage dialog has been added (access it from the Help
+/ Diagnostics menu) to aid debugging memory allocation bugs.
+
+A new dialog has been added to show the lists of country and
+observatory list files (access it from the Help / Diagnostics menu).
+
+A Java based installer is now used to install the program on all operating 
+systems. It includes shortcut installation for Windows. A bundled JRE 
+installation is also used for Windows only.
+
+
+Release Notes - Version 1.1, March 2005
+=======================================
+
+Bug Fixes
+---------
+
+Fixed fault with IAGA 2002 file names (Jeff Love, 14-feb-2005): 
+IAGA 2002 file names should be all lower case.
+
+Fixed fault with missing header in IAGA 2002 filenames (Jennifer Parmelee):
+IAGA2002 format files must match those produced on-line (the comment
+section which was set by the CD-ROM committee:
+ # This data file was converted from INTERMAGNET CD-ROM              |
+ # Format binary data.                                               |
+ # A complete set is available on the INTERMAGNET CD-ROM.            |
+ # Go to www.intermagnet.org for details on obtaining this product.  |
+ # CONDITIONS OF USE: These data are for scientific/academic use     |
+ # For any other applications see the 'Conditions of Use' published  |
+ # on the INTERMAGNET web site - www.intermagnet.org                 |
+
+I have tried to run the CD Viewer on our linux machines. When I try to 'add' a 
+data source, the directory selection dialogue gives me an error after clicking 
+through to : /mnt/cdrom/mag2002.  It says 'Bad base directory (no data 
+sub-directories)'.  This error comes up for every directory I select.
+(Jennifer Parmalee, 16th March 2005). This bug is due to a problem either with
+the 2002 CD, or with Linux ability to read ISO 9660 format CD-ROMs. If the
+CD-ROM is truly ISO 9660 format, it should accept uppercase filenames. Linux
+does not accept uppercase filenames for the 2002 CD-ROM. The problem has been
+fixed by making all file comparisons case-independant.
+
+Some errors with the observatory and country information files have been fixed.
+In particular: CHN (up to 2000), CH1 and CH2 are now attributed to the correct
+observatory; MBO is attributed to Senegal; BNG is attributed to Central
+African Republic; Yoguslavia is now Serbia and Montenegro SCG.
+
+The submenu'es like tables, maps etc. very often disappear behind the global 
+map after a few seconds. (Ole Rasmussen, 16th Mar 2005). This problem seems
+to be related to the tool-tip popup observatory names. I have tried to relieve
+the problem by modifying the tool-tip settings, but it may still exist. It can
+be completely erradicated by converting subsidiary windows from Frames to
+Dialogs, but the user then loses the ability to select which window is on top
+(Java dialogs are always on top of their parent frame).
+
+Fixed plotting fault: When you plot data using fixed scales you are using 
+monthly means or annual means as baseline values. In your calculation of these 
+means you have not excluded missing daily means, so when you plot a period with 
+missing daily means, the monthly means and annula means are wrong. Please try 
+to plot ABG 2002 Jan, Feb or Mar in fixed scale like 100 nT or TAM 2002 May.
+(Ole Rasmussen, 17th Mar 2005)
+
+Fixed faults whereby missing files caused the programme to crash. 
+
+The display of minute, hourly and daily means has been converted from showing
+1/10th nT (integers) to nT (real numbers). But NOTE that the baseline data 
+(which is stored on the CD-ROM as a text file) is still displayed in 1/10th nT.
+
+Fixed problems with export of data, including the Source of the data field being
+shifted one character the the right, missing values from the INTERMAGNET binary
+files being incorrectly reported.
+
+Fixed fault whereby the external web browser was not called correctly on UNIX.
+
+Fixed incorrect calculation of 'DC offsets' for observatories that do not
+provide F data.
+
+Fixed program crashes when there are gaps in information fiels (missing years).
+
+Fixed incorrect missing data value for IAGA 2002 format data (was 99999.90,
+correct value is 99999.00).
+
+Fixed craches when plotting daily mean values.
+
+
+New Features
+------------
+
+Added an option to allow plotting data using a fixed scale given by user. 
+The DC component of the signal is still removed - this is calculated from 
+daily means (where available). The fixed D scale may be in nT, in which
+case the program calcualtes a conversion factor from nT to minutes of arc
+using D(min) = d(nT) * H / 3438.
+
+Added an option to plot magnetic components in different colours.
+
+A fault report dialog has been added. This will be automatically displayed
+if the program crashes.
+
+A new mechanism for controlling the country and observatory list files has
+been implemented - see bgs.geophys.ImagCD.ImagCDViewer.Tables.README in the
+distribution jar file for details (you can open the jar file with WinZip). The
+new mechanism allows the files to be distributed with the software, 
+distributed on CD-ROM and customised by the user (for special requirements).
+
+Redundant fields have been removed from the country and observatory list
+files. From the country file the 2 digit and numeric country codes have been
+removed. From the observatory file the colatitude, longitude degrees/minutes and
+latitude degrees/minutes fields have been removed.
+
+The configuration file is stored in a new location 
+($HOME/.imag/ImCdDataViewer.cfg) so any configuration from the previous 
+version will be lost.
+
+New graphics file formats are supported. Any PCX file on the CD may be replaced
+by a PNG or GIF file. The file must use the correct file extension to the 
+filename (.pcx, .gif or .png) as the program uses the extension to determine
+the format of the file. Multiple files of different types are allowed (e.g.
+aus.pcx, aus,gif and aus.png) but only one file will be viewable.
+
+In response to the following request: "The possibility to use manual scaling is 
+fine but I find it time consuming to have to set all elements everytime you 
+start the program. One setting for all elements would be sufficient. (Setting 
+individual elements could be an option). Also the D-scale should be set in the 
+same nT scale as the other elements. That is where the D-conversion factor in 
+binary header is useful. (Ole Rasmussen, 16th Mar 2005)". The D-conversion
+factor is difficult to use, since the scaling dialog is not aware of which
+observatory's data is being displayed. I have added 'Zoom In' and 'Zoom Out'
+buttons which decrement and increment the scale settings for all components. I
+hope this will make it quicker to modify the scale settings.
+
+Many users enter the year directory (e.g. mag2002) instead of the parent 
+directory, when selecting a database. The software now recognises year 
+sub-directories as input from the directory selection dialog (and goes up one 
+directory to check if other years are also available).
+
+Missing files are flagged with warnings to help people compiling the CD. The 
+minimum requirements for a directory to be recognised as a database are:
+
+    The directory must contain at least one year sub-directory. The name of this
+    directory is in the form magYYYY.
+
+    Each year sub-directory must contain:
+        A ctry_inf sub-directory (which does not have to contain any files)
+        A YYYYmaps sub-directory (which does not have to contain any files)
+        Zero or more observatory sub-directories (which should contain at
+            least one data file)
+
+In the previous version, clicking on an observatory with either mouse button in 
+the main window caused a popup menu to appear. This version modifies that 
+behaviour. Clicking with the left button still causes the popup menu to appear.
+Clicking with the right mouse button causes a dialog which contains the same
+choices as the popup menu, but does not dissapear after a choice has been made.
+
+Added a welcome screen at program startup.
+
+Export dialog includes an option for data format - this currently only contains
+"IAGA 2002", but is a pointer to future expansion with new data formats.
+
+The directory selector for export operations has been changed so that it uses
+the system file chooser and remembers the last directory that the user used.
+
+All text and graphics files (Baseline plots; Baseline values; K-numbers text 
+file; K-index viewer; Country information; Country maps; Historic annual means;
+Institute Details; Observatory information) are treated in the same way - from 
+the popup menu in the main window, all files can be 'paged' (to select
+different years). From the explorer window only the current year is
+available.
+
+Modified 'save directory' dialog for export data to be less confusing.
+
+
+Release Notes - Version 1.0, November 2004
+==========================================
+
+First release of software.

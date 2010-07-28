@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.3" maxVersion="1.5" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,52,0,0,1,-112"/>
+  </AuxValues>
+
+  <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+  <SubComponents>
+    <Component class="javax.swing.JLabel" name="TitleLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;h2&gt;Step 1 of 6: Introduction&lt;/h2&gt;&lt;html&gt;" noResource="true"/>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="North"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JLabel" name="InstructionsLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="&lt;html&gt;  This wizard allows you to load data into the INTERMAGNET archive format and directory structure. Data can&lt;br&gt; already be in the INTERMAGNET archive format (to allow exisiting files to be updated), or it can be in the INTERMAGNET&lt;br&gt; minute-mean or IAGA 2002 format. In either case, as much information as possible will be copied into the INTERMAGNET&lt;br&gt; archive files. The INTERMAGNET &apos;DKA&apos; format for K indices is also supported to allow K index data to be loaded.&lt;br&gt; Options allow hourly and daily means to be calculated. Alternatively these data may be read from IAGA 2002 format&lt;br&gt; files if they are present.&lt;br&gt; &lt;br&gt; Data is selected by choosing a directory. The software will attempt to convert all files found in the selected directory.&lt;br&gt; Files from sub-directories can be optionally included as well.&lt;br&gt; &lt;br&gt; A summary of data converted will be presented with options to change or add header fields in the final CD-ROM binary&lt;br&gt; format files&lt;br&gt; &lt;br&gt; At the end of the process, you can choose which of the current data sources to put the new data into, or you can&lt;br&gt; create a new data source. In either case, the new data will be available to view once the wizard completes.&lt;br&gt;  &lt;/html&gt;" noResource="true"/>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="Center"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+  </SubComponents>
+</Form>
