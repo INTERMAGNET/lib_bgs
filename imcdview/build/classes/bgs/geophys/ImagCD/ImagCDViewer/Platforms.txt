@@ -1,7 +1,0 @@
-The INTERMAGNET Data Viewer software has been tested on Microsoft Windows XP and SUN SOLARIS 10.0. On both these platforms SUNs Java Runtime Environment version 1.6 was used.
-
-The software has been run by users on other platforms:
-
-Rudolf Widmer-Schnidrig (CD viewer version 1.1, 9th March 2007)
-	Macintosh Motorola G4 CPU with OSX 10.4
-
