@@ -181,10 +181,9 @@ public class GeomagAbsoluteValue
                                 int orientation, int angle_units) 
     {
         this (comp1, comp2, comp3, missingDataValue, orientation, angle_units);
-        
         switch (FScalarType)
         {
-            case COMPONENT_F_DIFF:
+            case COMPONENT_F_DIFF:   // used after 2009
                 if (FScalar == missingDataValue){
                     FScalar_ok = false;
                     FDiff_ok = false;
@@ -192,20 +191,19 @@ public class GeomagAbsoluteValue
                 else if (FScalar < -10000.0) 
                 {
                     this.FScalar = - FScalar;
-                    this.FDiff = FScalar;
                     FScalar_ok = true;
-                    FDiff_ok = true;
+                    FDiff_ok = false;
                 }
-                else
+                else  //it's a genuine FDiff value
                 {
+                    FDiff_ok = true;
+                    this.FDiff = FScalar;
                     getF();
                     if (F_ok)
                     {
                         // F(s)      = F(v) - dF
                         this.FScalar = F - FScalar;
-                        this.FDiff = FScalar;
                         FScalar_ok = true;
-                        FDiff_ok = true;
                     }
                     else {
                         FScalar_ok = false;
