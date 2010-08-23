@@ -394,13 +394,16 @@ public class BLVPanel extends javax.swing.JPanel {
            int nvals = bLV.getNumberObservedValuesAtDay(i);
            if(nvals >0 ) {
  //              System.out.println("nvals for day "+i+" "+nvals);
-            if(bLV.getObservedValueAtDay(i) != null){
              for(int j=0;j<nvals;j++){
+ //                System.out.println("Value: "+bLV.getObservedValueAtDay(i,j)+i+" "+j+" "+index);
+             if(bLV.getObservedValueAtDay(i,j) != null){
+               try{
                observedValueReal = bLV.getObservedValueAtDay(i,j).getComponentValue(bLV.getComponentAt(index));
                observedValueReal /= BLVData.getScalingFromFile();
 
                datasetArrayObserved[nextDiscontinuity].add(bLV.getObservedValueAtDay(i).getDay(),
                   observedValueReal);
+                 }catch(Exception e){} //just don't add it to the dataset if it is null
              }
            }
           }

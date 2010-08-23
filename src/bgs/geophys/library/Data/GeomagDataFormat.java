@@ -160,6 +160,11 @@ public abstract class GeomagDataFormat
         {
             if (this.compCode.length() < 3 || this.compCode.length() > 4)
                 throw new GeomagDataException ("Component code must contain 3 or 4 characters");
+            // intermagnet has a 'G' for the fourth component, which needs to be put
+            // back to an F
+            if (this.compCode.length()==4 && this.compCode.substring(3).contentEquals("G")){
+                this.compCode = this.compCode.substring(0,3).concat("F");
+            }
         }
         this.dataType = dataType;
         this.ginCode = ginCode;
