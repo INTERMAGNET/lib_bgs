@@ -318,8 +318,8 @@ public class MagnetogramTrace
         this.renderer = null;
         this.font_size_multiplier = 1.0f;
         
-        System.out.println("component d is:" +GeomagAbsoluteValue.COMPONENT_D);
-        System.out.println("component i is:" +GeomagAbsoluteValue.COMPONENT_I);
+//        System.out.println("component d is:" +GeomagAbsoluteValue.COMPONENT_D);
+//        System.out.println("component i is:" +GeomagAbsoluteValue.COMPONENT_I);
         // create the 1st time series
         time_series = new TimeSeries(title, Day.class);
         
@@ -374,9 +374,23 @@ public class MagnetogramTrace
         {
             time_series2 = new TimeSeries("", Day.class);
             jump_data.rewind();
+            // next 2 lines added JE 8.09.2010
+            previousYear = (int) jump_data.next().getYear()-1;
+            jump_data.rewind();
             while (jump_data.hasNext())
             {
                 mean = jump_data.next();
+            // if the next year is more than 1 from the last one,
+            // need to put in the null value so that completely
+            // missing years are not plotted JE 08.09.2010
+                date = mean.getDate ();
+                currentYear = (int) mean.getYear();
+                if ((previousYear+1) != currentYear){
+             // send a null value to plot for currentYear-1
+                 time_series2.addOrUpdate (time_series2.getNextTimePeriod(), null);                
+                 }
+                previousYear = currentYear;
+                
                 // JFreeChart cannot handle years earlier than 1900
                 if (mean.getYear() >= 1900.0)
                 {

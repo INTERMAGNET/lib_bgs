@@ -8,6 +8,7 @@ import bgs.geophys.library.Data.ImagCDFilename;
 import bgs.geophys.library.Misc.DateUtils;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -145,13 +146,25 @@ public class ImagCDFileStats
             chk_elev = true;
         else
             elevation_errmsg = "Missing elevation: " + day_seg0.getElevation();
+
+        
         rec_elem = day_seg0.getRecordedElements().trim();
-        if (rec_elem.equalsIgnoreCase("hdzf") ||
+        Calendar c = new GregorianCalendar();
+        c.set(2009, 0, 01);
+        Date year2009 = new Date(c.getTimeInMillis());
+        if (publication_date.before(year2009)){
+            if(rec_elem.equalsIgnoreCase("hdzf") ||
             rec_elem.equalsIgnoreCase("xyzf") ||
-            rec_elem.equalsIgnoreCase("diff"))
-            chk_orient = true;
-        else
-            orientation_errmsg = "Bad component codes: " + day_seg0.getRecordedElements();
+            rec_elem.equalsIgnoreCase("diff") )
+               chk_orient = true;
+            }
+        else{ // 2009 onwards
+            if(rec_elem.equalsIgnoreCase("hdzg") ||
+               rec_elem.equalsIgnoreCase("xyzg"))
+               chk_orient = true;
+            }
+        if (!chk_orient)    orientation_errmsg = "Bad component codes: " + day_seg0.getRecordedElements();
+
         if (day_seg0.getInstituteCode().trim().length() > 0)
             chk_src = true;
         else
