@@ -177,17 +177,18 @@ implements Comparable<YearMean>
     
     /** add two means - this mean retains the metadata (date, type, etc.)
      * @param o the mean to add - must be a JUMP type */
+    /* don't add if missing data flag JE 13.09.10 */
     public void add (YearMean o)
     {
         if (o.getType() == YearMeanType.JUMP)
         {
-            this.x += o.x;
-            this.y += o.y;
-            this.z += o.z;
-            this.h += o.h;
-            this.d += o.d;
-            this.i += o.i;
-            this.f += o.f;
+            if(this.x != MISSING_ELEMENT) this.x += o.x;
+            if(this.y != MISSING_ELEMENT)this.y += o.y;
+            if(this.z != MISSING_ELEMENT)this.z += o.z;
+            if(this.h != MISSING_ELEMENT)this.h += o.h;
+            if(this.d != MISSING_ELEMENT)this.d += o.d;
+            if(this.i != MISSING_ELEMENT)this.i += o.i;
+            if(this.f != MISSING_ELEMENT)this.f += o.f;
             if (this.note_number.length() <= 0) this.note_number = o.note_number;
             else this.note_number = this.note_number + ", " + o.note_number;
         }
@@ -195,17 +196,18 @@ implements Comparable<YearMean>
     
     /** subtract two means - this mean retains the metadata (date, type, etc.)
      * @param o the mean to add - must be a JUMP type */
+    /* don't subtract if missing data flag JE 13.09.10 */
     public void subtract (YearMean o)
     {
         if (o.getType() == YearMeanType.JUMP)
         {
-            this.x -= o.x;
-            this.y -= o.y;
-            this.z -= o.z;
-            this.h -= o.h;
-            this.d -= o.d;
-            this.i -= o.i;
-            this.f -= o.f;
+            if(this.x != MISSING_ELEMENT) this.x -= o.x;
+            if(this.y != MISSING_ELEMENT) this.y -= o.y;
+            if(this.z != MISSING_ELEMENT) this.z -= o.z;
+            if(this.h != MISSING_ELEMENT)this.h -= o.h;
+            if(this.d != MISSING_ELEMENT)this.d -= o.d;
+            if(this.i != MISSING_ELEMENT)this.i -= o.i;
+            if(this.f != MISSING_ELEMENT)this.f -= o.f;
             if (this.note_number.length() <= 0) this.note_number = o.note_number;
             else this.note_number = this.note_number + ", " + o.note_number;
         }
