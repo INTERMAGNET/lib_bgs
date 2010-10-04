@@ -101,6 +101,9 @@ public class DateUtils
                  ((long) day * 86400000l) +
                  getDurationMs ((long) month, DURATION_TYPE_MONTHS, 0, year) +
                  getDurationMs ((long) (year - 1970), DURATION_TYPE_YEARS, 0, 1970);
+      // leap years need an extra day tacking on (negatively) if they are before the epoch (1970)
+      // this fix has been tested for all dates from 1-1-1850 to 31-12-2049
+      if ((year < 1970) && isLeapYear(year)) duration -= 86400000l;
       return new Date (duration);
   }
   
