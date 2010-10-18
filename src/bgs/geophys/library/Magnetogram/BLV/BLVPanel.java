@@ -65,6 +65,7 @@ public class BLVPanel extends javax.swing.JPanel {
     public boolean isTableSelected;
     
     private boolean viewAxes = true;
+    private boolean settingUp = true;
     /** Creates new form BLVPanel
      * @param bLV 
      */
@@ -91,7 +92,8 @@ public class BLVPanel extends javax.swing.JPanel {
         numberOfScrollSteps = 0;
         addFilename = addFileName;
         finalPlotTitle = plotTitle;
-        
+        scalingComboBox.setSelectedIndex(1);
+        settingUp = false;
         
 //        this.setTitle("Base Line Values Plotter");
         
@@ -772,23 +774,29 @@ return chart;
     
     private void scalingComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scalingComboBoxActionPerformed
        // change the scaling
+       if(settingUp) return;
         switch (scalingComboBox.getSelectedIndex()){
-            case (0):  // default scaling
+            case (0):
+             this.auto = false;
+             this.scale = BLVData.getNanoTeslaRange()/2;
+             this.scaleDefault = false;
+             break;
+            case (1):  // default scaling
              this.auto = false;
              this.scale = BLVData.getNanoTeslaRange();
              this.scaleDefault = true;
              break;
-            case (1):
+            case (2):
              this.auto = false;
              this.scale = BLVData.getNanoTeslaRange()*2;
              this.scaleDefault = false;
              break;
-            case (2):
+            case (3):
              this.auto = false;
              this.scale = BLVData.getNanoTeslaRange()*4;
              this.scaleDefault = false;
              break;
-            case (3):  // auto scaling
+            case (4):  // auto scaling
              this.auto = true;
              this.scaleDefault = false;
              break;
@@ -803,7 +811,6 @@ return chart;
 //                   plot(finalBLV,addFilename,finalPlotTitle),null,0);
 //        tabbedPane.setSelectedIndex(0);
         
-                                         // TODO add your handling code here:
     }//GEN-LAST:event_scalingComboBoxActionPerformed
 
     private void scrollUpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scrollUpButtonActionPerformed
@@ -894,7 +901,11 @@ return chart;
     private void drawScaleOptions(){
     
     this.scalingComboBox.setModel(new BLVComboBoxModel(
-              new String[]{BLVData.getNanoTeslaRange().toString()+" "+
+              new String[]{BLVData.getNanoTeslaRange()/2+" "+
+                           BLVData.getNanoTeslaUnitLabel()+ " / "+ 
+                           (BLVData.getNanoTeslaRange()*BLVData.getAngleScaleFactor()/2) +" "+
+                           BLVData.getAngleUnitLabel(), //10 nT / 2.5 min
+                           BLVData.getNanoTeslaRange().toString()+" "+
                            BLVData.getNanoTeslaUnitLabel()+ " / "+ 
                            (BLVData.getNanoTeslaRange()*BLVData.getAngleScaleFactor()) +" "+
                            BLVData.getAngleUnitLabel(), //20 nT / 5 min
@@ -907,6 +918,8 @@ return chart;
                            (BLVData.getNanoTeslaRange()*BLVData.getAngleScaleFactor()*4) +" "+
                            BLVData.getAngleUnitLabel(), // 80 nT / 20 min,
                             "Auto Scale"}));
+    
+ //   scalingComboBox.setSelectedIndex(1);  // default
     
     }
   
