@@ -19,10 +19,10 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="230" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jScrollPane1" alignment="0" min="-2" pref="519" max="-2" attributes="1"/>
+                  <Component id="jScrollPane1" alignment="0" min="-2" pref="620" max="-2" attributes="1"/>
                   <Component id="fileNameLabel" alignment="0" min="-2" pref="460" max="-2" attributes="1"/>
               </Group>
-              <EmptySpace pref="183" max="32767" attributes="0"/>
+              <EmptySpace pref="82" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -32,8 +32,8 @@
               <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
               <Component id="fileNameLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="jScrollPane1" min="-2" pref="393" max="-2" attributes="0"/>
-              <EmptySpace pref="118" max="32767" attributes="0"/>
+              <Component id="jScrollPane1" min="-2" pref="573" max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>

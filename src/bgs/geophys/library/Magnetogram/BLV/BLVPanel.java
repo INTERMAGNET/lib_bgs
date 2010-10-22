@@ -46,17 +46,58 @@ import org.jfree.ui.TextAnchor;
  * @author  jex
  */
 public class BLVPanel extends javax.swing.JPanel {
+
+
+
     public JFreeChart finalChart;
     BLVData finalBLV;
     boolean auto;
     boolean scaleDefault;
-    Double scale;
+    Double scale, customScale;;
     Integer numberOfScrollSteps;
     boolean addFilename;
     String finalPlotTitle;
     public float font_size_multiplier;
 
-    
+    public static final String scalingOptions[] =
+              new String[]{BLVData.getNanoTeslaRange()/2+" "+
+                           BLVData.getNanoTeslaUnitLabel()+ " / "+
+                           (BLVData.getNanoTeslaRange()*BLVData.getAngleScaleFactor()/2) +" "+
+                           BLVData.getAngleUnitLabel(), //10 nT / 2.5 min
+                           BLVData.getNanoTeslaRange().toString()+" "+
+                           BLVData.getNanoTeslaUnitLabel()+ " / "+
+                           (BLVData.getNanoTeslaRange()*BLVData.getAngleScaleFactor()) +" "+
+                           BLVData.getAngleUnitLabel(), //20 nT / 5 min
+                           BLVData.getNanoTeslaRange()*2+" "+
+                           BLVData.getNanoTeslaUnitLabel()+ " / "+
+                           (BLVData.getNanoTeslaRange()*BLVData.getAngleScaleFactor()*2) +" "+
+                           BLVData.getAngleUnitLabel(), // 40 nT / 10 min,
+                           BLVData.getNanoTeslaRange()*4+" "+
+                           BLVData.getNanoTeslaUnitLabel()+ " / "+
+                           (BLVData.getNanoTeslaRange()*BLVData.getAngleScaleFactor()*4) +" "+
+                           BLVData.getAngleUnitLabel(), // 80 nT / 20 min,
+                            "Auto Scale"};
+
+    public static final int scalingDefault = 1;
+    public static Integer getScalingOptionIndex(String s){
+        for(int i=0;i<scalingOptions.length;i++){
+          if(s.equalsIgnoreCase(scalingOptions[i])) return i;
+        }
+        return scalingDefault;
+    }
+
+
+    public static String makeMenuOption(Double customScale) {
+      Double customAngleScale = customScale * BLVData.getAngleScaleFactor();
+      return new String(String.format("%4.1f %s /%6.3f %s",
+                                  customScale,BLVData.getNanoTeslaUnitLabel(),
+                                  customAngleScale,
+                                  BLVData.getAngleUnitLabel()));
+    }
+
+    public static String getDefaultScaleString() {
+       return scalingOptions[scalingDefault];
+    }
     /**
      * 
      */
@@ -78,10 +119,11 @@ public class BLVPanel extends javax.swing.JPanel {
                     String adoptedPanelTitle,
                     String observedPanelTitle,
                     String commentsPanelTitle,
-                    float font_size_multiplier) {
+                    float font_size_multiplier,
+                    String defaultScale, Double scaleFactor) {
         this.font_size_multiplier = font_size_multiplier;
         initComponents();       
-        drawScaleOptions();
+        drawScaleOptions(scaleFactor);
         if(bLV.nSeperatePlots==1)viewAxesCheckBox.setEnabled(false);
         else viewAxesCheckBox.setEnabled(true);
     
@@ -89,10 +131,12 @@ public class BLVPanel extends javax.swing.JPanel {
         auto = false;
         scaleDefault = true;
         scale = BLVData.getNanoTeslaRange();
+        if(scaleFactor!=null)customScale = scaleFactor/scale;
         numberOfScrollSteps = 0;
         addFilename = addFileName;
         finalPlotTitle = plotTitle;
-        scalingComboBox.setSelectedIndex(1);
+        scalingComboBox.setSelectedItem(defaultScale);
+        setupScaling();
         settingUp = false;
         
 //        this.setTitle("Base Line Values Plotter");
@@ -775,32 +819,7 @@ return chart;
     private void scalingComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scalingComboBoxActionPerformed
        // change the scaling
        if(settingUp) return;
-        switch (scalingComboBox.getSelectedIndex()){
-            case (0):
-             this.auto = false;
-             this.scale = BLVData.getNanoTeslaRange()/2;
-             this.scaleDefault = false;
-             break;
-            case (1):  // default scaling
-             this.auto = false;
-             this.scale = BLVData.getNanoTeslaRange();
-             this.scaleDefault = true;
-             break;
-            case (2):
-             this.auto = false;
-             this.scale = BLVData.getNanoTeslaRange()*2;
-             this.scaleDefault = false;
-             break;
-            case (3):
-             this.auto = false;
-             this.scale = BLVData.getNanoTeslaRange()*4;
-             this.scaleDefault = false;
-             break;
-            case (4):  // auto scaling
-             this.auto = true;
-             this.scaleDefault = false;
-             break;
-        }
+       setupScaling();
        // disable scrolling on auto scale, enable otherwise
        this.scrollDownButton.setEnabled(!auto);
        this.scrollUpButton.setEnabled(!auto);
@@ -837,6 +856,39 @@ return chart;
         update();
     }//GEN-LAST:event_viewAxesCheckBoxActionPerformed
 
+
+private void setupScaling(){
+    switch (scalingComboBox.getSelectedIndex()){
+            case (0):
+             this.auto = false;
+             this.scale = BLVData.getNanoTeslaRange()/2;
+             this.scaleDefault = false;
+             break;
+            case (1):  // default scaling
+             this.auto = false;
+             this.scale = BLVData.getNanoTeslaRange();
+             this.scaleDefault = true;
+             break;
+            case (2):
+             this.auto = false;
+             this.scale = BLVData.getNanoTeslaRange()*2;
+             this.scaleDefault = false;
+             break;
+            case (3):
+             this.auto = false;
+             this.scale = BLVData.getNanoTeslaRange()*4;
+             this.scaleDefault = false;
+             break;
+            case (4):  // auto scaling
+             this.auto = true;
+             this.scaleDefault = false;
+             break;
+            case (5):  // custom scaling
+             this.auto = false;
+             this.scaleDefault = false;
+             this.scale = BLVData.getNanoTeslaRange()*customScale;
+        }
+}
 
     
     private void tabbedPaneStateChanged(javax.swing.event.ChangeEvent evt) {                                        
@@ -897,31 +949,26 @@ return chart;
         }
             
       }
+
       
-    private void drawScaleOptions(){
+    private void drawScaleOptions(Double customFactor){
     
-    this.scalingComboBox.setModel(new BLVComboBoxModel(
-              new String[]{BLVData.getNanoTeslaRange()/2+" "+
-                           BLVData.getNanoTeslaUnitLabel()+ " / "+ 
-                           (BLVData.getNanoTeslaRange()*BLVData.getAngleScaleFactor()/2) +" "+
-                           BLVData.getAngleUnitLabel(), //10 nT / 2.5 min
-                           BLVData.getNanoTeslaRange().toString()+" "+
-                           BLVData.getNanoTeslaUnitLabel()+ " / "+ 
-                           (BLVData.getNanoTeslaRange()*BLVData.getAngleScaleFactor()) +" "+
-                           BLVData.getAngleUnitLabel(), //20 nT / 5 min
-                           BLVData.getNanoTeslaRange()*2+" "+
-                           BLVData.getNanoTeslaUnitLabel()+ " / "+ 
-                           (BLVData.getNanoTeslaRange()*BLVData.getAngleScaleFactor()*2) +" "+
-                           BLVData.getAngleUnitLabel(), // 40 nT / 10 min,
-                           BLVData.getNanoTeslaRange()*4+" "+
-                           BLVData.getNanoTeslaUnitLabel()+ " / "+ 
-                           (BLVData.getNanoTeslaRange()*BLVData.getAngleScaleFactor()*4) +" "+
-                           BLVData.getAngleUnitLabel(), // 80 nT / 20 min,
-                            "Auto Scale"}));
-    
- //   scalingComboBox.setSelectedIndex(1);  // default
-    
+    if(customFactor!=null){
+
+        String customOption;
+        String[] options = new String[scalingOptions.length +1];
+        for(int i =0;i<scalingOptions.length;i++){
+           options[i] = scalingOptions[i];
+        }
+
+        customOption = makeMenuOption(customFactor);
+
+        options[scalingOptions.length] = customOption;
+        this.scalingComboBox.setModel(new BLVComboBoxModel(options));
     }
+    else this.scalingComboBox.setModel(new BLVComboBoxModel(scalingOptions));   
+    }
+
   
         /**
      * @param args the command line arguments
