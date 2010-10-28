@@ -600,7 +600,7 @@ public class MagnetogramTrace
         // create the renderer and set it's attributes
         renderer = new XYLineAndShapeRenderer ();
         renderer.setSeriesShape (0, new Rectangle2D.Double (-0.5, -4.0, 1.0, 8.0));
-        renderer.setSeriesToolTipGenerator(0, new StandardXYToolTipGenerator ("{2}" + marker_units, new SimpleDateFormat (""), new DecimalFormat ("#####0.0")));
+        renderer.setSeriesToolTipGenerator(0, new StandardXYToolTipGenerator ("{1} {2}" + marker_units, new SimpleDateFormat ("HH:mm"), new DecimalFormat ("#####0.0")));
         renderer.setSeriesShapesFilled(0, true);
         if (! show_markers)
         {
