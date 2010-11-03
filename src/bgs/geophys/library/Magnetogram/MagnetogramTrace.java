@@ -17,6 +17,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.geom.Rectangle2D;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -600,7 +601,9 @@ public class MagnetogramTrace
         // create the renderer and set it's attributes
         renderer = new XYLineAndShapeRenderer ();
         renderer.setSeriesShape (0, new Rectangle2D.Double (-0.5, -4.0, 1.0, 8.0));
-        renderer.setSeriesToolTipGenerator(0, new StandardXYToolTipGenerator ("{1} {2}" + marker_units, new SimpleDateFormat ("HH:mm"), new DecimalFormat ("#####0.0")));
+        DateFormat d = new SimpleDateFormat ("dd-MMM-yy HH:mm");
+        d.setTimeZone(gmt);
+        renderer.setSeriesToolTipGenerator(0, new StandardXYToolTipGenerator ("{1} {2}" + marker_units,d, new DecimalFormat ("#####0.0")));
         renderer.setSeriesShapesFilled(0, true);
         if (! show_markers)
         {

@@ -181,7 +181,12 @@ public class GeomagAbsoluteValue
                                 int orientation, int angle_units) 
     {
         this (comp1, comp2, comp3, missingDataValue, orientation, angle_units);
-        switch (FScalarType)
+        setF(FScalar, FScalarType);
+        
+    }
+
+    public void setF(double FScalar, int FScalarType){
+    switch (FScalarType)
         {
             case COMPONENT_F_DIFF:   // used after 2009
                 if (FScalar == missingDataValue){
@@ -225,7 +230,6 @@ public class GeomagAbsoluteValue
                 FDiff_ok = false;
                 break;
         }
-        
     }
 
     /** Creates a new instance of GeomagAbsoluteValue from absolute vector data only
