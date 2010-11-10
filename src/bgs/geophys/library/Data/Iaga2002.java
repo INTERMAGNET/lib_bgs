@@ -585,6 +585,8 @@ public class Iaga2002 extends GeomagDataFormat
         // translate data type codes
         if (data_type.equalsIgnoreCase("Definitive")) data_type_code = "d";
         else if (data_type.equalsIgnoreCase("D")) data_type_code = "d";
+        else if (data_type.equalsIgnoreCase("Quasi-Definitive")) data_type_code = "q";
+        else if (data_type.equalsIgnoreCase("Q")) data_type_code = "q";
         else if (data_type.equalsIgnoreCase("Provisional")) data_type_code = "p";
         else if (data_type.equalsIgnoreCase("P")) data_type_code = "p";
         else if (data_type.equalsIgnoreCase("Adjusted")) data_type_code = "p";
