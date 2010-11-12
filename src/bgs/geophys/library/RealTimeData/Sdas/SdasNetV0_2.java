@@ -44,6 +44,9 @@ public class SdasNetV0_2 extends Object implements DataNet
     
     // set this to true to copy all IO with the remote SDAS to stderr
     private static boolean debug_io = false;
+    
+    // this object captures IO events for debugging
+    private SdasIOEventBuffer io_event_buffer;
 
     // private instance variables
     private boolean IsConnected = false;         // TRUE when connection to server is open
@@ -78,6 +81,7 @@ public class SdasNetV0_2 extends Object implements DataNet
       n_groups = -1;
       socket_timeout = 0;
       gmt = new SimpleTimeZone (0, "GMT");
+      io_event_buffer = new SdasIOEventBuffer (0);
     }
 
     /**************************************************************
@@ -116,6 +120,9 @@ public class SdasNetV0_2 extends Object implements DataNet
 
         return date;
     }
+
+    public void setIOEventBufferLength (int length) { io_event_buffer.setEventBufferLength(length); }
+    public SdasIOEventBuffer getSdasIOEventBuffer () { return io_event_buffer; }
     
 ////////////////////////////////////////////////////////////////////////////////
 ////////// Section 2 - things that DO fulfill the DataNet interface ////////////
@@ -346,6 +353,7 @@ public class SdasNetV0_2 extends Object implements DataNet
         catch (Exception e) { throw (new SdasNetException (SdasNetException.BAD_HOST_NAME, "Bad port number")); }
       }
 
+      io_event_buffer.addEvent(new SdasIOEvent (true));
       if (tunnel != null)
       {
         try
@@ -455,6 +463,7 @@ public class SdasNetV0_2 extends Object implements DataNet
       if (IsConnected)
       {
         ProcessCommand ("CLOS", true);
+        io_event_buffer.addEvent(new SdasIOEvent (false));
         SdasInStream.close ();
         SdasOutStream.close ();
         if (SdasSocket != null)
@@ -898,6 +907,7 @@ public class SdasNetV0_2 extends Object implements DataNet
 
     {
         int sampleRate, dataLen, channelNo;
+        SdasIOEvent io_event;
         String response;
         SimpleDateFormat dateFormat;
         TimeSeriesData tsd;
@@ -936,6 +946,9 @@ public class SdasNetV0_2 extends Object implements DataNet
         if (transferType == DATA_ZLIB)
           Write ("MISS " + Integer.toString (DataNet.MISSING_DATA_VALUE), true);
         tsd = new SdasTimeSeriesData (date, (int)duration, sampleRate, ChannelDetails);
+        io_event = new SdasIOEvent ();
+        io_event.addToLine("<Binary time series data, not recorded>");
+        io_event_buffer.addEvent (io_event);
         ((SdasTimeSeriesData)tsd).FillFromStream (SdasInStream, transferType);
 
         return tsd;
@@ -1155,8 +1168,17 @@ public class SdasNetV0_2 extends Object implements DataNet
       
       if (AddTerm) outputString = new String (data + "\n");
       else outputString = data;
-      SdasOutStream.write(outputString.getBytes());
-      SdasOutStream.flush ();
+      io_event_buffer.addEvent(new SdasIOEvent (outputString));
+      try
+      {
+          SdasOutStream.write(outputString.getBytes());
+          SdasOutStream.flush ();
+      }
+      catch (IOException e)
+      {
+            io_event_buffer.addEvent (new SdasIOEvent (e));
+            throw (e);
+      }
     }
 
     /**************************************************************
@@ -1177,16 +1199,29 @@ public class SdasNetV0_2 extends Object implements DataNet
         byte inputByte;
         byte inBuffer [] = new byte [200];
         String string;
+        SdasIOEvent io_event;
 
-        byteCount = 0;
-        for (inputByte = SdasInStream.readByte ();
-             inputByte != '\n';
-             inputByte = SdasInStream.readByte ())
+        io_event = new SdasIOEvent ();
+        io_event_buffer.addEvent (io_event);
+        
+        try
         {
-            inBuffer [byteCount] = inputByte;
-            byteCount ++;
-            if (byteCount >= inBuffer.length) //****//
-              break;
+            byteCount = 0;
+            for (inputByte = SdasInStream.readByte ();
+                 inputByte != '\n';
+                 inputByte = SdasInStream.readByte ())
+            {
+                io_event.addToLine (inputByte);
+                inBuffer [byteCount] = inputByte;
+                byteCount ++;
+                if (byteCount >= inBuffer.length) //****//
+                    break;
+            }
+        }
+        catch (IOException e)
+        {
+            io_event_buffer.addEvent (new SdasIOEvent (e));
+            throw (e);
         }
 
         string = new String (inBuffer, 0, byteCount);

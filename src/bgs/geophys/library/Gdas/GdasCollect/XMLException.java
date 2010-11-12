@@ -14,11 +14,9 @@ import com.thoughtworks.xstream.core.BaseException;
 public class XMLException extends Exception
 {
 
-    BaseException cause;
-    
     public XMLException (BaseException cause)
     {
-        this.cause = cause;
+        super (cause);
     }
     
     @Override
@@ -28,8 +26,8 @@ public class XMLException extends Exception
         Throwable throwable;
         
         // try to find the message from the lowest level exception
-        msg = cause.getMessage();
-        throwable = cause.getCause();
+        throwable = getCause();
+        msg = throwable.getMessage();
         while (throwable != null)
         {
             if (throwable.getMessage() != null) msg = throwable.getMessage();
