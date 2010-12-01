@@ -1,0 +1,14 @@
+Version 1.1
+===========
+
+An "in use" and "hostname check" field has been added to the address of each
+GDAS system. These fields allow addresses to be taken out of use ("is use") or
+conditionally taken out of use ("hostname check")
+
+A bug that prevented scripts from working at all was removed.
+
+
+Version 1.0
+===========
+
+Initial release

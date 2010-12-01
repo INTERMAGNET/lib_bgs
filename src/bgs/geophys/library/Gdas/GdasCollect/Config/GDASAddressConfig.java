@@ -7,7 +7,11 @@
 package bgs.geophys.library.Gdas.GdasCollect.Config;
 
 import bgs.geophys.library.Gdas.GdasCollect.Status.GDASAddressStatus;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class holds the details of the address of a GDAS system - a
@@ -31,6 +35,19 @@ implements Comparable <GDASAddressConfig>
     /** configuration variable: timeout (in seconds) for the socket - value of the low level SO_TIMEOUT parameter
      *                          divided by 1000 - a value of 0 means infinite (no) timeout */
     private int socket_timeout;
+    /** configuration variable: in use flag - true to use this address, false otherwise
+                                this is overridden by the hostname conditional */
+    private boolean user_in_use;
+    /** configuration variable: hostname check - contains a comma separated list of hostnames
+     *                          to match - the address is only used if the machine's hostname
+     *                          matches a name from the list - if the list starts with a '!'
+     *                          then the address is only used in the machine's hostname does
+     *                          not match any name in the list */
+    private String hostname_check;
+    
+    // this variable is set from the user in use flag and the hostname check -
+    // it controls whether this address is used or not
+    private boolean address_in_use;
     
     /** the associated status object */
     private GDASAddressStatus gdas_address_status;
@@ -43,7 +60,10 @@ implements Comparable <GDASAddressConfig>
         this.connection_check_delay = 3600;
         this.sdas_conn_shutdown_period = 20;
         this.socket_timeout = 0;
+        this.user_in_use = true;
+        this.hostname_check = "";
         this.gdas_address_status = null;
+        setAddressInUse();
     }
         
     /** Creates a new instance of GDASDetails */
@@ -54,21 +74,29 @@ implements Comparable <GDASAddressConfig>
         this.connection_check_delay = 3600;
         this.sdas_conn_shutdown_period = 20;
         this.socket_timeout = 0;
+        this.user_in_use = true;
+        this.hostname_check = "";
         this.gdas_address_status = null;
+        setAddressInUse();
     }
     
     /** Creates a new instance of GDASDetails */
     public GDASAddressConfig (String host_name, int ip_port,
                               int connection_check_delay,
                               int sdas_conn_shutdown_period,
-                              int socket_timeout) 
+                              int socket_timeout,
+                              boolean in_use,
+                              String hostname_check) 
     {
         this.host_name = host_name;
         this.ip_port = ip_port;
         this.connection_check_delay = connection_check_delay;
         this.sdas_conn_shutdown_period = sdas_conn_shutdown_period;
         this.socket_timeout = socket_timeout;
+        this.user_in_use = in_use;
+        this.hostname_check = hostname_check;
         this.gdas_address_status = null;
+        setAddressInUse();
     }
         
     /** construct a new Config as a copy of another */
@@ -79,7 +107,10 @@ implements Comparable <GDASAddressConfig>
         this.connection_check_delay = copy.connection_check_delay;
         this.sdas_conn_shutdown_period = copy.sdas_conn_shutdown_period;
         this.socket_timeout = copy.socket_timeout;
+        this.hostname_check = copy.hostname_check;
+        this.user_in_use = copy.user_in_use;
         this.gdas_address_status = copy.gdas_address_status;
+        setAddressInUse();
     }
    
     // read methods for configuration variables
@@ -88,6 +119,9 @@ implements Comparable <GDASAddressConfig>
     public int getConnectionCheckDelay () { return connection_check_delay; }
     public int getSdasConnectionShutdownPeriod() { return sdas_conn_shutdown_period; }
     public int getSocketTimeout() { return socket_timeout; }
+    public boolean isUserInUseFlag() { return user_in_use; }
+    public boolean isAddressInUse () { return address_in_use; }
+    public String getHostnameCheck () { return hostname_check; }
     public GDASAddressStatus getGdasAddressStatus () { return gdas_address_status; }
 
     // write methods for configuration vaiables
@@ -116,4 +150,62 @@ implements Comparable <GDASAddressConfig>
         }
         return ret_val;
     }
+    
+    /** call after fields have been set - this routine
+     * then sets the address in use flag */
+    public void setAddressInUse ()
+    {
+        int n_check_names;
+        String machine_name, test_name;
+        StringTokenizer tokens;
+        boolean negate, found;
+
+        // set the address in use flag from the user's flag
+        address_in_use = user_in_use;
+        
+        // get the local machine name
+        try 
+        {
+            machine_name = InetAddress.getLocalHost().getHostName();
+        }
+        catch (UnknownHostException ex) 
+        {
+            machine_name = null; 
+        }
+
+        // check the hostname_check attribute was loaded and that the machine name is available
+        // also check we haven't already turned off this address
+        if ((machine_name != null) && (hostname_check != null) && address_in_use)
+        {
+            // check for a "!" at the start of the hostname check string
+            test_name = hostname_check.trim();
+            negate = false;
+            if (test_name.startsWith("!"))
+            {
+                negate = true;
+                test_name = test_name.replace("!", "");
+            }
+        
+            // extract individual test names from the hostname check string
+            tokens = new StringTokenizer (test_name, ",");
+            n_check_names = tokens.countTokens();
+            found = false;
+            while (tokens.hasMoreTokens())
+            {
+                test_name = tokens.nextToken().trim();
+                if (machine_name.equalsIgnoreCase(test_name)) found = true;
+            }
+
+            // do we need to override the in_use false
+            if (negate)
+            {
+                if (found) address_in_use = false;
+            }
+            else
+            {
+                if ((n_check_names > 0) && (! found)) address_in_use = false;
+            }
+        }
+    }
+    
 }

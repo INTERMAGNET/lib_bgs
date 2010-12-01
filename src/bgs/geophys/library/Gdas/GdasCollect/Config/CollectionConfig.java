@@ -133,6 +133,8 @@ public class CollectionConfig
     public CollectionConfig (String xml) 
     throws FileNotFoundException, ConfigException, XMLException
     {
+        int count;
+        
         // set default values
         setDefaults ();
         configureXML ();
@@ -141,7 +143,8 @@ public class CollectionConfig
         try { xstream_plus.fromXML(xml, this); }
         catch (BaseException e) { throw new XMLException (e); }
         checkConfig ();
-
+        setAddressesInUse ();        
+        
         config_file = null;
     }
     
@@ -153,7 +156,9 @@ public class CollectionConfig
      * @throws XMLException if there is an XML parse error */
     public CollectionConfig (File file) 
     throws FileNotFoundException, IOException, ConfigException, XMLException
-    {
+    {    
+        int count;
+    
         // set default values
         setDefaults ();
         configureXML ();
@@ -161,6 +166,7 @@ public class CollectionConfig
         // read XML data
         xstream_plus.XMLFromFile (this, file);
         checkConfig ();
+        setAddressesInUse ();        
         
         // record the config file
         config_file = file;
@@ -593,6 +599,18 @@ public class CollectionConfig
     // private code below here
     ////////////////////////////////////////////////////////////////////////////////////////
 
+    /** call after fields have been set - this routine
+     * then sets the address in use flag for each address */
+    public void setAddressesInUse ()
+    {
+        int count;
+        
+        for (count=0; count<system_list.size(); count++)
+        {
+            system_list.get(count).setAddressesInUse();
+        }
+    }
+    
     /** set default configuration */
     private void setDefaults ()
     {
@@ -659,6 +677,8 @@ public class CollectionConfig
         xstream_plus.configField (GDASAddressConfig.class, XStreamPlus.ACTION_MAKE_FIELD,       "connection_check_delay",    "IntraTestDelay");
         xstream_plus.configField (GDASAddressConfig.class, XStreamPlus.ACTION_MAKE_FIELD,       "sdas_conn_shutdown_period", "CollectionsPerConnection");
         xstream_plus.configField (GDASAddressConfig.class, XStreamPlus.ACTION_MAKE_FIELD,       "socket_timeout",            "SocketTimeout");
+        xstream_plus.configField (GDASAddressConfig.class, XStreamPlus.ACTION_MAKE_FIELD,       "user_in_use",               "InUse");
+        xstream_plus.configField (GDASAddressConfig.class, XStreamPlus.ACTION_MAKE_FIELD,       "hostname_check",            "HostnameCheck");
         
         // XML configuration for GDASName
         xstream_plus.configField (GDASName.class, XStreamPlus.ACTION_MAKE_CLASS_FIELD, "",              "SystemName");

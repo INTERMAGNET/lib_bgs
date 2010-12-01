@@ -22,12 +22,15 @@ import java.text.*;
  */
 public class MRRDFile 
 {
-    /** code for the type of MRRD: one second fluxgate data */
+    /** code for the type of proton/fluxgate MRRD: one second fluxgate data */
     public static final int MRRD_TYPE_FLUXGATE_SECOND = 1;
+    /** code for the type of proton/fluxgate MRRD: one second proton data */
     public static final int MRRD_TYPE_PROTON_SECOND = 2;
+    /** code for the type of proton/fluxgate MRRD: one minute fluxgate data */
     public static final int MRRD_TYPE_FLUXGATE_MINUTE = 3;
+    /** code for the type of proton/fluxgate MRRD: one minute proton data */
     public static final int MRRD_TYPE_PROTON_MINUTE = 4;
-    public static final int MRRD_TYPE_SCRIPT = 5;
+
     
     // date/time of most recently retrieved data
     private Date mrrd;
@@ -39,9 +42,29 @@ public class MRRDFile
      * @param mrrd_dir the directory where the mrrd files are stored
      * @param system_name the name of the system
      * @param system_number the number of the system
-     * @param type one of the MRRD_TYPE_... codes, but NOT MRRD_TYPE_SCRIPT */
+     * @param type one of the MRRD_TYPE_... codes */
     public MRRDFile (String mrrd_dir, String system_name, 
                      int system_number, int type) 
+    {
+        commonInitialisation (mrrd_dir + File.separator + system_name + "_" +
+                              Integer.toString (system_number) + "_", type);
+    }
+
+    /** Creates a new instance of MRRDFile for a script
+     * @param mrrd_dir the directory where the mrrd files are stored
+     * @param script_name the name of the script
+     * @param station_code the station code for the system
+     * @param gdas_number the GDAS number for the system
+     * @param type one of the MRRD_TYPE_... codes */
+    public MRRDFile (String mrrd_dir, String script_name,
+                     String station_code, int gdas_number, int type) 
+    {
+        commonInitialisation (mrrd_dir + File.separator + station_code + "_" + 
+                              Integer.toString (gdas_number) + "_" + 
+                              script_name, type);
+    }
+
+    private void commonInitialisation (String prefix, int type)
     {
         Date start_date;
         int force_period;
@@ -78,10 +101,7 @@ public class MRRDFile
             force_period = -1;
             break;
         }
-        mrrd_file = new File (mrrd_dir + File.separator + 
-                              system_name + "_" +
-                              Integer.toString (system_number) + "_" + 
-                              type_string + ".mrrd");
+        mrrd_file = new File (prefix + type_string + ".mrrd");
         create_file = false;
         if (! read()) create_file = true;
         if (create_file)
@@ -98,40 +118,9 @@ public class MRRDFile
             time_ms -= time_ms % ((long) force_period * 1000l);
             mrrd.setTime (time_ms);
         }
-        write ();
+        write ();        
     }
-
-    /** Creates a new instance of MRRDFile for a script
-     * @param mrrd_dir the directory where the mrrd files are stored
-     * @param script_name the name of the script
-     * @param station_code the station code for the system
-     * @param gdas_number the GDAS number for the system */
-    public MRRDFile (String mrrd_dir, String script_name,
-                     String station_code, int gdas_number) 
-    {
-        Date start_date;
-        long time_ms;
-        boolean create_file;
-        
-        date_time_format = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
-        
-        mrrd_file = new File (mrrd_dir + File.separator + 
-                              station_code + "_" + 
-                              Integer.toString (gdas_number) + "_" + 
-                              script_name + ".mrrd");
-        create_file = false;
-        if (! read()) create_file = true;
-        if (create_file)
-        {
-            start_date = new Date ();
-            time_ms = start_date.getTime ();
-            time_ms -= time_ms % 60000;                 // start on the nearest whole minute
-            start_date = new Date (time_ms - 60000);    // start one minute ago
-            mrrd = new Date (time_ms);
-        }
-        write ();
-    }
-
+    
     public Date getMRRD () { return mrrd; }
     
     public boolean updateMRRD (Date new_date)

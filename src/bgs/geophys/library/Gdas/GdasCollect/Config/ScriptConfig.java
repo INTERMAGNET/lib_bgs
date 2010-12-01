@@ -20,8 +20,9 @@ public class ScriptConfig implements Comparable<ScriptConfig>
 {
 
     /** list of different events that can cause a script to run */
-    public enum ScriptType {NEW_RAW_FLUXGATE_DATA, NEW_RAW_PROTON_DATA,
-                            NEW_RAW_DATA, NEW_MINUTE_DATA, NEW_DATA}
+    public enum ScriptType {NEW_RAW_FLUXGATE_DATA, NEW_RAW_PROTON_DATA, NEW_RAW_DATA,
+                            NEW_MINUTE_FLUXGATE_DATA, NEW_MINUTE_PROTON_DATA, NEW_MINUTE_DATA,
+                            NEW_DATA}
     
     /** list of options for ensuring that only one copy of a script is running */
     public enum UniqueCheck {NO_CHECK, DONT_RUN_NEW_PROC, KILL_OLD_PROC}
@@ -141,16 +142,27 @@ public class ScriptConfig implements Comparable<ScriptConfig>
 
     /** check if data of a certain type matches the type that causes this
      * script to run
-     * @param data_type the type of new data - must be one of NEW_MINUTE_DATA,
-     *        NEW_RAW_FLUXGATE_DATA or NEW_RAW_PROTON_DATA -
+     * @param data_type the type of new data - must be one of
+     *        NEW_RAW_FLUXGATE_DATA, NEW_RAW_PROTON_DATA,
+     *        NEW_MINUTE_FLUXGATE_DATE or NEW_MINUTE_PROTON_DATA -
      *        other data types are ignored */
     public boolean isDataRightType (ScriptType data_type)
     {
         switch (data_type)
         {
-            case NEW_MINUTE_DATA:
+            case NEW_MINUTE_FLUXGATE_DATA:
                 switch (script_type)
                 {
+                    case NEW_MINUTE_FLUXGATE_DATA:                    
+                    case NEW_MINUTE_DATA:
+                    case NEW_DATA:               
+                        return true;
+                }
+                break;
+            case NEW_MINUTE_PROTON_DATA:
+                switch (script_type)
+                {
+                    case NEW_MINUTE_PROTON_DATA:                    
                     case NEW_MINUTE_DATA:
                     case NEW_DATA:               
                         return true;

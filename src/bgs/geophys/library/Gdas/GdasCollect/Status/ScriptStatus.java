@@ -38,8 +38,14 @@ implements StatusAlarm
     /** the most recent exit code - or -1 if script was killed */
     private int most_recent_exit_code;
     
-    /** an MRRD file for this script on this GDAS system */
-    private MRRDFile mrrd_file;
+    /** an MRRD file for 1-second fluxgate data on this script on this GDAS system */
+    private MRRDFile mrrd_file_fg_1s;
+    /** an MRRD file for 1-second proton data on this script on this GDAS system */
+    private MRRDFile mrrd_file_pr_1s;
+    /** an MRRD file for 1-minute fluxgate data on this script on this GDAS system */
+    private MRRDFile mrrd_file_fg_1m;
+    /** an MRRD file for 1-minute proton data on this script on this GDAS system */
+    private MRRDFile mrrd_file_pr_1m;
 
     /** build a new script status object from the configuration */
     public ScriptStatus (String mrrd_dir, ScriptConfig script_config,
@@ -53,8 +59,14 @@ implements StatusAlarm
         process_list = new Vector<TimedProcessMonitor> ();
         most_recent_exit_code = 0;
 
-        mrrd_file = new MRRDFile (mrrd_dir, script_config.getScriptName(),
-                                  station_code, gdas_number);
+        mrrd_file_fg_1s = new MRRDFile (mrrd_dir, script_config.getScriptName(),
+                                        station_code, gdas_number, MRRDFile.MRRD_TYPE_FLUXGATE_SECOND);
+        mrrd_file_pr_1s = new MRRDFile (mrrd_dir, script_config.getScriptName(),
+                                        station_code, gdas_number, MRRDFile.MRRD_TYPE_PROTON_SECOND);
+        mrrd_file_fg_1m = new MRRDFile (mrrd_dir, script_config.getScriptName(),
+                                        station_code, gdas_number, MRRDFile.MRRD_TYPE_FLUXGATE_MINUTE);
+        mrrd_file_pr_1m = new MRRDFile (mrrd_dir, script_config.getScriptName(),
+                                        station_code, gdas_number, MRRDFile.MRRD_TYPE_PROTON_MINUTE);
     }
     
     /** copy the details of this status to the given
@@ -66,7 +78,10 @@ implements StatusAlarm
         this.gdas_number = from.gdas_number;
         this.process_list = from.process_list;
         this.most_recent_exit_code = from.most_recent_exit_code;
-        this.mrrd_file = from.mrrd_file;
+        this.mrrd_file_fg_1s = from.mrrd_file_fg_1s;
+        this.mrrd_file_pr_1s = from.mrrd_file_pr_1s;
+        this.mrrd_file_fg_1m = from.mrrd_file_fg_1m;
+        this.mrrd_file_pr_1m = from.mrrd_file_pr_1m;
     }
     
     // read methods for status variables
@@ -78,11 +93,22 @@ implements StatusAlarm
     public boolean isGdasNumberAlarm () { return false; }
     public String getScriptPath () { return script_path; }
     public boolean isScriptPathAlarm () { return false; }
-    public int getNRunningProcesses () { return process_list.size(); }
+    public int getNRunningProcesses ()
+    {
+        if (process_list == null) return 0;
+        return process_list.size();
+    }
     public boolean isNRunningProcessesAlarm () { return false; }
-    public TimedProcessMonitor getRunningProcess (int index) { return process_list.get (index); }
+    public TimedProcessMonitor getRunningProcess (int index)
+    {
+        if (process_list == null) return null;
+        return process_list.get (index);
+    }
     public boolean isRunningProcessAlarm (int index) { return false; }
-    public Date getMRRDDate () { return mrrd_file.getMRRD(); }
+    public Date getMRRDDateFg1s () { return mrrd_file_fg_1s.getMRRD(); }
+    public Date getMRRDDatePr1s () { return mrrd_file_pr_1s.getMRRD(); }
+    public Date getMRRDDateFg1m () { return mrrd_file_fg_1m.getMRRD(); }
+    public Date getMRRDDatePr1m () { return mrrd_file_pr_1m.getMRRD(); }
     public boolean isMRRDDateAlarm () { return false; }
     public int getMostRecentExitCode () { return most_recent_exit_code; }
     public boolean isMostRecentExitCodeAlarm () 
@@ -94,7 +120,10 @@ implements StatusAlarm
     // write methods for status variables
     public void addProcess (TimedProcessMonitor process) { process_list.add (process); }
     public void removeProcess (TimedProcessMonitor process) { process_list.remove (process); }
-    public void setMRRDDate (Date date) { mrrd_file.updateMRRD(date); }
+    public void setMRRDDateFg1s (Date date) { mrrd_file_fg_1s.updateMRRD(date); }
+    public void setMRRDDatePr1s (Date date) { mrrd_file_pr_1s.updateMRRD(date); }
+    public void setMRRDDateFg1m (Date date) { mrrd_file_fg_1m.updateMRRD(date); }
+    public void setMRRDDatePr1m (Date date) { mrrd_file_pr_1m.updateMRRD(date); }
     public void setMostRecentExitCode (int most_recent_exit_code) { this.most_recent_exit_code = most_recent_exit_code; }
     
     /** test if this object is equal to another */

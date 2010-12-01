@@ -205,4 +205,17 @@ public class GDASConfig implements Comparable<GDASConfig>
     {
         return gdas_name.equals(o.gdas_name);
     }
+    
+    /** call after fields have been set - this routine
+     * then sets the address in use flag for each address */
+    public void setAddressesInUse ()
+    {
+        int count;
+        
+        for (count=0; count<address_list.size(); count++)
+        {
+            address_list.get(count).setAddressInUse();
+        }
+    }
+
 }

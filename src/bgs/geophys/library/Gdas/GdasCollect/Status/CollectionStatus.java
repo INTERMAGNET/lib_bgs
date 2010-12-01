@@ -9,9 +9,11 @@ import bgs.geophys.library.Gdas.GdasCollect.Config.CollectionConfig;
 import bgs.geophys.library.Gdas.GdasCollect.Config.GDASConfig;
 import bgs.geophys.library.Gdas.GdasCollect.Config.GDASName;
 import bgs.geophys.library.Gdas.GdasCollect.Config.ScriptConfig;
+import bgs.geophys.library.Gdas.GdasCollect.GdasCollectVersion;
 import bgs.geophys.library.Gdas.GdasCollect.XMLException;
 import bgs.geophys.library.Gdas.GdasCollect.XStreamPlus;
 import bgs.geophys.library.Threads.ProcessMonitor;
+import bgs.geophys.library.Threads.TimedProcessMonitor;
 import com.thoughtworks.xstream.core.BaseException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -50,7 +52,10 @@ implements StatusAlarm
     private String mrrd_dir;
     private String ssh_server;
     private CollectionState collection_state;
-    
+
+    // the collection program's version number
+    private String version_no;
+
     private Vector<GDASStatus> gdas_status_list;
 
     private XStreamPlus xstream_plus;
@@ -65,7 +70,8 @@ implements StatusAlarm
         mrrd_dir = "";
         ssh_server = "";
         collection_state = CollectionStatus.CollectionState.COLLECTION_UNKNOWN;
-        
+        version_no = GdasCollectVersion.VERSION_NO;
+
         gdas_status_list = new Vector<GDASStatus> ();
         configureXML ();
     }
@@ -89,6 +95,8 @@ implements StatusAlarm
         GDASStatus gdas_status;
         ScriptConfig script_config;
         
+        version_no = GdasCollectVersion.VERSION_NO;
+
         gdas_status_list = new Vector<GDASStatus> ();
         configureXML ();
         
@@ -134,6 +142,7 @@ implements StatusAlarm
         this.mrrd_dir = from.mrrd_dir;
         this.ssh_server = from.ssh_server;
         this.collection_state = from.collection_state;
+        this.version_no = from.version_no;
     }
     
     /** add a GDAS system */
@@ -221,6 +230,18 @@ implements StatusAlarm
             return true;
         return false;
     }
+    public String getVersionNumber ()
+    {
+        if (version_no == null) return "Unknown";
+        return version_no;
+    }
+    public boolean isVersionNumberAlarm ()
+    {
+        if (version_no == null) return true;
+        if (version_no.equals(GdasCollectVersion.VERSION_NO)) return false;
+        return true;
+    }
+
 
     // writers for status properties
     public void setCollectionState (CollectionState collection_state) {this.collection_state = collection_state; }
@@ -293,81 +314,91 @@ implements StatusAlarm
         // XML configuration for CollectionStatus
         xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_CLASS_FIELD, "",                 "GdasCollectionStatus");
         xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_OMIT_MEMBER,      "xstream_plus",     "");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "config_filename",  "ConfigFilename");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "base_dir",         "BaseDir");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "ip_address",       "IPAddress");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "log_dir",          "LogDir");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_dir",         "MRRDDir");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "ssh_server",       "SSHServer");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "collection_paused","CollectionPaused");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "gdas_status_list", "GdasList");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "script_list",      "ScriptList");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "config_filename",  "CS_ConfigFilename");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "base_dir",         "CS_BaseDir");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "ip_address",       "CS_IPAddress");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "log_dir",          "CS_LogDir");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_dir",         "CS_MRRDDir");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "ssh_server",       "CS_SSHServer");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "collection_paused","CS_CollectionPaused");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "version_no",       "CS_VersionNumber");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "gdas_status_list", "CS_GdasList");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "script_list",      "CS_ScriptList");
 
         // XML configuration for GDASStatus
         xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_CLASS_FIELD, "",                         "Gdas");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "gdas_name",                "Name");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "station_code",             "StationCode");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "gdas_number",              "GdasNumber");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "collect_delay",            "CollectDelay");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mins_collect_delay",       "MinsCollectDelay");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_dir",                 "MRRDDir");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "collection_started_date",  "CollectionStartedDate");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "last_collection_date",     "LastCollectionDate");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "amount_fg_data_collected", "AmountFgDataCollected");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "amount_pr_data_collected", "AmountPrDataCollected");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_fg_1s",               "MRRDFg1s");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_pr_1s",               "MRRDPr1s");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_fg_1m",               "MRRDFg1m");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_pr_1m",               "MRRDPr1m");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "new_sec_fg_mrrd_date",     "NewMMRDDateFg1s");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "new_sec_pr_mrrd_date",     "NewMMRDDatePr1s");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "new_min_fg_mrrd_date",     "NewMMRDDateFg1m");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "new_min_pr_mrrd_date",     "NewMMRDDatePr1m");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "collection_thread_status", "CollectionThreadStatus");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "address_status_list",      "AddressList");
-        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "script_status_list",       "ScriptList");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "gdas_name",                "GD_GdasName");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "station_code",             "GD_StationCode");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "gdas_number",              "GD_GdasNumber");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "collect_delay",            "GD_CollectDelay");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mins_collect_delay",       "GD_MinsCollectDelay");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_dir",                 "GD_MRRDDir");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "collection_started_date",  "GD_CollectionStartedDate");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "last_collection_date",     "GD_LastCollectionDate");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "amount_fg_data_collected", "GD_AmountFgDataCollected");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "amount_pr_data_collected", "GD_AmountPrDataCollected");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_fg_1s",               "GD_MRRDFg1s");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_pr_1s",               "GD_MRRDPr1s");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_fg_1m",               "GD_MRRDFg1m");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_pr_1m",               "GD_MRRDPr1m");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "new_sec_fg_mrrd_date",     "GD_NewMMRDDateFg1s");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "new_sec_pr_mrrd_date",     "GD_NewMMRDDatePr1s");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "new_min_fg_mrrd_date",     "GD_NewMMRDDateFg1m");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "new_min_pr_mrrd_date",     "GD_NewMMRDDatePr1m");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "collection_thread_status", "GD_CollectionThreadStatus");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "address_status_list",      "GD_AddressList");
+        xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "script_status_list",       "GD_SystemScriptList");
         
         // XML configuration for GDASAddressStatus
         xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_CLASS_FIELD, "",                     "Address");
-        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "station_code",         "StationCode");
-        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "gdas_number",          "GdasNumber");
-        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "address_name",         "Name");
-        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "collection_count",     "CollectionCount");
-        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "last_open_date",       "LastOpenDate");
-        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "last_collection_date", "LastCollectionDate");
-        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "last_failure_date",    "LastFailureDate");
-        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "last_failure_details", "LastFailureDetails");
+        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "station_code",         "AD_StationCode");
+        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "gdas_number",          "AD_dasNumber");
+        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "address_name",         "AD_AddressName");
+        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "in_use",               "AD_InUse");
+        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "collection_count",     "AD_CollectionCount");
+        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "last_open_date",       "AD_LastOpenDate");
+        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "last_collection_date", "AD_LastCollectionDate");
+        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "last_failure_date",    "AD_LastFailureDate");
+        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "last_failure_details", "AD_LastFailureDetails");
         
         // XML configuration for MRRDFile
-        xstream_plus.configField (MRRDFile.class, XStreamPlus.ACTION_MAKE_CLASS_FIELD, "",                 "SystemName");
+        xstream_plus.configField (MRRDFile.class, XStreamPlus.ACTION_MAKE_CLASS_FIELD, "",                 "MRRD");
         xstream_plus.configField (MRRDFile.class, XStreamPlus.ACTION_OMIT_MEMBER,      "date_time_format", "");        
-        xstream_plus.configField (MRRDFile.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd",             "MRRD");
-        xstream_plus.configField (MRRDFile.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_file",        "MRRDFile");
+        xstream_plus.configField (MRRDFile.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd",             "MR_MRRDDate");
+        xstream_plus.configField (MRRDFile.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_file",        "MR_MRRDFile");
     
         // XML configuration for ScriptStatus
         xstream_plus.configField (ScriptStatus.class, XStreamPlus.ACTION_MAKE_CLASS_FIELD, "",                      "Script");
-        xstream_plus.configField (ScriptStatus.class, XStreamPlus.ACTION_MAKE_FIELD,      "script_name",            "Name");
-        xstream_plus.configField (ScriptStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "process_list",          "ProcessList");
-        xstream_plus.configField (ScriptStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_file",             "MRRDFile");
-        xstream_plus.configField (ScriptStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "most_recent_exit_code", "MostRecentExitCode");
+        xstream_plus.configField (ScriptStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "process_list",          "SC_ProcessList");
+        xstream_plus.configField (ScriptStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "script_name",           "SC_ScriptName");
+        xstream_plus.configField (ScriptStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_file_fg_1s",       "SC_MRRDFileFg1s");
+        xstream_plus.configField (ScriptStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_file_pr_1s",       "SC_MRRDFilePr1s");
+        xstream_plus.configField (ScriptStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_file_fg_1m",       "SC_MRRDFileFg1m");
+        xstream_plus.configField (ScriptStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_file_pr_1m",       "SC_MRRDFilePr1m");
+        xstream_plus.configField (ScriptStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "most_recent_exit_code", "SC_MostRecentExitCode");
         
         // XML configuration for GDASName
         xstream_plus.configField (GDASName.class, XStreamPlus.ACTION_MAKE_CLASS_FIELD, "",              "SystemName");
-        xstream_plus.configField (GDASName.class, XStreamPlus.ACTION_MAKE_ATTRIBUTE,   "station_code",  "StationCode");
-        xstream_plus.configField (GDASName.class, XStreamPlus.ACTION_MAKE_ATTRIBUTE,   "gdas_no",       "GDASNumber");
+        xstream_plus.configField (GDASName.class, XStreamPlus.ACTION_MAKE_ATTRIBUTE,   "station_code",  "SN_StationCode");
+        xstream_plus.configField (GDASName.class, XStreamPlus.ACTION_MAKE_ATTRIBUTE,   "gdas_no",       "SN_GDASNumber");
 
         // XML configuration for ProcessMonitor
-        xstream_plus.configField (ProcessMonitor.class, XStreamPlus.ACTION_MAKE_CLASS_FIELD, "",                     "ProcessMonitor");
-        xstream_plus.configField (ProcessMonitor.class, XStreamPlus.ACTION_OMIT_MEMBER,      "process_id_counter",   "");        
-        xstream_plus.configField (ProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "command",              "Command");        
-        xstream_plus.configField (ProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "stdout_data",          "StdoutData");        
-        xstream_plus.configField (ProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "stderr_data",          "StderrData");        
-        xstream_plus.configField (ProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "stdin_data",           "StdinData");        
-        xstream_plus.configField (ProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "process",              "Process");        
-        xstream_plus.configField (ProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "monitor_thread",       "MonitorThread");        
-        xstream_plus.configField (ProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "exit_value",           "ExitValue");        
-        xstream_plus.configField (ProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "stored_io_exceptions", "StoredIOExceptions");        
-        xstream_plus.configField (ProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "process_id",           "ProcessID");        
+        // NBNBNB - monitor_thread is a Thread objecct, which XStream cannot serialise, so it MUST be omitted
+        xstream_plus.configField (TimedProcessMonitor.class, XStreamPlus.ACTION_MAKE_CLASS_FIELD, "",                     "ProcessMonitor");
+        xstream_plus.configField (ProcessMonitor.class, XStreamPlus.ACTION_OMIT_MEMBER,           "process_id_counter",   "");
+        xstream_plus.configField (ProcessMonitor.class, XStreamPlus.ACTION_OMIT_MEMBER,           "process",              "");
+        xstream_plus.configField (ProcessMonitor.class, XStreamPlus.ACTION_OMIT_MEMBER,           "monitor_thread",       "");
+        xstream_plus.configField (TimedProcessMonitor.class, XStreamPlus.ACTION_OMIT_MEMBER,      "process_id_counter",   "");
+        xstream_plus.configField (TimedProcessMonitor.class, XStreamPlus.ACTION_OMIT_MEMBER,      "process",              "");
+        xstream_plus.configField (TimedProcessMonitor.class, XStreamPlus.ACTION_OMIT_MEMBER,      "monitor_thread",       "");
+        xstream_plus.configField (TimedProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "start_date",           "PM_StartDate");
+        xstream_plus.configField (TimedProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "command",              "PM_Command");
+        xstream_plus.configField (TimedProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "stdout_data",          "PM_StdoutData");
+        xstream_plus.configField (TimedProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "stderr_data",          "PM_StderrData");
+        xstream_plus.configField (TimedProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "stdin_data",           "PM_StdinData");
+        xstream_plus.configField (TimedProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "exit_value",           "PM_ExitValue");
+        xstream_plus.configField (TimedProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "stored_io_exceptions", "PM_StoredIOExceptions");
+        xstream_plus.configField (TimedProcessMonitor.class, XStreamPlus.ACTION_MAKE_FIELD,       "process_id",           "PM_ProcessID");
     }
 
     public boolean isAlarmed() 
@@ -375,6 +406,7 @@ implements StatusAlarm
         int count;
         GDASStatus gdas_status;
 
+        if (isVersionNumberAlarm()) return true;
         if (isBaseDirAlarm()) return true;
         if (isConfigFilenameAlarm()) return true;
         if (isIPAddressAlarm()) return true;

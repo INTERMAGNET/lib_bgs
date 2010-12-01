@@ -26,6 +26,8 @@ implements StatusAlarm
     private String address;
     /** IP port */
     private int ip_port;
+    /** whether this address is being used or not */
+    private boolean in_use;
     
     /** number of collections made since connection was opened */
     private int collection_count;
@@ -50,6 +52,7 @@ implements StatusAlarm
         this.last_failure_date = new Date (0l);
         this.last_collection_date = new Date (0l);
         this.last_failure_details = "";
+        this.in_use = false;
     }
     
     /** build a new status object from the configuration */
@@ -61,6 +64,7 @@ implements StatusAlarm
         
         address = gdas_address_config.getHostName();
         ip_port = gdas_address_config.getIpPort();
+        in_use = gdas_address_config.isAddressInUse();
         
         this.collection_count = 0;
         this.last_open_date = new Date (0l);
@@ -81,6 +85,7 @@ implements StatusAlarm
         this.last_collection_date = from.last_collection_date;
         this.last_failure_date = from.last_failure_date;
         this.last_failure_details = from.last_failure_details;
+        this.in_use = from.in_use;
     }
     
     // read methods for status variables
@@ -93,6 +98,7 @@ implements StatusAlarm
     public String getHostName () { return address; }
     public boolean isHostNameAlarm () { return false; }
     public int getIPPort () { return ip_port; }
+    public boolean isInUse () { return in_use; }
     public boolean isIPPortAlarm () { return false; }
     public int getCollectionCount () { return collection_count; }
     public boolean isCollectionCountAlarm () { return false; }
@@ -147,14 +153,17 @@ implements StatusAlarm
     
     public boolean isAlarmed() 
     {
-        if (isAddressNameAlarm()) return true;
-        if (isCollectionCountAlarm()) return true;
-        if (isHostNameAlarm()) return true;
-        if (isIPPortAlarm()) return true;
-        if (isLastCollectionDataAlarm()) return true;
-        if (isLastFailureDateAlarm()) return true;
-        if (isLastFailureDetailsAlarm()) return true;
-        if (isLastOpenDateAlarm()) return true;
+        if (isInUse())
+        {
+            if (isAddressNameAlarm()) return true;
+            if (isCollectionCountAlarm()) return true;
+            if (isHostNameAlarm()) return true;
+            if (isIPPortAlarm()) return true;
+            if (isLastCollectionDataAlarm()) return true;
+            if (isLastFailureDateAlarm()) return true;
+            if (isLastFailureDetailsAlarm()) return true;
+            if (isLastOpenDateAlarm()) return true;
+        }
         return false;
     }
 
