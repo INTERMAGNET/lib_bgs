@@ -127,8 +127,8 @@ public class GINData
         data_type_code = gin_dictionary.find ("DATA_TYPE", GINDictionary.SEARCH_DATA_CASE_INDEPENDANT, data_type_desc);
         if (data_type_code == null)
             throw new ParameterException ("Data type does not exist: " + data_type_desc);
-        if (data_type_code.equalsIgnoreCase("q"))
-            throw new ParameterException ("Data type 'q' not allowed here");
+        if (data_type_code.equalsIgnoreCase("j"))
+            throw new ParameterException ("Data type 'j' not allowed here");
         if ((sta_details.comp1_orient == 'H' || sta_details.comp1_orient == 'h') &&
             (sta_details.comp2_orient == 'D' || sta_details.comp2_orient == 'd') &&
             (sta_details.comp3_orient == 'Z' || sta_details.comp3_orient == 'z'))
@@ -198,8 +198,8 @@ public class GINData
         data_type_code = gin_dictionary.find ("DATA_TYPE", GINDictionary.SEARCH_DATA_CASE_INDEPENDANT, data_type_desc);
         if (data_type_code == null)
             throw new ParameterException ("Data type does not exist: " + data_type_desc);
-        if ((! allow_q) && data_type_code.equalsIgnoreCase("q"))
-            throw new ParameterException ("Data type 'q' not allowed here");
+        if ((! allow_q) && data_type_code.equalsIgnoreCase("j"))
+            throw new ParameterException ("Data type 'j' not allowed here");
         if ((sta_details.comp1_orient == 'H' || sta_details.comp1_orient == 'h') &&
             (sta_details.comp2_orient == 'D' || sta_details.comp2_orient == 'd') &&
             (sta_details.comp3_orient == 'Z' || sta_details.comp3_orient == 'z'))
@@ -223,7 +223,7 @@ public class GINData
         data = new ArrayList<GeomagAbsoluteValue> ();
 
         // handle the special adjusted or reported data type
-        if (! data_type_code.equalsIgnoreCase("q")) readData (orientation, length);
+        if (! data_type_code.equalsIgnoreCase("j")) readData (orientation, length);
         else
         {
             // try adjusted data first
@@ -316,7 +316,7 @@ public class GINData
         }
  
         // check the data type - disallow the special data type 'q'
-        if ((general_fault == null) && data_type_code.equalsIgnoreCase("q"))
+        if ((general_fault == null) && data_type_code.equalsIgnoreCase("j"))
             general_fault = "Data type 'q' not allowed here";
 
         // create an object to evaluate the modifiers

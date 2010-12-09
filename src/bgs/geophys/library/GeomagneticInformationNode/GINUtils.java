@@ -251,8 +251,8 @@ public class GINUtils
         data_type_code = gin_dictionary.find ("DATA_TYPE", GINDictionary.SEARCH_DATA_CASE_INDEPENDANT, data_type_desc);
         if (data_type_code == null)
             throw new ParameterException ("Unknown data type: " + data_type_desc);
-        if (data_type_code.equalsIgnoreCase("q"))
-            throw new ParameterException ("Special data type Q not allowed here");
+        if (data_type_code.equalsIgnoreCase("j"))
+            throw new ParameterException ("Special data type J not allowed here");
         
         // for each day to delete ...
         last_year_dir = obsy_dir = sr_dir = year_dir = null;
@@ -345,7 +345,7 @@ public class GINUtils
             throw new ParameterException ("Unknown data type: " + data_type_desc);
         
         // retrieve reported and adjusted data type codes
-        if (data_type_code.equalsIgnoreCase("q"))
+        if (data_type_code.equalsIgnoreCase("j"))
         {
             r_dt_desc = "reported";
             a_dt_desc = "adjusted";
@@ -361,7 +361,7 @@ public class GINUtils
         // do we need to find the start date ??
         if (start_date == null)
         {
-            if (data_type_code.equalsIgnoreCase("q"))
+            if (data_type_code.equalsIgnoreCase("j"))
             {
                 start_date = findMinOrMax (station_code, samps_per_day, a_dt_desc, a_dt_code, false, false);
                 start_date2 = findMinOrMax (station_code, samps_per_day, r_dt_desc, r_dt_code, false, false);
@@ -382,7 +382,7 @@ public class GINUtils
         // do we need to find the end date ??
         if (end_date == null)
         {
-            if (data_type_code.equalsIgnoreCase("q"))
+            if (data_type_code.equalsIgnoreCase("j"))
             {
                 end_date = findMinOrMax (station_code, samps_per_day, a_dt_desc, a_dt_code, true, false);
                 end_date2 = findMinOrMax (station_code, samps_per_day, r_dt_desc, r_dt_code, true, false);
@@ -457,7 +457,7 @@ public class GINUtils
             throw new ParameterException ("Unknown data type: " + data_type_desc);
 
         // process special data type code
-        if (data_type_code.equalsIgnoreCase("q"))
+        if (data_type_code.equalsIgnoreCase("j"))
         {
             date = findMRD (station_code, samps_per_day, "adjusted");
             date2 = findMRD (station_code, samps_per_day, "reported");
