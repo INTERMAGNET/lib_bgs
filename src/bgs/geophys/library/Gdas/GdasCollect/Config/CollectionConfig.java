@@ -127,10 +127,11 @@ public class CollectionConfig
 
     /** Creates a new instance of CollectionConfig by parsing XML passed in a string
      * @param xml the string where the configuration is stored
-     * @throws FileNotFoundException if the base data directory could not be accessed
+     * @param check_bd - true to create and check that the base directory exists, false otherwise
+     * @throws FileNotFoundException if the base data directory could not be accessed (and check_bd is true)
      * @throws ConfigException if the configuration file is incorrect
      * @throws XMLException if there is an XML parse error */
-    public CollectionConfig (String xml) 
+    public CollectionConfig (String xml, boolean check_bd)
     throws FileNotFoundException, ConfigException, XMLException
     {
         int count;
@@ -142,7 +143,7 @@ public class CollectionConfig
         // parse XML data
         try { xstream_plus.fromXML(xml, this); }
         catch (BaseException e) { throw new XMLException (e); }
-        checkConfig ();
+        checkConfig (check_bd);
         setAddressesInUse ();        
         
         config_file = null;
@@ -150,11 +151,12 @@ public class CollectionConfig
     
     /** Creates a new instance of CollectionConfig by parsing a configuration file
      * @param file the file where the configuration is stored
-     * @throws FileNotFoundException if the configuration file could not be found, or the base data directory could not be accessed
+     * @param check_bd - true to create and check that the base directory exists, false otherwise
+     * @throws FileNotFoundException if the configuration file could not be found, or the base data directory could not be accessed (and check_bd is true)
      * @throws IOException if there was an IO error
      * @throws ConfigException if the configuration file is incorrect
      * @throws XMLException if there is an XML parse error */
-    public CollectionConfig (File file) 
+    public CollectionConfig (File file, boolean check_bd)
     throws FileNotFoundException, IOException, ConfigException, XMLException
     {    
         int count;
@@ -165,7 +167,7 @@ public class CollectionConfig
         
         // read XML data
         xstream_plus.XMLFromFile (this, file);
-        checkConfig ();
+        checkConfig (check_bd);
         setAddressesInUse ();        
         
         // record the config file
@@ -465,7 +467,7 @@ public class CollectionConfig
     }
     
     /** check the configuration */
-    public void checkConfig ()
+    public void checkConfig (boolean check_bd)
     throws ConfigException, FileNotFoundException
     {
         int count, count2;
@@ -486,9 +488,12 @@ public class CollectionConfig
         }
                 
         // check that the base data directory is accessible
-        dir = new File (base_dir);
-        dir.mkdirs();
-        if (! dir.isDirectory()) throw new FileNotFoundException ("Unable to access directory " + dir.getPath());
+        if (check_bd)
+        {
+            dir = new File (base_dir);
+            dir.mkdirs();
+            if (! dir.isDirectory()) throw new FileNotFoundException ("Unable to access directory " + dir.getPath());
+        }
         
         // check the systems
         for (count=0; count<system_list.size(); count++)
