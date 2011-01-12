@@ -26,7 +26,12 @@ import bgs.geophys.library.Misc.Utils;
  */
 public class Iaga2002 extends GeomagDataFormat 
 {
-   
+
+    /** code for a missing data sample */
+    public static final double MISSING_DATA_SAMPLE = 99999.0;
+    /** code for a missing component - is unrecorded component */
+    public static final double MISSING_COMPONENT = 88888.0;
+
     // these members hold the header in addition to those inherited from DataFormat
     private Vector<String> raw_header_lines;        // these are the unformatted comments 
     
