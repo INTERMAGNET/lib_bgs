@@ -217,8 +217,8 @@ public class Iaga2002ToImagCDConverter {
                         // integer format used to store the values in the imag file.
                         double iagaValue = currIaga2002.getData(currComponent, currSample);
                         int imagValue;
-                        if (iagaValue == Iaga2002.MISSING_DATA_SAMPLE ||
-                                iagaValue == Iaga2002.MISSING_COMPONENT) imagValue = ImagCDDataDay.MISSING_DATA;
+                        if (Iaga2002.isMissingComponent(iagaValue) || Iaga2002.isMissingSample(iagaValue))
+                            imagValue = ImagCDDataDay.MISSING_DATA;
                         else 
                             imagValue = doubleToScaledInteger(iagaValue, 10);
 
@@ -242,7 +242,8 @@ public class Iaga2002ToImagCDConverter {
                 }
             }
         }
-        
+
+
         // Now loop though created ImagCDFile objects, filling in missing headers
         // on empty days (assume the earliest valid header can be copied
         // to missing headers).

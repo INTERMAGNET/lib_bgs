@@ -6,7 +6,6 @@
 package bgs.geophys.library.Data;
 
 import bgs.geophys.library.Misc.DateUtils;
-import com.lowagie.text.pdf.codec.postscript.JavaCharStream;
 import java.util.*;
 import java.text.*;
 import java.io.*;
@@ -27,13 +26,37 @@ import bgs.geophys.library.Misc.Utils;
 public class Iaga2002 extends GeomagDataFormat 
 {
 
+    // NOTE: The IAGA-2002 spec does not define missing sample or component values
+    // as a single value, as suggested below. The best interpretation of the spec
+    // is to consider a value > 9999.0 with interger part all 9's (in effect,
+    // 9999, 99999, or 999999) as a missing value. Similarly for missing component,
+    // only replace the 9's with 8's.
+    // Thus, the only accurate way to test for a missing sample or component is
+    // to use the static methods isMissingSample(double) and isMissingComponent(double)
+
     /** code for a missing data sample */
     public static final double MISSING_DATA_SAMPLE = 99999.0;
     /** code for a missing component - is unrecorded component */
     public static final double MISSING_COMPONENT = 88888.0;
 
+    public static boolean isMissingSample(double value) {
+        if (value < 9999.0) return false;
+        for(char digit : String.valueOf((int)value).toCharArray()) {
+            if (digit != '9') return false;
+        }
+        return true;
+    }
+    
+    public static boolean isMissingComponent(double value) {
+        if (value < 8888.0) return false;
+        for(char digit : String.valueOf((int)value).toCharArray()) {
+            if (digit != '8') return false;
+        }
+        return true;
+    }
+
     // these members hold the header in addition to those inherited from DataFormat
-    private Vector<String> raw_header_lines;        // these are the unformatted comments 
+    private List<String> raw_header_lines;        // these are the unformatted comments
     
     // a flag showing whether we need to swap the first two conponents when writing data
     boolean swap_hdzf_to_dhzf;
@@ -45,7 +68,7 @@ public class Iaga2002 extends GeomagDataFormat
     private DecimalFormat latFormat;
     private DecimalFormat longFormat;
     private DecimalFormat valueFormat;
-    private static SimpleDateFormat dataDateFormat;
+    private static final SimpleDateFormat dataDateFormat;
     private SimpleDateFormat dataDateFormatIncDN;
     
     // static initialisers - mainly creation of formatting objects
@@ -80,7 +103,7 @@ public class Iaga2002 extends GeomagDataFormat
         super (station_code, station_name, latitude, longitude, elevation,
                comp_code, data_type, null, institute_name, sensor_orientation,
                sample_period_string, interval_type, true, -1);
-        raw_header_lines = new Vector<String> ();
+        raw_header_lines = new ArrayList<String> ();
         swap_hdzf_to_dhzf = true;
         initFormatObjects();
     }
@@ -127,7 +150,7 @@ public class Iaga2002 extends GeomagDataFormat
 
     /** get an individual raw header line
      * @return the line, including leading '#' */
-    public String getExtraHeaderLine (int index) { return (String) raw_header_lines.get (index); }
+    public String getExtraHeaderLine (int index) { return raw_header_lines.get (index); }
     
     /** Get the numerical value of the "Digital Sampling" header field in milliseconds.
      *  The value -1 is returned if the field was not specified in the header,
@@ -137,7 +160,7 @@ public class Iaga2002 extends GeomagDataFormat
      */
     public int getInstrumentSamplingPeriod() {
         // First, check to see if the string is null or empty:
-        if ( (this.getSamplePeriodString() == null) || (this.getSamplePeriodString() == "") )
+        if ( (this.getSamplePeriodString() == null) || (this.getSamplePeriodString().isEmpty()) )
             return -1;
         
         // Parse the string, using space characters as separators
@@ -217,7 +240,7 @@ public class Iaga2002 extends GeomagDataFormat
         writeString (os, formatMandatoryHeader ("Data Interval Type", getIntervalType()), termType);
         writeString (os, formatMandatoryHeader ("Data Type", getDataType()), termType);
         for (count=0; count<raw_header_lines.size(); count++)
-            writeString (os, formatOptionalHeader ((String) raw_header_lines.get (count)), termType);
+            writeString (os, formatOptionalHeader (raw_header_lines.get (count)), termType);
         
         // write the title line
         three_digit_code = GeoString.fix (getStationCode(), 3, false, true, '?');
@@ -330,14 +353,14 @@ public class Iaga2002 extends GeomagDataFormat
         BufferedReader reader;
         StringTokenizer tokens;
         Iaga2002 iaga2002;
-        Vector<String> raw_header_lines;
+        List<String> raw_header_lines;
 
         // fill all values with nulls
         institute_name = station_name = station_code = null;
         comp_code = sensor_orientation = sample_period_string = null;
         interval_type = data_type = null;
         latitude = longitude = elevation = MISSING_HEADER_VALUE;
-        raw_header_lines = new Vector<String> ();
+        raw_header_lines = new ArrayList<String> ();
         values = new double [4];
         value_store = new double [4];
         swap_dhzf_to_hdzf = false;
