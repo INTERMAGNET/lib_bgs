@@ -665,7 +665,7 @@ public abstract class GeomagDataFormat
         n_missing [0] = n_missing [1] = n_missing [2] = n_missing [3] = 0;
         n_total = endIndex - beginIndex;
         
-        for (index=beginIndex; index<endIndex; index++)
+        for (index=beginIndex; index<endIndex; index++) 
         {
             data = sampleData.get (index);
             for (componentCount = 0; componentCount < 4; componentCount ++)
@@ -686,11 +686,11 @@ public abstract class GeomagDataFormat
         
         for (componentCount = 0; componentCount < 4; componentCount ++)
         {
-            if (n_total <= 0) 
+            if (n_total <= 0)
                 median [componentCount] = MISSING_DATA_SAMPLE;
             else
             {
-                missingPercent = (n_missing [componentCount] * 100) / n_total;
+                missingPercent = (n_missing [componentCount] * 100) / (n_total+1); // total points is one extra JE 20.02.11
                 if (missingPercent > maxMissingPercent) 
                     median [componentCount] = MISSING_DATA_SAMPLE;
                 else 

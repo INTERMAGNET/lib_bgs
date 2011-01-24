@@ -10,6 +10,7 @@
 package bgs.geophys.library.Data;
 
 import bgs.geophys.library.Maths.BGSMath;
+import bgs.geophys.library.Maths.RoundEven;
 import bgs.geophys.library.Misc.DateUtils;
 import bgs.geophys.library.Misc.GeoString;
 import bgs.geophys.library.Misc.Utils;
@@ -308,10 +309,8 @@ public class WDCHour extends GeomagDataFormat
                         string = number2digits.format (year / 100);
 
         // calculate tabular base on a per record basis  
-//        System.out.println("tabBase from: "+index +" to "+ (index+23));
-        tabBase = calcMedian (index,index+23,99);
+        tabBase = calcMedian (index,index+24,99); //last index should be the first point of the next set JE 20.01.11
         tabularBase = tabBase[componentCount];
-//        System.out.println("tabBase[0]: "+tabBase[0]);
             // check for missing value
             if (tabularBase  == MISSING_DATA_SAMPLE)
             {
@@ -352,8 +351,6 @@ public class WDCHour extends GeomagDataFormat
                 }
             }
         
-//                    System.out.println("tabBaseString: "+tabBaseString[0]);
-//                    System.out.println("tabBase: "+tabBase[0]);
 
                     writeString (os, string, TERM_TYPE_NONE);
 //                    writeString (os, tabBaseString [componentCount], TERM_TYPE_NONE);
@@ -367,8 +364,8 @@ public class WDCHour extends GeomagDataFormat
                         else 
                         {
 //                            longValue = BGSMath.round ((value - tabBase [componentCount]) * multiplier, BGSMath.ROUND_HALF_EVEN);
-                            longValue = BGSMath.round ((value - tabularBase) * multiplier, BGSMath.ROUND_HALF_EVEN);
-//                            longValue = (long) RoundEven.toDouble((value - tabularBase) * multiplier, 0);
+//                            longValue = BGSMath.round ((value - tabularBase) * multiplier, BGSMath.ROUND_HALF_EVEN);
+                            longValue = (long) RoundEven.toDouble((value - tabularBase) * multiplier, 0);
                             writeString (os, GeoString.fix (Long.toString (longValue), 4, true, false), TERM_TYPE_NONE);
                         }
                     }
@@ -379,8 +376,8 @@ public class WDCHour extends GeomagDataFormat
                     else 
                     {
       //                  longValue = BGSMath.round ((value - tabBase [componentCount]) * multiplier, BGSMath.ROUND_HALF_EVEN);
-                        longValue = BGSMath.round ((value - tabularBase) * multiplier, BGSMath.ROUND_HALF_EVEN);
-      //                  longValue = (long) RoundEven.toDouble((value - tabularBase) * multiplier, 0);
+//                        longValue = BGSMath.round ((value - tabularBase) * multiplier, BGSMath.ROUND_HALF_EVEN);
+                        longValue = (long) RoundEven.toDouble((value - tabularBase) * multiplier, 0);
                         writeString (os, GeoString.fix (Long.toString (longValue), 4, true, false), termType);
                     }
  
