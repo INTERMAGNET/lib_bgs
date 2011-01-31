@@ -33,6 +33,7 @@ public class BLVData {
     private Integer meanFComponent; //IBFV2.0 only
     private String observatoryID;
     private Integer year;
+    private Integer startDay; // 1st day of values (may not be day 1 for new observatories).
     private List<BLVObservedValue> observedValues = new ArrayList<BLVObservedValue>();
     private List<BLVAdoptedValue> adoptedValues = new ArrayList<BLVAdoptedValue>();
     private List<String> comments = new ArrayList<String>();
@@ -121,9 +122,15 @@ public class BLVData {
                   buf = in.readLine();
                     line++;
                  // read in adopted values ...
+                 boolean first = true;
                  while(buf != null && buf.charAt(0)!= '*'){
                     BLVAdoptedValue av = new BLVAdoptedValue();
                      av.readBLVAdoptedValue(buf, this.getComponentOrder(),this.getFormat());
+                       //set the startDay for the first value
+                     if(first){
+                         startDay = new Integer(av.getDay());
+                         first = false;
+                     }
                      if(format.equalsIgnoreCase("IBFV2.00"))
                             checkDiscontinuity(buf, av.getDay(), av);
 
@@ -158,11 +165,7 @@ public class BLVData {
         }
 
         setMeanValues();
-//        for(int j=0;j<nSeperatePlots-1;j++){
-//            System.out.println("Discontinuity at: "+discontinuities.get(j));
-//
-//        }
-//        System.out.println("Finished reading..");
+//        this.printBLVData();
     }
 
     private void checkDiscontinuity(String buf, Integer day, BLVAdoptedValue av) {
@@ -292,14 +295,14 @@ public class BLVData {
         int nvalues = 0;
 
         nvalues = 0;
+//        System.out.println("calculate mean...");
         int start = getDiscontinuityStartIndex(plotNumber);
         int end = getDiscontinuityEndIndex(plotNumber);
-//         System.out.println("calc mean start and end "+start +" "+end);
+//         System.out.println("calc mean start and end "+start +" "+end+" "+this.year);
 //        for (int i = 0; i < this.getAdoptedValues().size(); i++) {
           for (int i = start; i < end; i++) {
-
-            if (this.getAdoptedValue(i).getComponentValue(this.getComponentAt(index)) != null) {
-                mean += this.getAdoptedValue(i).getComponentValue(this.getComponentAt(index));
+            if (this.getAdoptedValue(i-startDay).getComponentValue(this.getComponentAt(index)) != null) {
+                mean += this.getAdoptedValue(i-startDay).getComponentValue(this.getComponentAt(index));
                 nvalues++;
             }
         }
@@ -320,8 +323,8 @@ public class BLVData {
         nvalues = 0;
 //        for (int i = 0; i < this.getAdoptedValues().size(); i++) {
         for (int i = start; i < end; i++) {
-            if (this.getAdoptedValue(i).getDeltaF() != null) {
-                mean += this.getAdoptedValue(i).getDeltaF();
+            if (this.getAdoptedValue(i-startDay).getDeltaF() != null) {
+                mean += this.getAdoptedValue(i-startDay).getDeltaF();
                 nvalues++;
             }
         }
@@ -384,11 +387,18 @@ public class BLVData {
                     getAdoptedValue(i).getDeltaF() + " ");
 
         }
-        for(int i=0;i<nSeperatePlots;i++){
-        System.out.println("Mean 1: "+i+" " + this.getComponentMeanAtIndex(i,0));
-        System.out.println("Mean 2: "+i+" "  + this.getComponentMeanAtIndex(i,1));
-        System.out.println("Mean 3: "+i+" "  + this.getComponentMeanAtIndex(i,2));
-        System.out.println("Mean Delta F: " +i+" " + this.getMeanDeltaF(i));
+
+        System.out.println("Start Day: "+this.startDay);
+        System.out.println("There are "+nSeperatePlots+ " discontinuities are ");
+        for(int i=0;i<this.nSeperatePlots;i++){
+          if(i>0 && i<nSeperatePlots-1){
+                 System.out.println("start discontinuity: "+ this.discontinuities.get(i-1).getIndex());
+                 this.discontinuities.get(i).getStepValue().printBLVAdoptedValue();
+                 }
+         System.out.println("Mean 1: "+i+" " + this.getComponentMeanAtIndex(i,0));
+         System.out.println("Mean 2: "+i+" "  + this.getComponentMeanAtIndex(i,1));
+         System.out.println("Mean 3: "+i+" "  + this.getComponentMeanAtIndex(i,2));
+         System.out.println("Mean Delta F: " +i+" " + this.getMeanDeltaF(i));
         }
 
     }
@@ -712,7 +722,7 @@ public class BLVData {
      * returns the start index of the nth discontinuity
      */
    public int getDiscontinuityStartIndex(int n) {
-        if(n==0) return 0;
+        if(n==0) return this.getStartDay(); //first day in the file
         return discontinuities.get(n-1).getIndex();
     }
 
@@ -720,9 +730,21 @@ public class BLVData {
      * returns the start index of the nth discontinuity
      */
    public int getDiscontinuityEndIndex(int n) {
-        if(nSeperatePlots==1) return this.getAdoptedValues().size();
-        if(nSeperatePlots-1==n) return this.getAdoptedValues().size();
-        return discontinuities.get(n).getIndex()-1;
+       int index;
+//       System.out.println("finding end index...");
+        if(nSeperatePlots==1) {
+            index =  this.getAdoptedValues().size()-1+getStartDay();
+            return index;
+        }
+        if(nSeperatePlots-1==n) return this.getAdoptedValues().size()-1+getStartDay();
+        return discontinuities.get(n).getIndex();
+    }
+
+    /**
+     * @return the startDay
+     */
+    public Integer getStartDay() {
+        return startDay;
     }
 
 }
