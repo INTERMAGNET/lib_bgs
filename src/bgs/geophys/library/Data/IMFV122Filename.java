@@ -130,6 +130,7 @@ public class IMFV122Filename extends GeomagDataFilename
             case DEFINITIVE: break;
             case REPORTED: break;
             case TEST: break;
+            case QUASI_DEFINITIVE: break;
             default: throw new IllegalArgumentException("Invalid type argument.");
         }
         return qualityType;
@@ -144,6 +145,7 @@ public class IMFV122Filename extends GeomagDataFilename
             case DEFINITIVE: return "d";
             case REPORTED: return "r";
             case TEST: return "t";
+            case QUASI_DEFINITIVE: return "q";
             default: throw new IllegalArgumentException("Invalid type argument.");
         }
     }
@@ -160,6 +162,9 @@ public class IMFV122Filename extends GeomagDataFilename
         }
         else if (typeString.equalsIgnoreCase("r")) {
             return QualityType.REPORTED;
+        }
+        else if (typeString.equalsIgnoreCase("q")) {
+            return QualityType.QUASI_DEFINITIVE;
         }
         else if (typeString.equalsIgnoreCase("t")) {
             return QualityType.TEST;

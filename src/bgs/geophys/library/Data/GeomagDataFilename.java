@@ -27,7 +27,7 @@ public abstract class GeomagDataFilename {
 
     // Property enumerators
     public enum QualityType {
-        NOT_APPLICABLE, PROVISIONAL, DEFINITIVE, VARIATION, ADJUSTED, REPORTED, TEST
+        NOT_APPLICABLE, PROVISIONAL, DEFINITIVE, VARIATION, ADJUSTED, REPORTED, TEST, QUASI_DEFINITIVE
     }
     
     public enum Interval {

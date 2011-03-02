@@ -1,3 +1,18 @@
+Version 1.2
+===========
+
+Added code to monitor the rate at which data is written to disk and the rate at
+which it transferred from the observatory. The file transfer rate is shown in
+the base status screen. The network transfer rate is shown in the status screen
+for each GDAS address.
+
+Changed the way that the watchdog works. Previously a check was made against the
+time of the last successful collection. Now an activity timer is set at many
+points during the normal collection operation. The watchdog is checked against
+this activity timer. This should allow watchdog elapse times to be made much
+smaller, so reducing the time to restart for a failed collection.
+
+
 Version 1.1
 ===========
 

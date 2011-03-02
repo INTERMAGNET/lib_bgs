@@ -56,8 +56,15 @@ implements StatusAlarm
     // the collection program's version number
     private String version_no;
 
+    // the transfer rate of data to disk (in samples / mSec)
+    private double disk_transfer_rate;
+    private double dtr_sd;
+    private int dtr_npoints;
+
+    // an array of status data, 1 record for each GDAS system */
     private Vector<GDASStatus> gdas_status_list;
 
+    // an object used to serialise this data as XML
     private XStreamPlus xstream_plus;
     
     /** build an empty status object */
@@ -72,6 +79,9 @@ implements StatusAlarm
         collection_state = CollectionStatus.CollectionState.COLLECTION_UNKNOWN;
         version_no = GdasCollectVersion.VERSION_NO;
 
+        disk_transfer_rate = -1.0;
+        dtr_sd = 0.0;
+        dtr_npoints = 0;
         gdas_status_list = new Vector<GDASStatus> ();
         configureXML ();
     }
@@ -97,6 +107,9 @@ implements StatusAlarm
         
         version_no = GdasCollectVersion.VERSION_NO;
 
+        disk_transfer_rate = -1.0;
+        dtr_sd = 0.0;
+        dtr_npoints = 0;
         gdas_status_list = new Vector<GDASStatus> ();
         configureXML ();
         
@@ -143,6 +156,9 @@ implements StatusAlarm
         this.ssh_server = from.ssh_server;
         this.collection_state = from.collection_state;
         this.version_no = from.version_no;
+        this.disk_transfer_rate = from.disk_transfer_rate;
+        this.dtr_sd = from.dtr_sd;
+        this.dtr_npoints = from.dtr_npoints;
     }
     
     /** add a GDAS system */
@@ -208,7 +224,7 @@ implements StatusAlarm
         if (index < 0 || index > gdas_status_list.size()) return null;
         return gdas_status_list.get(index);
     }
-    
+
     // readers for config properties
     public String getConfigFilename () { return config_filename; }
     public boolean isConfigFilenameAlarm () { return false; }
@@ -241,10 +257,20 @@ implements StatusAlarm
         if (version_no.equals(GdasCollectVersion.VERSION_NO)) return false;
         return true;
     }
+    public double getDiskTransferRate () { return disk_transfer_rate; }
+    public double getDiskTransferRateSD () { return dtr_sd; }
+    public int getDiskTransferRateNPoints () { return dtr_npoints;}
+    public boolean isDiskTransferRateAlarm () { return false; }
 
 
     // writers for status properties
     public void setCollectionState (CollectionState collection_state) {this.collection_state = collection_state; }
+    public void setDiskTransferRate (double disk_transfer_rate, double dtr_sd, int dtr_n_points)
+    {
+        this.disk_transfer_rate = disk_transfer_rate;
+        this.dtr_sd = dtr_sd;
+        this.dtr_npoints = dtr_n_points;
+    }
     
     /** find a system by its name */
     public GDASStatus findGDAS (String gdas_name)
@@ -312,18 +338,21 @@ implements StatusAlarm
         xstream_plus = XStreamPlus.makeXstreamPlus();
         
         // XML configuration for CollectionStatus
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_CLASS_FIELD, "",                 "GdasCollectionStatus");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_OMIT_MEMBER,      "xstream_plus",     "");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "config_filename",  "CS_ConfigFilename");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "base_dir",         "CS_BaseDir");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "ip_address",       "CS_IPAddress");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "log_dir",          "CS_LogDir");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_dir",         "CS_MRRDDir");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "ssh_server",       "CS_SSHServer");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "collection_paused","CS_CollectionPaused");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "version_no",       "CS_VersionNumber");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "gdas_status_list", "CS_GdasList");
-        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "script_list",      "CS_ScriptList");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_CLASS_FIELD, "",                  "GdasCollectionStatus");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_OMIT_MEMBER,      "xstream_plus",      "");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "config_filename",   "CS_ConfigFilename");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "base_dir",          "CS_BaseDir");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "ip_address",        "CS_IPAddress");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "log_dir",           "CS_LogDir");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "mrrd_dir",          "CS_MRRDDir");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "ssh_server",        "CS_SSHServer");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "collection_paused", "CS_CollectionPaused");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "version_no",        "CS_VersionNumber");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "disk_transfer_rate","CS_DiskTransferRate");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "dtr_sd",            "CS_DTRSD");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "dtr_npoints",       "CS_DTRNPoints");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "gdas_status_list",  "CS_GdasList");
+        xstream_plus.configField (CollectionStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "script_list",       "CS_ScriptList");
 
         // XML configuration for GDASStatus
         xstream_plus.configField (GDASStatus.class, XStreamPlus.ACTION_MAKE_CLASS_FIELD, "",                         "Gdas");
@@ -360,6 +389,9 @@ implements StatusAlarm
         xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "last_collection_date", "AD_LastCollectionDate");
         xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "last_failure_date",    "AD_LastFailureDate");
         xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "last_failure_details", "AD_LastFailureDetails");
+        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "net_transfer_rate",    "AD_NetTransferRate");
+        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "ntr_sd",               "AD_NTRSD");
+        xstream_plus.configField (GDASAddressStatus.class, XStreamPlus.ACTION_MAKE_FIELD,       "ntr_npoints",          "AD_NTRNPoints");
         
         // XML configuration for MRRDFile
         xstream_plus.configField (MRRDFile.class, XStreamPlus.ACTION_MAKE_CLASS_FIELD, "",                 "MRRD");
@@ -415,6 +447,7 @@ implements StatusAlarm
         if (isMRRDDirAlarm()) return true;
         if (isSSHServerAlarm()) return true;
         if (isCollectionPausedAlarm()) return true;
+        if (isDiskTransferRateAlarm()) return true;
         for (count=0; count<gdas_status_list.size(); count++)
         {
             gdas_status = gdas_status_list.get(count);

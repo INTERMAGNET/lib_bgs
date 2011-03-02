@@ -39,7 +39,11 @@ implements StatusAlarm
     private Date last_failure_date;
     /** last failure details */
     private String last_failure_details;
-    
+    /* transfer rate (in samples / mSec) for data transferred through this address */
+    private double net_transfer_rate;
+    private double ntr_sd;
+    private int ntr_npoints;
+
     /** build an empty status object */
     public GDASAddressStatus ()
     {
@@ -52,6 +56,9 @@ implements StatusAlarm
         this.last_failure_date = new Date (0l);
         this.last_collection_date = new Date (0l);
         this.last_failure_details = "";
+        this.net_transfer_rate = -1.0;
+        this.ntr_sd = 0.0;
+        this.ntr_npoints = 0;
         this.in_use = false;
     }
     
@@ -71,6 +78,9 @@ implements StatusAlarm
         this.last_failure_date = new Date (0l);
         this.last_collection_date = new Date (0l);
         this.last_failure_details = "";
+        this.net_transfer_rate = -1.0;
+        this.ntr_sd = 0.0;
+        this.ntr_npoints = 0;
     }
     
     /** copy the details of this address status to the given
@@ -85,6 +95,9 @@ implements StatusAlarm
         this.last_collection_date = from.last_collection_date;
         this.last_failure_date = from.last_failure_date;
         this.last_failure_details = from.last_failure_details;
+        this.net_transfer_rate = from.net_transfer_rate;
+        this.ntr_sd = from.ntr_sd;
+        this.ntr_npoints = from.ntr_npoints;
         this.in_use = from.in_use;
     }
     
@@ -118,6 +131,10 @@ implements StatusAlarm
         if (last_failure_date.getTime() > last_open_date.getTime()) return true;
         return false; 
     }
+    public double getNetTransferRate () { return net_transfer_rate; }
+    public double getNetTransferRateSD () { return ntr_sd; }
+    public int getNetTransferRateNPoints () { return ntr_npoints; }
+    public boolean isNetTransferRateAlarm () { return false; }
     
     // write methods for status variables
     public void clearCollectionCount () { collection_count = 0; }
@@ -126,6 +143,12 @@ implements StatusAlarm
     public void setLastCollectionDate (Date date) { last_collection_date = date; }
     public void setLastFailureDate (Date date) { last_failure_date = date; }
     public void setLastFailureDetails (String details) { last_failure_details = details; }
+    public void setNetTransferRate (double net_transfer_rate, double ntr_sd, int ntr_npoints)
+    {
+        this.net_transfer_rate = net_transfer_rate;
+        this.ntr_sd = ntr_sd;
+        this.ntr_npoints = ntr_npoints;
+    }
 
     public boolean equals (GDASAddressStatus o) 
     {
@@ -163,6 +186,7 @@ implements StatusAlarm
             if (isLastFailureDateAlarm()) return true;
             if (isLastFailureDetailsAlarm()) return true;
             if (isLastOpenDateAlarm()) return true;
+            if (isNetTransferRateAlarm()) return true;
         }
         return false;
     }

@@ -216,7 +216,10 @@ public class Iaga2002Filename extends GeomagDataFilename {
             return QualityType.DEFINITIVE; 
         }
         else if (typeString.equalsIgnoreCase("p")) {
-            return QualityType.PROVISIONAL; 
+            return QualityType.PROVISIONAL;
+        }
+        else if (typeString.equalsIgnoreCase("q")) {
+            return QualityType.QUASI_DEFINITIVE;
         }
         else if (typeString.equalsIgnoreCase("r")) {
             return QualityType.REPORTED;
@@ -306,6 +309,7 @@ public class Iaga2002Filename extends GeomagDataFilename {
             case ADJUSTED: return "a";
             case DEFINITIVE: return "d";
             case PROVISIONAL: return "p";
+            case QUASI_DEFINITIVE: return "q";
             case REPORTED: return "r";
             case VARIATION: return "v";
             case TEST: return "t";
@@ -341,6 +345,7 @@ public class Iaga2002Filename extends GeomagDataFilename {
             case REPORTED: break;
             case VARIATION: break;
             case TEST: break;
+            case QUASI_DEFINITIVE: break;
             default: throw new IllegalArgumentException("Invalid type argument.");
         }
         return qualityType;

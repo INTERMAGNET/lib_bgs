@@ -166,12 +166,12 @@ public class GINData
      * @param date the starting date for the data
      * @param length the duration (in samples) for the data
      * @param data_type_desc the data type description for the data
-     * @param allow_q if true allow the special data type q (adj-or-rep)
+     * @param allow_j if true allow the special data type j (adj-or-rep)
      * @throws GINDataException if there is an error loading the data
      * @throws ConfigFileException if there is an error with the configuration files
      * @throws ParameterException if there was a problem with the parameters */
     public GINData (String station_code, int samps_per_day, Date date, int length, String data_type_desc,
-                    boolean allow_q)
+                    boolean allow_j)
     throws GINDataException, ConfigFileException, ParameterException
     {
         int total_data_points, orientation;
@@ -198,7 +198,7 @@ public class GINData
         data_type_code = gin_dictionary.find ("DATA_TYPE", GINDictionary.SEARCH_DATA_CASE_INDEPENDANT, data_type_desc);
         if (data_type_code == null)
             throw new ParameterException ("Data type does not exist: " + data_type_desc);
-        if ((! allow_q) && data_type_code.equalsIgnoreCase("j"))
+        if ((! allow_j) && data_type_code.equalsIgnoreCase("j"))
             throw new ParameterException ("Data type 'j' not allowed here");
         if ((sta_details.comp1_orient == 'H' || sta_details.comp1_orient == 'h') &&
             (sta_details.comp2_orient == 'D' || sta_details.comp2_orient == 'd') &&
@@ -226,8 +226,8 @@ public class GINData
         if (! data_type_code.equalsIgnoreCase("j")) readData (orientation, length);
         else
         {
-            // try adjusted data first
-            data_type_desc = this.data_type_desc = "adjusted";
+            // try quasi-definitive data first
+            data_type_desc = this.data_type_desc = "quasi-def";
             data_type_code = gin_dictionary.find ("DATA_TYPE", GINDictionary.SEARCH_DATA_CASE_INDEPENDANT, data_type_desc);
             if (data_type_code == null)
                 throw new GINDataException ("Missing code for " + data_type_desc + " data");
@@ -236,14 +236,27 @@ public class GINData
                                 getStats (2).count + getStats(3).count;
             if (total_data_points <= 0)
             {
-                // no adjusted data - try reported
+                // try adjusted data next
                 // re-create the data array first (because readData appends to it)
-                data_type_desc = this.data_type_desc = "reported";
-                data_type_code = gin_dictionary.find ("DATA_TYPE", GINDictionary.SEARCH_DATA_CASE_INDEPENDANT, "reported");
+                data_type_desc = this.data_type_desc = "adjusted";
+                data_type_code = gin_dictionary.find ("DATA_TYPE", GINDictionary.SEARCH_DATA_CASE_INDEPENDANT, data_type_desc);
                 if (data_type_code == null)
                     throw new GINDataException ("Missing code for " + data_type_desc + " data");
                 data = new ArrayList<GeomagAbsoluteValue> ();
                 readData (orientation, length);
+                total_data_points = getStats (0).count + getStats(1).count +
+                                    getStats (2).count + getStats(3).count;
+                if (total_data_points <= 0)
+                {
+                    // no adjusted data - try reported
+                    // re-create the data array first (because readData appends to it)
+                    data_type_desc = this.data_type_desc = "reported";
+                    data_type_code = gin_dictionary.find ("DATA_TYPE", GINDictionary.SEARCH_DATA_CASE_INDEPENDANT, "reported");
+                    if (data_type_code == null)
+                        throw new GINDataException ("Missing code for " + data_type_desc + " data");
+                    data = new ArrayList<GeomagAbsoluteValue> ();
+                    readData (orientation, length);
+                }
             }
         }
     }
@@ -315,9 +328,9 @@ public class GINData
                                 date_format.format (now_date) + ")";
         }
  
-        // check the data type - disallow the special data type 'q'
+        // check the data type - disallow the special data type 'j'
         if ((general_fault == null) && data_type_code.equalsIgnoreCase("j"))
-            general_fault = "Data type 'q' not allowed here";
+            general_fault = "Data type 'j' not allowed here";
 
         // create an object to evaluate the modifiers
         evaluators = new SimpleMathsEvaluator [4];

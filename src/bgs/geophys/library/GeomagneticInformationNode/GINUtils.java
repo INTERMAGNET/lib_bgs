@@ -328,8 +328,8 @@ public class GINUtils
         StationDetails station_details_list;
         StationDetails.StationDetailsFields sta_details;
         GINDictionary gin_dictionary;
-        String data_type_code, r_dt_desc, r_dt_code, a_dt_desc, a_dt_code;
-        Date date, start_date2, end_date2;
+        String data_type_code, r_dt_desc, r_dt_code, a_dt_desc, a_dt_code, q_dt_desc, q_dt_code;
+        Date date, start_date2, end_date2, start_date3, end_date3;
         GINData gin_data;
         
         // load the station details and the dictionary
@@ -349,31 +349,42 @@ public class GINUtils
         {
             r_dt_desc = "reported";
             a_dt_desc = "adjusted";
+            q_dt_desc = "quasi-def";
             r_dt_code =  gin_dictionary.find ("DATA_TYPE", GINDictionary.SEARCH_DATA_CASE_INDEPENDANT, r_dt_desc);
             a_dt_code =  gin_dictionary.find ("DATA_TYPE", GINDictionary.SEARCH_DATA_CASE_INDEPENDANT, a_dt_desc);
+            q_dt_code =  gin_dictionary.find ("DATA_TYPE", GINDictionary.SEARCH_DATA_CASE_INDEPENDANT, q_dt_desc);
             if (r_dt_code == null)
                 throw new ParameterException ("Unknown data type: " + r_dt_desc);
             if (a_dt_code == null)
                 throw new ParameterException ("Unknown data type: " + a_dt_desc);
+            if (q_dt_code == null)
+                throw new ParameterException ("Unknown data type: " + q_dt_desc);
         }
-        else r_dt_desc = a_dt_desc = r_dt_code = a_dt_code = null;
+        else r_dt_desc = a_dt_desc = q_dt_desc = r_dt_code = a_dt_code = q_dt_code = null;
         
         // do we need to find the start date ??
         if (start_date == null)
         {
             if (data_type_code.equalsIgnoreCase("j"))
             {
-                start_date = findMinOrMax (station_code, samps_per_day, a_dt_desc, a_dt_code, false, false);
-                start_date2 = findMinOrMax (station_code, samps_per_day, r_dt_desc, r_dt_code, false, false);
+                start_date = findMinOrMax (station_code, samps_per_day, q_dt_desc, q_dt_code, false, false);
+                start_date2 = findMinOrMax (station_code, samps_per_day, a_dt_desc, a_dt_code, false, false);
+                start_date3 = findMinOrMax (station_code, samps_per_day, r_dt_desc, r_dt_code, false, false);
                 if (start_date == null)
                 {
                     start_date = start_date2;
+                    if (start_date == null) start_date = start_date3;
                     if (start_date == null) return null;
                 }
-                else if (start_date2 != null)
+                if (start_date2 != null)
                 {
                     if (start_date2.getTime() < start_date.getTime())
                         start_date = start_date2;
+                }
+                if (start_date3 != null)
+                {
+                    if (start_date3.getTime() < start_date.getTime())
+                        start_date = start_date3;
                 }
             }
             else start_date = findMinOrMax (station_code, samps_per_day, data_type_desc, data_type_code, false, false);
@@ -384,17 +395,24 @@ public class GINUtils
         {
             if (data_type_code.equalsIgnoreCase("j"))
             {
-                end_date = findMinOrMax (station_code, samps_per_day, a_dt_desc, a_dt_code, true, false);
-                end_date2 = findMinOrMax (station_code, samps_per_day, r_dt_desc, r_dt_code, true, false);
+                end_date = findMinOrMax (station_code, samps_per_day, q_dt_desc, q_dt_code, true, false);
+                end_date2 = findMinOrMax (station_code, samps_per_day, a_dt_desc, a_dt_code, true, false);
+                end_date3 = findMinOrMax (station_code, samps_per_day, r_dt_desc, r_dt_code, true, false);
                 if (end_date == null)
                 {
                     end_date = end_date2;
+                    if (end_date == null) end_date = end_date3;
                     if (end_date == null) return null;
                 }
-                else if (end_date2 != null)
+                if (end_date2 != null)
                 {
                     if (end_date2.getTime() > end_date.getTime())
                         end_date = end_date2;
+                }
+                if (end_date3 != null)
+                {
+                    if (end_date3.getTime() > end_date.getTime())
+                        end_date = end_date3;
                 }
             }
             else end_date = findMinOrMax (station_code, samps_per_day, data_type_desc, data_type_code, true, false);
@@ -442,7 +460,7 @@ public class GINUtils
         StationDetails.StationDetailsFields sta_details;
         GINDictionary gin_dictionary;
         String data_type_code;
-        Date date, date2;
+        Date date, date2, date3;
         
         // load the station details and the dictionary
         station_details_list = new StationDetails ();
@@ -459,12 +477,18 @@ public class GINUtils
         // process special data type code
         if (data_type_code.equalsIgnoreCase("j"))
         {
-            date = findMRD (station_code, samps_per_day, "adjusted");
-            date2 = findMRD (station_code, samps_per_day, "reported");
+            date = findMRD (station_code, samps_per_day, "quasi-def");
+            date2 = findMRD (station_code, samps_per_day, "adjusted");
+            date3 = findMRD (station_code, samps_per_day, "reported");
             if (date == null) date = date2;
-            else if (date2 != null)
+            if (date == null) date = date3;
+            if (date2 != null)
             {
                 if (date2.getTime() > date.getTime()) date = date2;
+            }
+            if (date3 != null)
+            {
+                if (date3.getTime() > date.getTime()) date = date3;
             }
         }
         else
@@ -518,7 +542,7 @@ public class GINUtils
      * @param station_code the station to search for
      * @param samps_per_day the sample rate in samples per day
      * @param data_type_desc the data type description
-     * @param data_type_code the data type code - doesn't support data type code 'q'
+     * @param data_type_code the data type code - doesn't support data type code 'j'
      * @param max true to search for the maximum, false to search for the minimum
      * @param examine_file true to examine the contents of the file and include
      *        this information in the returned date, false to just look at file names

@@ -19,7 +19,7 @@ import java.net.URL;
 public class GdasCollectVersion
 {
     // there is one version number for all GdasCollect software
-    public static final String VERSION_NO = "1.1";
+    public static final String VERSION_NO = "1.2";
 
     // resource containing release notes
     private static final String RELEASE_NOTES_RESOURCE = "ReleaseNotes.txt";
