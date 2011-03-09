@@ -364,8 +364,10 @@ public class WDCHour extends GeomagDataFormat
                         else 
                         {
 //                            longValue = BGSMath.round ((value - tabBase [componentCount]) * multiplier, BGSMath.ROUND_HALF_EVEN);
-//                            longValue = BGSMath.round ((value - tabularBase) * multiplier, BGSMath.ROUND_HALF_EVEN);
-                            longValue = (long) RoundEven.toDouble((value - tabularBase) * multiplier, 0);
+                            longValue = BGSMath.round ((value - tabularBase) * multiplier, BGSMath.ROUND_HALF_EVEN);
+// This next line is commented out because I don't think it is necessary to use it here. Documentation of
+// the problem which it was attempting to solve and the testing can be found in imcdview/Worklists/ResolvedIssues JE 9.3.11
+//                            longValue = (long) RoundEven.toDouble((value - tabularBase) * multiplier, 0);
                             writeString (os, GeoString.fix (Long.toString (longValue), 4, true, false), TERM_TYPE_NONE);
                         }
                     }
