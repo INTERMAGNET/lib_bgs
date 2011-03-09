@@ -103,6 +103,7 @@ public class ImagCDFileStats
         publication_date = data_day.getPublicationDate();
         n_days_in_month = cd_file.getNDays();
 
+
         // calculated amounts of data expected
         expected_vector_minute_samples = n_days_in_month * ImagCDDataDay.N_MINUTE_MEAN_VALUES * 3;
         expected_scalar_minute_samples = n_days_in_month * ImagCDDataDay.N_MINUTE_MEAN_VALUES;
@@ -149,10 +150,12 @@ public class ImagCDFileStats
 
         
         rec_elem = day_seg0.getRecordedElements().trim();
-        Calendar c = new GregorianCalendar();
-        c.set(2009, 0, 01);
-        Date year2009 = new Date(c.getTimeInMillis());
-        if (publication_date.before(year2009)){
+//        Calendar c = new GregorianCalendar();
+//        c.set(2009, 0, 01);
+//        Date year2009 = new Date(c.getTimeInMillis());
+
+        if (data_day.getYear()<2009)
+/*        if (publication_date.before(year2009))*/{
             if(rec_elem.equalsIgnoreCase("hdzf") ||
             rec_elem.equalsIgnoreCase("xyzf") ||
             rec_elem.equalsIgnoreCase("diff") )
