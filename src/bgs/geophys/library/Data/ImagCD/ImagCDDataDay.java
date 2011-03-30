@@ -9,6 +9,7 @@ package bgs.geophys.library.Data.ImagCD;
 import java.io.*;
 
 import bgs.geophys.library.File.*;
+import bgs.geophys.library.Maths.RoundEven;
 import bgs.geophys.library.Misc.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -512,7 +513,7 @@ public class ImagCDDataDay
                     sample = getMinuteData(comp_count, minute_count);
                     if (sample != MISSING_DATA)
                     {
-                        accumulator += sample;
+                       accumulator += sample;
                         sample_count ++;
                     }
                 }
@@ -536,6 +537,7 @@ public class ImagCDDataDay
         longitude = Utils.bytesToInt     (header, 12);
         elevation = Utils.bytesToInt     (header, 16);
         recorded_elements = bytes2String (header, 20, 4, false);
+          recorded_elements =recorded_elements.trim();
         institute_code = bytes2String    (header, 24, 4, false);
         d_conversion = Utils.bytesToInt  (header, 28);
         quality_code = bytes2String      (header, 32, 4, false);

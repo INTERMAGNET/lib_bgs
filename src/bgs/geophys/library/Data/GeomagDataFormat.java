@@ -155,7 +155,7 @@ public abstract class GeomagDataFormat
         this.latitude = latitude;
         this.longitude = longitude;
         this.elevation = elevation;
-        this.compCode = compCode;
+        this.compCode = compCode.trim();
         if (this.compCode != null)
         {
             if (this.compCode.length() < 3 || this.compCode.length() > 4)

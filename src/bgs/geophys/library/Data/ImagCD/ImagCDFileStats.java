@@ -163,7 +163,9 @@ public class ImagCDFileStats
             }
         else{ // 2009 onwards
             if(rec_elem.equalsIgnoreCase("hdzg") ||
-               rec_elem.equalsIgnoreCase("xyzg"))
+               rec_elem.equalsIgnoreCase("xyzg") ||
+               rec_elem.equalsIgnoreCase("xyz")  ||
+               rec_elem.equalsIgnoreCase("hdz"))
                chk_orient = true;
             }
         if (!chk_orient)    orientation_errmsg = "Bad component codes: " + day_seg0.getRecordedElements();

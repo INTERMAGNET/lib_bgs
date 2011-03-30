@@ -53,6 +53,8 @@ public class GeomagAbsoluteValue
     public static final int COMPONENT_F_SCALAR = 8;
     /** code for F (difference) component */
     public static final int COMPONENT_F_DIFF = 9;
+    /** code for no F component */
+    public static final int COMPONENT_F_UNRECORDED = 13;
     /** code for original 1st component (native) */
     public static final int COMPONENT_NATIVE_1 = 10;
     /** code for original 2nd component (native) */
