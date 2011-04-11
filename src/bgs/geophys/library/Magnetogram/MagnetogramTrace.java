@@ -376,7 +376,7 @@ public class MagnetogramTrace
             time_series2 = new TimeSeries("", Day.class);
             jump_data.rewind();
             // next 2 lines added JE 8.09.2010
-            previousYear = (int) jump_data.next().getYear()-1;
+            if(jump_data.hasNext())previousYear = (int) jump_data.next().getYear()-1;
             jump_data.rewind();
             while (jump_data.hasNext())
             {
