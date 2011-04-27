@@ -150,6 +150,7 @@ public class ImagCDHeader
             case 0: format_version = "1.0"; break;
             case 1: format_version = "1.1"; break;
             case 2: format_version = "2.0"; break;
+            case 3: format_version = "2.1"; break;
             default: format_version = "Unknown"; break;
         }
         reserved_1 = Utils.bytesToInt    (header, 60);
