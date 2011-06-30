@@ -15,6 +15,7 @@ import java.awt.Font;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,12 +24,14 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.DateFormatter;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.CustomXYToolTipGenerator;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.labels.XYToolTipGenerator;
@@ -262,11 +265,11 @@ public class BLVPanel extends javax.swing.JPanel {
         // make a scalarF plot if the format is new
         Boolean scalarFPlot = bLV.getFormat().equalsIgnoreCase("IBFV2.00");
 
-        TimeSeriesCollection[] dataset1 = createDataset(bLV,0);
-        TimeSeriesCollection[] dataset2 = createDataset(bLV,1);
-        TimeSeriesCollection[] dataset3 = createDataset(bLV,2);
-        TimeSeriesCollection[] fDiffData = createDataset(bLV,BLVData.DIFF_F);
-        TimeSeriesCollection[] scalarFData = null;
+        XYSeriesCollection[] dataset1 = createDataset(bLV,0);
+        XYSeriesCollection[] dataset2 = createDataset(bLV,1);
+        XYSeriesCollection[] dataset3 = createDataset(bLV,2);
+        XYSeriesCollection[] fDiffData = createDataset(bLV,BLVData.DIFF_F);
+        XYSeriesCollection[] scalarFData = null;
         JFreeChart chartScalarF;
         XYPlot subplotScalarF = null;
 
@@ -278,7 +281,6 @@ public class BLVPanel extends javax.swing.JPanel {
         }
         
         // create subplot 1...
-
         JFreeChart chart1 = createScatterChart(dataset1, bLV,0,auto,scale,scrollSteps,defaultScale, font_size_multiplier,viewAxes);
         XYPlot subplot1 = (XYPlot) chart1.getPlot();  
         subplot1.setRangeAxisLocation(AxisLocation.BOTTOM_OR_LEFT);
@@ -307,9 +309,13 @@ public class BLVPanel extends javax.swing.JPanel {
 
         
         // parent plot...
-        DateAxis na = new DateAxis("Month: Day of Year");
-        na.setLabelFont(sizeFont (DateAxis.DEFAULT_AXIS_LABEL_FONT, font_size_multiplier));
-        na.setTickLabelFont(sizeFont (DateAxis.DEFAULT_TICK_LABEL_FONT, font_size_multiplier));
+//TODO is this OK???
+        NumberAxis na = new NumberAxis("Day of Year");
+//        na.setLabelFont(sizeFont (NumberAxis.DEFAULT_AXIS_LABEL_FONT, font_size_multiplier));
+//        na.setTickLabelFont(sizeFont (NumberAxis.DEFAULT_TICK_LABEL_FONT, font_size_multiplier));
+//        DateAxis na = new DateAxis("Month: Day of Year");
+//        na.setLabelFont(sizeFont (NumberAxis.DEFAULT_AXIS_LABEL_FONT, font_size_multiplier));
+//        na.setTickLabelFont(sizeFont (NumberAxis.DEFAULT_TICK_LABEL_FONT, font_size_multiplier));
         CombinedDomainXYPlot plot = new CombinedDomainXYPlot(na);
         plot.setGap(10.0);
         
@@ -321,16 +327,18 @@ public class BLVPanel extends javax.swing.JPanel {
         plot.add(subplotFDiff, 1);
         
         plot.setOrientation(PlotOrientation.VERTICAL);                 
-        DateAxis domainAxis = (DateAxis) plot.getDomainAxis();
-        domainAxis.setAutoRange(true);
-//        domainAxis.setAutoRange(false);
-//        domainAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-//        domainAxis.setRange(0,366);
+        NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
+//        domainAxis.setAutoRange(true);
+        domainAxis.setAutoRange(false);
+        domainAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        domainAxis.setRange(0,366);
         domainAxis.setLabelFont(sizeFont (NumberAxis.DEFAULT_AXIS_LABEL_FONT, font_size_multiplier));
         domainAxis.setTickLabelFont(sizeFont (NumberAxis.DEFAULT_TICK_LABEL_FONT, font_size_multiplier));
-        DateFormat df = new SimpleDateFormat("MMM: DDD");// YY: DDD");
+//        DateFormat df = new SimpleDateFormat("MMM: DDD");// YY: DDD");
+//        NumberFormat nf = new NumberFormat("MMM: DDD");// YY: DDD");
 
-        domainAxis.setDateFormatOverride(df);
+//        domainAxis.setDateFormatOverride(df);
+//        domainAxis.setNumberFormatOverride(nf);
         plot.setDomainAxis(domainAxis);
         
 
@@ -375,14 +383,14 @@ public class BLVPanel extends javax.swing.JPanel {
 // index 4 - FDiff
 //* @return The dataset.
 //*/
-    private static TimeSeriesCollection[] createDataset(BLVData bLV, int index) {
+    private static XYSeriesCollection[] createDataset(BLVData bLV, int index) {
 
 //        System.out.println("creating dataset..");
         int nplots = bLV.nSeperatePlots;  //number of discontinuities
-        TimeSeries[] datasetArrayObserved = new TimeSeries[nplots];
-        TimeSeries[] datasetArrayAdopted = new TimeSeries[nplots];
+        XYSeries[] datasetArrayObserved = new XYSeries[nplots];
+        XYSeries[] datasetArrayAdopted = new XYSeries[nplots];
 
-        TimeSeriesCollection[] dataset = new TimeSeriesCollection[bLV.nSeperatePlots*2];
+        XYSeriesCollection[] dataset = new XYSeriesCollection[bLV.nSeperatePlots*2];
         Double observedValueReal;
         Double adoptedValueReal;
        
@@ -390,8 +398,8 @@ public class BLVPanel extends javax.swing.JPanel {
         // not for FDiff
 
     for(int series=0,nextDiscontinuity=0;nextDiscontinuity<nplots;series+=2,nextDiscontinuity++){
-        dataset[series] = new TimeSeriesCollection();
-        dataset[series+1] = new TimeSeriesCollection();
+        dataset[series] = new XYSeriesCollection();
+        dataset[series+1] = new XYSeriesCollection();
         // put in adopted values....
 //        System.out.println("Adding adopted values: "+index+" "+series);
          // get the indexs of the start and finish of the discontinuity
@@ -399,7 +407,7 @@ public class BLVPanel extends javax.swing.JPanel {
          int start = bLV.getDiscontinuityStartIndex(nextDiscontinuity);
          int end = bLV.getDiscontinuityEndIndex(nextDiscontinuity);
 
-         datasetArrayAdopted[nextDiscontinuity] = new TimeSeries("Adopted Values");
+         datasetArrayAdopted[nextDiscontinuity] = new XYSeries("Adopted Values");
 
         for(int i=start;i<end;i++){
 
@@ -412,7 +420,9 @@ public class BLVPanel extends javax.swing.JPanel {
 
        
 
-      datasetArrayAdopted[nextDiscontinuity].add(getDayTimePeriod(bLV.getAdoptedValue(i-bLV.getStartDay()).getDay(),bLV.getYear()),
+//      datasetArrayAdopted[nextDiscontinuity].add(getDayTimePeriod(bLV.getAdoptedValue(i-bLV.getStartDay()).getDay(),bLV.getYear()),
+//                adoptedValueReal);
+      datasetArrayAdopted[nextDiscontinuity].add(bLV.getAdoptedValue(i-bLV.getStartDay()).getDay(),
                 adoptedValueReal);
        }
       catch(Exception e){
@@ -427,7 +437,9 @@ public class BLVPanel extends javax.swing.JPanel {
       adoptedValueReal = bLV.getAdoptedValue(i-bLV.getStartDay()).getDeltaFScaled(BLVData.getScalingFromFile());
 //      adoptedValueReal /= BLVData.getScalingFromFile();
  
-      datasetArrayAdopted[nextDiscontinuity].add(getDayTimePeriod(bLV.getAdoptedValue(i-bLV.getStartDay()).getDay(),bLV.getYear()),
+//      datasetArrayAdopted[nextDiscontinuity].add(getDayTimePeriod(bLV.getAdoptedValue(i-bLV.getStartDay()).getDay(),bLV.getYear()),
+//                adoptedValueReal);
+      datasetArrayAdopted[nextDiscontinuity].add(bLV.getAdoptedValue(i-bLV.getStartDay()).getDay(),
                 adoptedValueReal);
          }
       catch(Exception e){}
@@ -442,7 +454,7 @@ public class BLVPanel extends javax.swing.JPanel {
 
        if(index != BLVData.DIFF_F){
 
-         datasetArrayObserved[nextDiscontinuity] = new TimeSeries("Observed Values");
+         datasetArrayObserved[nextDiscontinuity] = new XYSeries("Observed Values");
         for(int i=start;i<=end;i++){
 
        try{
@@ -450,15 +462,14 @@ public class BLVPanel extends javax.swing.JPanel {
 //          observedValueReal = observedValue.doubleValue()/BLVData.getScalingFromFile();
            int nvals = bLV.getNumberObservedValuesAtDay(i);
            if(nvals >0 ) {
-      //         System.out.println("nvals for day "+i+" "+nvals);
              for(int j=0;j<nvals;j++){
-     //            System.out.println("Value: "+bLV.getObservedValueAtDay(i,j)+i+" "+j+" "+index);
              if(bLV.getObservedValueAtDay(i,j) != null){
                try{
                observedValueReal = bLV.getObservedValueAtDay(i,j).getComponentValue(bLV.getComponentAt(index));
                observedValueReal /= BLVData.getScalingFromFile();
-
-               datasetArrayObserved[nextDiscontinuity].add(getDayTimePeriod(bLV.getObservedValueAtDay(i).getDay(),bLV.getYear()),
+//               datasetArrayObserved[nextDiscontinuity].add(getDayTimePeriod(bLV.getObservedValueAtDay(i).getDay(),bLV.getYear()),
+//                  observedValueReal);
+               datasetArrayObserved[nextDiscontinuity].add(bLV.getObservedValueAtDay(i).getDay(),
                   observedValueReal);
                  }catch(Exception e){} //just don't add it to the dataset if it is null
              }
@@ -468,7 +479,6 @@ public class BLVPanel extends javax.swing.JPanel {
        catch(Exception e){ //just don't add it to the dataset if it is null
            }
         }
-        
         dataset[series+1].addSeries(datasetArrayObserved[nextDiscontinuity]);
        }
 
@@ -500,7 +510,7 @@ public class BLVPanel extends javax.swing.JPanel {
 //*
 //* @return The chart.
 //*/
-private static JFreeChart createScatterChart(TimeSeriesCollection[] dataset,
+private static JFreeChart createScatterChart(XYSeriesCollection[] dataset,
                              final BLVData bLV, int index,
                              boolean auto, Double scale,
                              Integer scrollSteps,
@@ -555,12 +565,14 @@ XYPlot plot = (XYPlot) chart.getPlot();
 
      plot.setDataset(series,dataset[series]);
      plot.mapDatasetToRangeAxis(series, series);
+//      System.out.println("Number of points: "+ dataset[series+1].getItemCount(0));
      plot.setDataset(series+1,dataset[series+1]);
      plot.mapDatasetToRangeAxis(series+1, series+1);
 
      rangeAxisAdopted.setAutoRangeIncludesZero(false);
      rangeAxisObserved.setAutoRangeIncludesZero(false);
-     //  rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+//       rangeAxisAdopted.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+//       rangeAxisObserved.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
      if (! scaleDefault) rangeAxisAdopted.setTickLabelPaint(Color.RED);
     if (! auto){
       rangeAxisAdopted.setAutoRange(false);
@@ -646,13 +658,14 @@ Shape tinyDot = new Ellipse2D.Double(0,0,d/2,d/2);
   }
 
 //  XYToolTipGenerator ttg = new BLVXYToolTipGenerator();
-  rendererAdopted.setSeriesToolTipGenerator(0,new BLVXYToolTipGenerator("Adopted"));
-  rendererObserved.setSeriesToolTipGenerator(0,new BLVXYToolTipGenerator("Observed"));
+  rendererAdopted.setSeriesToolTipGenerator(0,new BLVXYToolTipGenerator("Adopted",bLV.getYear()));
+  rendererObserved.setSeriesToolTipGenerator(0,new BLVXYToolTipGenerator("Observed",bLV.getYear()));
 
 }
 // mark the discontinuities on
 for(int j=0;j<bLV.discontinuities.size();j++){
-    double millis = getDayTimePeriod(bLV.discontinuities.get(j).getIndex(),bLV.getYear()).getFirstMillisecond();
+//    double millis = getDayTimePeriod(bLV.discontinuities.get(j).getIndex(),bLV.getYear()).getFirstMillisecond();
+    Integer millis = bLV.discontinuities.get(j).getIndex();
     Marker discMark = new ValueMarker(millis);
     discMark.setPaint(Color.RED);
 //    System.out.println("comp at index: " + bLV.getComponentAt(index));

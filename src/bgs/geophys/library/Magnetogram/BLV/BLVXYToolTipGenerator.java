@@ -9,6 +9,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.data.xy.XYDataset;
 
@@ -19,20 +20,24 @@ import org.jfree.data.xy.XYDataset;
 public class BLVXYToolTipGenerator implements XYToolTipGenerator{
  
 String label;
-BLVXYToolTipGenerator(String lab){
-       label = new String(lab);  
+Integer year;
+BLVXYToolTipGenerator(String lab, Integer yr){
+       label = new String(lab);
+       year = yr;
      }
      
        public String generateToolTip(XYDataset xyDataset, int series, int item)
           {
               //get day of Year
              Calendar c = new GregorianCalendar();
-             c.setTimeInMillis(xyDataset.getX(series, item).longValue());
+//             c.setTimeInMillis(xyDataset.getX(series, item).longValue());
+             c.set(Calendar.YEAR, year);
+             c.set(Calendar.DAY_OF_YEAR,xyDataset.getX(series,item).intValue());
              DateFormat df = new SimpleDateFormat("DDD MMM-dd");
              
              Double val =  xyDataset.getY(series, item).doubleValue();
-//             Integer doy = c.get(Calendar.DAY_OF_YEAR);
-              return String.format("%s %s,  %.1f", label, df.format(c.getTime()),val);
+
+             return String.format("%s %s,  %.1f", label, df.format(c.getTime()),val);
 
 }
  
