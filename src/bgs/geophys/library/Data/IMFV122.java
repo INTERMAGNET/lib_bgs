@@ -341,6 +341,10 @@ public class IMFV122 extends GeomagDataFormat
                         else if (imfV122.useDecbas()) c2 [index] = (c2 [index] / 10.0) + decbas;
                         if (c3 [index] >= 99999.0) c3 [index] = 99999.0;
                         else if (c3 [index] >= 88888.0) c3 [index] = 88888.0;
+                        // do fourth component too - not sure why it wasn't done before
+                        if (c4 [index] >= 99999.0) c4 [index] = 99999.0;
+                        else if (c4 [index] >= 88888.0) c4 [index] = 88888.0;
+
                     }
                 }
                 catch (NumberFormatException e)
