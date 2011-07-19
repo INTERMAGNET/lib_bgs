@@ -336,8 +336,12 @@ public class IMFV122 extends GeomagDataFormat
                         // also add declination baseline
                         if (c1 [index] >= 99999.0) c1 [index] = 99999.0;
                         else if (c1 [index] >= 88888.0) c1 [index] = 88888.0;
-                        if (c2 [index] >= 99999.0) c2 [index] = 99999.0;
-                        else if (c2 [index] >= 88888.0) c2 [index] = 88888.0;
+              //TODO wait for confirmation from Chris that this needs doing
+              //may need doing for all 4 components
+                        if ((c2 [index] >= 99999.0 && c2[index]<=100000.0) ||
+                            (c2 [index] >= 999999.0 && c2[index]<=1000000.0)   ) c2 [index] = 99999.0;
+                        else if ((c2 [index] >= 88888.0 && c2[index]<=88889.0) ||
+                            (c2 [index] >= 888888.0 && c2[index]<=888889.0)   ) c2 [index] = 88888.0;
                         else if (imfV122.useDecbas()) c2 [index] = (c2 [index] / 10.0) + decbas;
                         if (c3 [index] >= 99999.0) c3 [index] = 99999.0;
                         else if (c3 [index] >= 88888.0) c3 [index] = 88888.0;
