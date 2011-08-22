@@ -596,8 +596,14 @@ XYPlot plot = (XYPlot) chart.getPlot();
   else{
       rangeAxisObserved.setAutoRange(true);
       rangeAxisObserved.setAutoRangeIncludesZero(false);
-      Range r = rangeAxisObserved.getRange();
+     rangeAxisAdopted.setAutoRange(true);
+      rangeAxisAdopted.setAutoRangeIncludesZero(false);
+      Range ro = rangeAxisObserved.getRange();
+      Range ra = rangeAxisAdopted.getRange();
+      Range r = Range.combine(ro, ra);
+      r = Range.expand(r, 0.03,0.03);
       rangeAxisAdopted.setRange(r);
+      rangeAxisObserved.setRange(r);
        if(index ==BLVData.DIFF_F){
          rangeAxisAdopted.setAutoRange(true);
          rangeAxisAdopted.setAutoRangeIncludesZero(false);       
