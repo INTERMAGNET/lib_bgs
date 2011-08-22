@@ -243,7 +243,8 @@ public class MagnetogramTrace
              count++, ms_counter += data_period)
         {
             number = data[count].getComponent (component_code, GeomagAbsoluteValue.ANGLE_MINUTES);
-            if (number == data[count].getMissingDataValue())
+          if (number == data[count].getMissingDataValue() || number == data[count].getMissingComponentValue())
+//            if (data[count].isComponentMissing(component_code))
                 time_series.addOrUpdate (new Millisecond(new Date (ms_counter), gmt),
                                          null);
             else

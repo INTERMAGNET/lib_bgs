@@ -75,6 +75,9 @@ public class GeomagAbsoluteValue
     
     /** value returned when data is missing (can be changed) */
     protected double missingDataValue;
+
+    //value returned when the component is not recorded
+    protected double missingComponentValue;
     
     // constants to convert various angular measures
     protected static double degrees_to_radians;
@@ -102,6 +105,7 @@ public class GeomagAbsoluteValue
     {
         this.native_orientation = ORIENTATION_UNKNOWN;
         missingDataValue = 99999.9;
+        missingComponentValue = 88888.8;
         X_ok = Y_ok = Z_ok = false;
         H_ok = D_ok = I_ok = F_ok = false;
         FScalar_ok = FDiff_ok = false;
@@ -112,6 +116,7 @@ public class GeomagAbsoluteValue
     {
         this.native_orientation = orient;
         missingDataValue = 99999.9;
+        missingComponentValue = 88888.8;
         X_ok = Y_ok = Z_ok = false;
         H_ok = D_ok = I_ok = F_ok = false;
         FScalar_ok = FDiff_ok = false;
@@ -123,19 +128,20 @@ public class GeomagAbsoluteValue
                                 double missingDataValue, int orientation, int angle_units)
     {
         this.missingDataValue = missingDataValue;
+        missingComponentValue = 88888.8;
         this.native_orientation = orientation;
         X_ok = Y_ok = Z_ok = H_ok = D_ok = I_ok = F_ok = FScalar_ok = FDiff_ok = true;
-        if (x == missingDataValue) X_ok = false;
+        if (x == missingDataValue || x==missingComponentValue ) X_ok = false;
         else this.X = x;
-        if (y == missingDataValue) Y_ok = false;
+        if (y == missingDataValue || y==missingComponentValue ) Y_ok = false;
         else this.Y = y;
-        if (z == missingDataValue) Z_ok = false;
+        if (z == missingDataValue || z==missingComponentValue ) Z_ok = false;
         else this.Z = z;
-        if (f == missingDataValue) F_ok = false;
+        if (f == missingDataValue ||f==missingComponentValue ) F_ok = false;
         else this.F = f;
-        if (h == missingDataValue) H_ok = false;
+        if (h == missingDataValue||h==missingComponentValue ) H_ok = false;
         else this.H = h;
-        if (d == missingDataValue) D_ok = false;
+        if (d == missingDataValue||d==missingComponentValue ) D_ok = false;
         else
         {
             switch (angle_units)
@@ -147,7 +153,7 @@ public class GeomagAbsoluteValue
                     throw new IllegalArgumentException ("Bad geomagnetic angular measure code");
             }
         }
-        if (i == missingDataValue) I_ok = false;
+        if (i == missingDataValue || i==missingComponentValue ) I_ok = false;
         else
         {
             switch (angle_units)
@@ -159,9 +165,9 @@ public class GeomagAbsoluteValue
                     throw new IllegalArgumentException ("Bad geomagnetic angular measure code");
             }
         }
-        if (f_scalar == missingDataValue) FScalar_ok = false;
+        if (f_scalar == missingDataValue ||f_scalar==missingComponentValue ) FScalar_ok = false;
         else this.FScalar = f_scalar;
-        if (f_diff == missingDataValue) FDiff_ok = false;
+        if (f_diff == missingDataValue|| f_diff==missingComponentValue ) FDiff_ok = false;
         else this.FDiff = f_diff;
     }
     
@@ -191,7 +197,7 @@ public class GeomagAbsoluteValue
     switch (FScalarType)
         {
             case COMPONENT_F_DIFF:   // used after 2009
-                if (FScalar == missingDataValue){
+                if (FScalar == missingDataValue ||FScalar==missingComponentValue){
                     FScalar_ok = false;
                     FDiff_ok = false;
                 }
@@ -219,7 +225,7 @@ public class GeomagAbsoluteValue
                 }
                 break;
             case COMPONENT_F_SCALAR:
-                if (FScalar == missingDataValue) FScalar_ok = false;
+                if (FScalar == missingDataValue || FScalar==missingComponentValue) FScalar_ok = false;
                 else
                 {
                     this.FScalar = FScalar;
@@ -248,42 +254,43 @@ public class GeomagAbsoluteValue
                                 int orientation, int angle_units) 
     {
         this.missingDataValue = missingDataValue;
+        missingComponentValue = 88888.8;
         FScalar_ok = FDiff_ok = false;
         switch (orientation)
         {
         case ORIENTATION_XYZ:
             X_ok = Y_ok = Z_ok = true;
             H_ok = D_ok = I_ok = F_ok = false;
-            if (comp1 == missingDataValue) X_ok = false;
+            if (comp1 == missingDataValue ||comp1==missingComponentValue ) X_ok = false;
             else X = comp1;
-            if (comp2 == missingDataValue) Y_ok = false;
+            if (comp2 == missingDataValue|| comp2==missingComponentValue ) Y_ok = false;
             else Y = comp2;
-            if (comp3 == missingDataValue) Z_ok = false;
+            if (comp3 == missingDataValue|| comp3==missingComponentValue ) Z_ok = false;
             else Z = comp3;
             break;
         case ORIENTATION_HDZ:
             H_ok = D_ok = Z_ok = true;
             X_ok = Y_ok = I_ok = F_ok = false;
-            if (comp1 == missingDataValue) H_ok = false;
+            if (comp1 == missingDataValue||comp1==missingComponentValue ) H_ok = false;
             else H = comp1;
             switch (angle_units)
             {
             case ANGLE_RADIANS:
-                if (comp2 == missingDataValue) D_ok = false;
+                if (comp2 == missingDataValue||comp2==missingComponentValue ) D_ok = false;
                 else D = comp2;
                 break;
             case ANGLE_DEGREES:
-                if (comp2 == missingDataValue) D_ok = false;
+                if (comp2 == missingDataValue||comp2==missingComponentValue) D_ok = false;
                 else D = comp2 * degrees_to_radians;
                 break;
             case ANGLE_MINUTES:
-                if (comp2 == missingDataValue) D_ok = false;
+                if (comp2 == missingDataValue||comp2==missingComponentValue) D_ok = false;
                 else D = comp2 * minutes_to_radians;
                 break;
             default:
                 throw new IllegalArgumentException ("Bad geomagnetic angular measure code");
             }
-            if (comp3 == missingDataValue) Z_ok = false;
+            if (comp3 == missingDataValue||comp3==missingComponentValue) Z_ok = false;
             else Z = comp3;
             break;
         case ORIENTATION_DIF:
@@ -292,27 +299,27 @@ public class GeomagAbsoluteValue
             switch (angle_units)
             {
             case ANGLE_RADIANS:
-                if (comp1 == missingDataValue) D_ok = false;
+                if (comp1 == missingDataValue||comp1==missingComponentValue) D_ok = false;
                 else D = comp1;
-                if (comp2 == missingDataValue) I_ok = false;
+                if (comp2 == missingDataValue||comp2==missingComponentValue) I_ok = false;
                 else I = comp2;
                 break;
             case ANGLE_DEGREES:
-                if (comp1 == missingDataValue) D_ok = false;
+                if (comp1 == missingDataValue||comp1==missingComponentValue) D_ok = false;
                 else D = comp1 * degrees_to_radians;
-                if (comp2 == missingDataValue) I_ok = false;
+                if (comp2 == missingDataValue||comp2==missingComponentValue) I_ok = false;
                 else I = comp2 * degrees_to_radians;
                 break;
             case ANGLE_MINUTES:
-                if (comp1 == missingDataValue) D_ok = false;
+                if (comp1 == missingDataValue||comp1==missingComponentValue) D_ok = false;
                 else D = comp1 * minutes_to_radians;
-                if (comp2 == missingDataValue) I_ok = false;
+                if (comp2 == missingDataValue||comp2==missingComponentValue) I_ok = false;
                 else I = comp2 * minutes_to_radians;
                 break;
             default:
                 throw new IllegalArgumentException ("Bad geomagnetic angular measure code");
             }
-            if (comp3 == missingDataValue) F_ok = false;
+            if (comp3 == missingDataValue||comp3==missingComponentValue) F_ok = false;
             else F = comp3;
             break;
         default:
@@ -339,17 +346,18 @@ public class GeomagAbsoluteValue
 
         //missingDataValue = Long.MAX_VALUE;
         missingDataValue = 99999.9;
+        missingComponentValue = 88888.8;
         FScalar_ok = FDiff_ok = false;
         switch (orientation)
         {
         case ORIENTATION_XYZ:
             X_ok = Y_ok = Z_ok = true;
             H_ok = D_ok = I_ok = F_ok = false;
-            if (comp1 == missingDataValue) X_ok = false;
+            if (comp1 == missingDataValue||comp1==missingComponentValue) X_ok = false;
             else X = comp1 + comp1_baseline;
-            if (comp2 == missingDataValue) Y_ok = false;
+            if (comp2 == missingDataValue||comp2==missingComponentValue) Y_ok = false;
             else Y = comp2 + comp2_baseline;
-            if (comp3 == missingDataValue) Z_ok = false;
+            if (comp3 == missingDataValue||comp3==missingComponentValue) Z_ok = false;
             else Z = comp3 + comp3_baseline;
             break;
         case ORIENTATION_HDZ:
@@ -360,28 +368,28 @@ public class GeomagAbsoluteValue
             // where PV(t) = variation in h
             //       PB = h baseline
             //       QV(t) = variation in d
-            if (comp1 == missingDataValue) H_ok = false;
+            if (comp1 == missingDataValue||comp1==missingComponentValue) H_ok = false;
             else{ h = comp1 + comp1_baseline;
                 H = StrictMath.sqrt ((h * h) + (comp2 * comp2));
             }
             switch (angle_units)
             {
             case ANGLE_RADIANS:
-                if (comp2 == missingDataValue) D_ok = false;
+                if (comp2 == missingDataValue||comp2==missingComponentValue) D_ok = false;
                 else D = StrictMath.asin (comp2 / H) + comp2_baseline;
                 break;
             case ANGLE_DEGREES:
-                if (comp2 == missingDataValue) D_ok = false;
+                if (comp2 == missingDataValue||comp2==missingComponentValue) D_ok = false;
                 else D = StrictMath.asin (comp2 / H) + (comp2_baseline * degrees_to_radians);
                 break;
             case ANGLE_MINUTES:
-                if (comp2 == missingDataValue) D_ok = false;
+                if (comp2 == missingDataValue||comp2==missingComponentValue) D_ok = false;
                 else D = StrictMath.asin (comp2 / H) + (comp2_baseline * minutes_to_radians);
                 break;
             default:
                 throw new IllegalArgumentException ("Bad geomagnetic angular measure code");
             }
-            if (comp3 == missingDataValue) Z_ok = false;
+            if (comp3 == missingDataValue||comp3==missingComponentValue) Z_ok = false;
             else Z = comp3 + comp3_baseline;
             break;
         default:
@@ -493,6 +501,7 @@ public class GeomagAbsoluteValue
             }
         }
         if (X_ok) return X;
+        if (X==missingComponentValue) return missingComponentValue;
         return missingDataValue;
     }
 
@@ -519,6 +528,7 @@ public class GeomagAbsoluteValue
             }
         }
         if (Y_ok) return Y;
+        if (Y==missingComponentValue) return missingComponentValue;
         return missingDataValue;
     }
     
@@ -535,6 +545,7 @@ public class GeomagAbsoluteValue
             }
         }
         if (Z_ok) return Z;
+        if (Z==missingComponentValue) return missingComponentValue;
         return missingDataValue;
     }
     
@@ -562,6 +573,7 @@ public class GeomagAbsoluteValue
             }
         }
         if (H_ok) return H;
+        if (H==missingComponentValue) return missingComponentValue;
         return missingDataValue;
     }
     
@@ -578,6 +590,7 @@ public class GeomagAbsoluteValue
             }
         }
         if (D_ok) return D;
+        if (D==missingComponentValue) return missingComponentValue;
         return missingDataValue;
     }
     
@@ -603,6 +616,7 @@ public class GeomagAbsoluteValue
             }
         }
         if (I_ok) return I;
+        if (I==missingComponentValue) return missingComponentValue;
         return missingDataValue;
     }
     
@@ -630,6 +644,7 @@ public class GeomagAbsoluteValue
             }
         }
         if (F_ok) return F;
+        if (F==missingComponentValue) return missingComponentValue;
         return missingDataValue;
     }
     
@@ -637,6 +652,7 @@ public class GeomagAbsoluteValue
     public double getFScalar ()
     {
         if (FScalar_ok) return FScalar;
+        if (FScalar==missingComponentValue) return missingComponentValue;
         return missingDataValue;
     }
     
@@ -653,6 +669,7 @@ public class GeomagAbsoluteValue
             }
         }
         if (FDiff_ok) return FDiff;
+        if (FDiff==missingComponentValue) return missingComponentValue;
         return missingDataValue;
     }
 
@@ -671,6 +688,7 @@ public class GeomagAbsoluteValue
         }
         if (FDiff_ok) return FDiff;
         if(FScalar_ok) return -FScalar;
+        if (FDiff==missingComponentValue||FScalar==missingComponentValue) return missingComponentValue;
         return missingDataValue;
     }
 
@@ -770,6 +788,10 @@ public class GeomagAbsoluteValue
     { 
         return missingDataValue;  
     }
+    public double getMissingComponentValue()
+    {
+        return missingComponentValue;
+    }
     public void setMissingDataValue(double missingDataValue) 
     {
         this.missingDataValue = missingDataValue;
@@ -800,7 +822,21 @@ public class GeomagAbsoluteValue
         else if (show_missing_f) string += "N";
         return string;
     }
-    
+
+    public boolean isComponentMissing (int comp)
+    {
+      if (comp==COMPONENT_X) return X_ok;
+      if (comp==COMPONENT_Y) return Y_ok;
+      if (comp==COMPONENT_Z) return Z_ok;
+      if (comp==COMPONENT_H) return H_ok;
+      if (comp==COMPONENT_D) return D_ok;
+      if (comp==COMPONENT_I) return I_ok;
+      if (comp==COMPONENT_F) return F_ok;
+      if (comp == COMPONENT_F_SCALAR) return FScalar_ok;
+      if (comp == COMPONENT_F_DIFF) return FDiff_ok;
+      return true;
+    }
+
     /** is the data completely missing */
     public boolean isMissing ()
     {
