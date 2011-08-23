@@ -355,8 +355,10 @@ public class ImagCDHeader
     {
         if (! recorded_elements.equalsIgnoreCase("HDZF") &&
             ! recorded_elements.equalsIgnoreCase("XYZF") &&
-            ! recorded_elements.equalsIgnoreCase("DIFF"))
-            throw new ImagCDDataException ("Recorded elements must be one of 'XYZF' or 'HDZF'");
+            ! recorded_elements.equalsIgnoreCase("DIFF") &&
+            ! recorded_elements.equalsIgnoreCase("HDZG") &&
+            ! recorded_elements.equalsIgnoreCase("XYZG"))
+            throw new ImagCDDataException ("Recorded elements must be one of 'XYZF','HDZF','XYZG' or 'HDZG'");
         this.recorded_elements = recorded_elements; 
     }
     public String getInstituteCode() { return institute_code; }
