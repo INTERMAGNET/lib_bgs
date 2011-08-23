@@ -26,7 +26,7 @@ implements Comparable<YearMean>
                                JUMP, INCOMPLETE, UNKNOWN }
     
     /** the values used to flag a missing element */
-    public static final double MISSING_ELEMENT = 99999.0;
+    public static final double MISSING_ELEMENT = 999999;
     public static final int MISSING_DEGREES = 999;
     public static final double MISSING_MINUTES = 99.9;
     
@@ -126,24 +126,45 @@ implements Comparable<YearMean>
         year_diff = ym2.getYear() - ym1.getYear();
         if (year_diff == 0.0)
         {
-            x = ym1.x;
-            y = ym1.y;
-            z = ym1.z;
-            h = ym1.h;
-            d = ym1.d;
-            i = ym1.i;
-            f = ym1.f;
+            if(ym1.x != YearMean.MISSING_ELEMENT) x = ym1.x;
+            else x = ym2.x;
+            if(ym1.y != MISSING_ELEMENT) y = ym1.y;
+            else y = ym2.y;
+            if(ym1.z != MISSING_ELEMENT) z = ym1.z;
+            else z = ym2.z;
+            if(ym1.h != MISSING_ELEMENT) h = ym1.h;
+            else h = ym2.h;
+            if(ym1.d != MISSING_ELEMENT) d = ym1.d;
+            else d = ym2.d;
+            if(ym1.i != MISSING_ELEMENT) i = ym1.i;
+            else i = ym2.i;
+            if(ym1.f != MISSING_ELEMENT) f = ym1.f;
+            else f = ym2.f;
         }
         else
         {
             proportion = (year - ym1.getYear()) / year_diff;
-            x = ym1.x + ((ym2.x - ym1.x) * proportion);
-            y = ym1.y + ((ym2.y - ym1.y) * proportion);
-            z = ym1.z + ((ym2.z - ym1.z) * proportion);
-            h = ym1.h + ((ym2.h - ym1.h) * proportion);
-            d = ym1.d + ((ym2.d - ym1.d) * proportion);
-            i = ym1.i + ((ym2.i - ym1.i) * proportion);
-            f = ym1.f + ((ym2.f - ym1.f) * proportion);
+            if(ym1.x!=MISSING_ELEMENT && ym2.x!=MISSING_ELEMENT)x = ym1.x + ((ym2.x - ym1.x) * proportion);
+            else if (ym1.x==MISSING_ELEMENT) x=ym2.x;
+            else x=ym1.x;
+            if(ym1.y!=MISSING_ELEMENT && ym2.y!=MISSING_ELEMENT)y = ym1.y + ((ym2.y - ym1.y) * proportion);
+            else if (ym1.y==MISSING_ELEMENT) y=ym2.y;
+            else y=ym1.y;
+            if(ym1.z!=MISSING_ELEMENT && ym2.z!=MISSING_ELEMENT)z = ym1.z + ((ym2.z - ym1.z) * proportion);
+            else if (ym1.z==MISSING_ELEMENT) z=ym2.z;
+            else z=ym1.z;
+            if(ym1.h!=MISSING_ELEMENT && ym2.h!=MISSING_ELEMENT)h = ym1.h + ((ym2.h - ym1.h) * proportion);
+            else if (ym1.h==MISSING_ELEMENT) h=ym2.h;
+            else h=ym1.h;
+            if(ym1.f!=MISSING_ELEMENT && ym2.f!=MISSING_ELEMENT)f = ym1.f + ((ym2.f - ym1.f) * proportion);
+            else if (ym1.f==MISSING_ELEMENT) f=ym2.f;
+            else f=ym1.f;
+            if(ym1.d!=MISSING_ELEMENT && ym2.d!=MISSING_ELEMENT)d = ym1.d + ((ym2.d - ym1.d) * proportion);
+            else if (ym1.d==MISSING_ELEMENT) d=ym2.d;
+            else d=ym1.d;
+            if(ym1.i!=MISSING_ELEMENT && ym2.i!=MISSING_ELEMENT)i = ym1.i + ((ym2.i - ym1.i) * proportion);
+            else if (ym1.i==MISSING_ELEMENT) i=ym2.i;
+            else i=ym1.i;
         }
         if (ym1.getType() == ym2.getType())
             this.type = ym1.getType();

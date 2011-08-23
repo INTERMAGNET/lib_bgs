@@ -56,7 +56,6 @@ implements Iterator<YearMean>
                     last_mean = mean;
             }
             mean = year_mean_file.getMean(count);
-            
             // work out whether to include the mean or not
             switch (mean.getType())
             {
