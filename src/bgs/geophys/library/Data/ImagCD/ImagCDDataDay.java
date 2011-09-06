@@ -413,6 +413,7 @@ public class ImagCDDataDay
         if (format_version.equals("1.0")) bytes [0] = 0;
         else if (format_version.equals("1.1")) bytes [0] = 1;
         else if (format_version.equals("2.0")) bytes [0] = 2;
+        else if (format_version.equals("2.1")) bytes [0] = 3;
         else bytes [0] = 0;
         bytes [1] = bytes [2] = bytes [3] = 0;
         insertIntoHeader (bytes, 56);

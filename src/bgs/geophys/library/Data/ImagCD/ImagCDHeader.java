@@ -231,6 +231,7 @@ public class ImagCDHeader
         if (format_version.equals("1.0")) header [56] = 0;
         else if (format_version.equals("1.1")) header [56] = 1;
         else if (format_version.equals("2.0")) header [56] = 2;
+        else if (format_version.equals("2.1")) header [56] = 3;
         else header [56] = 0;
         header [57] = header [58] = header [59] = 0;
         insertInto (header, 60, Utils.intToBytes (reserved_1));
@@ -453,7 +454,8 @@ public class ImagCDHeader
         if (version.equals("1.0")) format_version = version;
         else if (version.equals("1.1")) format_version = version;
         else if (version.equals("2.0")) format_version = version;
-        else throw new ImagCDDataException ("Incorrect format version - should be 1.0, 1.1 or 2.0");
+        else if (version.equals("2.1")) format_version = version;
+        else throw new ImagCDDataException ("Incorrect format version - should be 1.0, 1.1, 2.0 or 2.1");
     }
     public int getReserved() { return reserved_1; }
     public void setReserved(String reserved_1)
