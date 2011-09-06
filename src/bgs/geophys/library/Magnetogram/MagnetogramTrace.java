@@ -135,6 +135,8 @@ public class MagnetogramTrace
         else all_missing = false;
         this.data_range = data_range;
         this.end_date = new Date (this.start_date.getTime() + this.getDataDuration());
+
+ 
     }    
     
     /** Create a magnetogram trace from an array geomagnetic data samples
@@ -284,9 +286,11 @@ public class MagnetogramTrace
           if(component_code != GeomagAbsoluteValue.COMPONENT_D) return;
           for(int i=0;i<time_series.getItemCount();i++){
            val = time_series.getValue(i);
-           dval = val.doubleValue();
+           if(val!=null) {
+               dval = val.doubleValue();
            if(dval<0.0)dval += 360*60;
            time_series.update(i, dval);
+              }
           }
       }            
     /** Create a magnetogram trace from an array of annual mean values
@@ -356,7 +360,9 @@ public class MagnetogramTrace
                 {
                     plot_value = new Double (number);
                     if (number < data_min) data_min = number;
-                    if (number > data_max) data_max = number;
+                    if (number > data_max){
+                        data_max = number;
+                    }
                 }
                 date = mean.getDate ();
                 if (start_date == null)
@@ -429,6 +435,7 @@ public class MagnetogramTrace
         }
         else all_missing = false;
         this.data_range = data_range;
+
          
     }    
    
