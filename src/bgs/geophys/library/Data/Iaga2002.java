@@ -97,17 +97,35 @@ public class Iaga2002 extends GeomagDataFormat
                      String comp_code, String data_type,
                      String institute_name,
                      String sensor_orientation, String sample_period_string, 
-                     String interval_type)
+                     String interval_type, ArrayList<String> comments)
     throws GeomagDataException
     {
         super (station_code, station_name, latitude, longitude, elevation,
                comp_code, data_type, null, institute_name, sensor_orientation,
                sample_period_string, interval_type, true, -1);
         raw_header_lines = new ArrayList<String> ();
+        for(int i=0;i<comments.size();i++){
+            raw_header_lines.add(comments.get(i));
+        }
         swap_hdzf_to_dhzf = true;
         initFormatObjects();
     }
 
+    public Iaga2002 (String station_code, String station_name,
+                     double latitude, double longitude, double elevation,
+                     String comp_code, String data_type,
+                     String institute_name,
+                     String sensor_orientation, String sample_period_string,
+                     String interval_type)
+    throws GeomagDataException
+    {
+  super (station_code, station_name, latitude, longitude, elevation,
+               comp_code, data_type, null, institute_name, sensor_orientation,
+               sample_period_string, interval_type, true, -1);
+        raw_header_lines = new ArrayList<String> ();
+        swap_hdzf_to_dhzf = true;
+        initFormatObjects();
+    }
     /**
      * Constructor with the same signature as the GeomagDataFormat parent class
      * Designed to give all subclasses of GeomagDataFormat a uniform constructor.
@@ -199,6 +217,7 @@ public class Iaga2002 extends GeomagDataFormat
         boolean do_swap;
         String comp_code, three_digit_code, four_digit_comp_code;
         Date date;
+        char F_type;
 
         // do we need to swap from HDZF to DHZF
         if (swap_hdzf_to_dhzf && getComponentCodes().substring(0,2).equalsIgnoreCase("HD"))
@@ -219,6 +238,9 @@ public class Iaga2002 extends GeomagDataFormat
             column1 = 0;
             column2 = 1;
         }
+
+        // get fourth component code if not available in the data
+
         four_digit_comp_code = GeoString.fix (comp_code, 4, false, true, '?');
         
         // check that there are at least 2 samples - without two samples

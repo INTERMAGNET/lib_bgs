@@ -162,9 +162,10 @@ public abstract class GeomagDataFormat
                 throw new GeomagDataException ("Component code must contain 3 or 4 characters");
             // intermagnet has a 'G' for the fourth component, which needs to be put
             // back to an F
-            if (this.compCode.length()==4 && this.compCode.substring(3).contentEquals("G")){
-                this.compCode = this.compCode.substring(0,3).concat("F");
-            }
+            // this code has now been moved into Export_thread
+//            if (this.compCode.length()==4 && this.compCode.substring(3).contentEquals("G")){
+//                this.compCode = this.compCode.substring(0,3).concat("F");
+//            }
         }
         this.dataType = dataType;
         this.ginCode = ginCode;
@@ -409,7 +410,7 @@ public abstract class GeomagDataFormat
                      value.getComponent(GeomagAbsoluteValue.COMPONENT_NATIVE_3, GeomagAbsoluteValue.ANGLE_MINUTES),
                      value.getComponent(fourthElement, GeomagAbsoluteValue.ANGLE_MINUTES),
                      value.getMissingDataValue(),
-                     value.getMissingDataValue());
+                     value.getMissingComponentValue()/*getMissingDataValue()*/);
         }
         
         // calculate and store means

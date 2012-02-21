@@ -69,6 +69,9 @@ public class GeomagAbsoluteValue
     
     // flags to show which components have been calculated
     protected boolean X_ok, Y_ok, Z_ok, H_ok, D_ok, I_ok, F_ok, FScalar_ok, FDiff_ok;
+
+    // which type of F data
+    protected int FType;
     
     // the original orientation code
     protected int native_orientation;
@@ -192,8 +195,19 @@ public class GeomagAbsoluteValue
         setF(FScalar, FScalarType);
         
     }
+    public GeomagAbsoluteValue (double comp1, double comp2, double comp3,
+                                double FScalar, int FScalarType, double missingDataValue,
+                                double missingComponentValue,
+                                int orientation, int angle_units)
+    {
+        this (comp1, comp2, comp3, missingDataValue, orientation, angle_units);
+        this.missingComponentValue = missingComponentValue;
+        setF(FScalar, FScalarType);
+
+    }
 
     public void setF(double FScalar, int FScalarType){
+    this.FType = FScalarType;
     switch (FScalarType)
         {
             case COMPONENT_F_DIFF:   // used after 2009
@@ -233,9 +247,11 @@ public class GeomagAbsoluteValue
                 }
                 FDiff_ok = false;
                 break;
-            default:
+            default:  // unrecorded
+                this.FScalar = this.missingComponentValue;
+                this.FDiff = this.missingComponentValue;
                 FScalar_ok = false;
-                FDiff_ok = false;
+                FDiff_ok = false; 
                 break;
         }
     }
