@@ -129,8 +129,9 @@ public class DKAFile
             
                 // get and parse the date - ignore lines with badly formatted dates
                 date_string = tokens.nextToken() + "-" + tokens.nextToken() + "-" + tokens.nextToken();
-                date = DateUtils.parseDate(date_string);
+                date = DateUtils.parseDate(date_string, true);
                 if (date == null) throw new NoSuchElementException ();
+                date =  DateUtils.TwoDigitCenturyCorrect(date);
 
                 // ignore the day number
                 tokens.nextToken();

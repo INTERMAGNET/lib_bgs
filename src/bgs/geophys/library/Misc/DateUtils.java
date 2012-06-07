@@ -253,7 +253,10 @@ public class DateUtils
    *         Missing fields (hour, mintute or second) will be set to 0.
              Allow any delimiter at all except '&'.
    * @return the date OR null if there was an error */
-  public static Date parseDate (String string)
+  public static Date parseDate (String string){
+      return parseDate(string, false);
+  }
+  public static Date parseDate (String string, boolean ddmmyy)
   {
       int date_numbers [];
       DecimalFormat integer2_format, integer4_format;
@@ -265,7 +268,7 @@ public class DateUtils
       // to the SimpleDateFormat specification below
       try
       {
-          date_numbers = parseDate2 (string);
+          date_numbers = parseDate2 (string, ddmmyy);
           
           // parse the newly formatted string
           integer2_format = new DecimalFormat ("00");
@@ -340,11 +343,21 @@ public class DateUtils
    *           day, month, year, hour, minute, second
    *         Missing fields (hour, mintute or second) will be set to 0.
    *         Allow any delimiter at all except '&'.
+   *
+   * ddmmyy - if set to true then parameters are day -month -year, if not set then assume false
+   * for years below 31 (millenium bug!)
+   *
    * @return the date as six integer values, in order year, month, day, hour, min, sec
    * @throws NoSuchElementException if the sering is badly formatted
    * @throws NumberFormatException if the sering is badly formatted */
-  public static int [] parseDate2 (String string)
-  throws NoSuchElementException, NumberFormatException
+  public static int [] parseDate2 (String string)  throws NoSuchElementException, NumberFormatException
+{
+          return parseDate2(string, false);
+ }
+
+
+    public static int [] parseDate2 (String string,boolean ddmmyy)
+     throws NoSuchElementException, NumberFormatException
   {
       int count, swap;
       StringTokenizer date_tokens;
@@ -388,16 +401,31 @@ public class DateUtils
       for (count=0; count<6; count++) date_numbers[count] = Integer.parseInt(date_fields [count]);
 
       // check if the year is in the third field - if so swap it
-      if (date_numbers[2] > 31) 
+      if (date_numbers[2] > 31 || ddmmyy)
       {
           swap = date_numbers [0];
           date_numbers [0] = date_numbers [2];
           date_numbers [2] = swap;
       }
-        
+
+
       return date_numbers;
   }
-  
+
+
+public static Date  TwoDigitCenturyCorrect(Date date){
+    Calendar cal = new GregorianCalendar();
+    cal.setTime(date);
+    int yr = cal.get(Calendar.YEAR);
+    if(yr<100) //assume century has been missed off
+    {
+        if(yr>60)cal.add(Calendar.YEAR, 1900);
+        else cal.add(Calendar.YEAR,2000);
+    }
+    return cal.getTime();
+}
+
+
   /** quick and dirty date formatting
    * @param year the four digit year
    * @param month the month (0..11)
