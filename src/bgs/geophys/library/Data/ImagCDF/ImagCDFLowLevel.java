@@ -387,6 +387,58 @@ public class ImagCDFLowLevel
         return dataDateFormat.format(date);
     }
     
+    /** find the maximum or minimum value that a particualr geomagnetic element
+     * may legally take
+     * @param element string containing the single element character, e.g. H, D, Z, X, Y, ...
+     * @param max true to return the maximum legal value, false to return the minimum
+     * @return the maximum of minimum value that the element may take */
+    public static double getValidMaxMin (String element, boolean max)
+    {
+        if ("XYZHEV".indexOf(element.toUpperCase()) >= 0)
+        {
+            if (max) return 79999.0;
+            return -79999.0;
+        }
+        else if (element.equalsIgnoreCase("D"))
+        {
+            if (max) return 360.0 * 60.0;
+            return -180.0 * 60.0;
+        }
+        else if (element.equalsIgnoreCase("I"))
+        {
+            if (max) return 180.0 * 60.0;
+            return -180.0 * 60.0;
+        }
+        else if (element.equalsIgnoreCase("F"))
+        {
+            if (max) return 79999.0;
+            return 0.0;
+        }
+        else if (element.equalsIgnoreCase("S"))
+        {
+            if (max) return 79999.0;
+            return 0.0;
+        }
+        else if (element.equalsIgnoreCase("G"))
+        {
+            if (max) return 79999.0;
+            return -79999.0;
+        }
+        return 0.0;
+    }
+
+    /** get the name of the units corresponding to particular geomagnetic elements
+     * @param element string containing the single element character, e.g. H, D, Z, X, Y, ...
+     * @return the name of the units */
+    public static String getUnits (String element)
+    {
+        if ("XYZHEVFSG".indexOf(element.toUpperCase()) >= 0)
+            return "nT";
+        else if ("DI".indexOf(element.toUpperCase()) >= 0)
+            return "Minutes of arc";
+        return "Unknown";
+    }
+   
     /** ------------------------------------------------------------------------
      *  ---------------------------- Private code ------------------------------
      *  ------------------------------------------------------------------------*/
