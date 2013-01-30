@@ -79,4 +79,27 @@ public class IMCDFBaselineType
         if (long_form) return "Unknown";
         return "U";
     }
+
+    /** convert an IMF or IAGA-2002 data type code to an IMCDF baseline type
+     * @param type_code one of the IMF or IAGA-2002 data type codes - only
+     *        the first letter is used to decode the code
+     * @return the baseline type */
+    public static IMCDFBaselineType getBaselineType (String type_code)
+    {
+        if (type_code.length() > 0)
+        {
+            switch (type_code.charAt(0))
+            {
+                case 'A': return new IMCDFBaselineType (IMCDFBaselineType.BaselineCode.PRELIMINARY);
+                case 'R': return new IMCDFBaselineType (IMCDFBaselineType.BaselineCode.NONE);
+                case 'Q': return new IMCDFBaselineType (IMCDFBaselineType.BaselineCode.QUASI_DEFINITIVE);
+                case 'D': return new IMCDFBaselineType (IMCDFBaselineType.BaselineCode.DEFINITIVE);
+                case 'T': return new IMCDFBaselineType (IMCDFBaselineType.BaselineCode.NONE);
+                case 'Z': return new IMCDFBaselineType (IMCDFBaselineType.BaselineCode.DEFINITIVE);
+            }
+        }
+        return new IMCDFBaselineType (IMCDFBaselineType.BaselineCode.NONE);
+    }
+    
+    
 }

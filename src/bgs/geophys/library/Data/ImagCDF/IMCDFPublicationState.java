@@ -74,4 +74,25 @@ public class IMCDFPublicationState
         return "U";
     }    
     
+    /** convert an IMF or IAGA-2002 data type code to an IMCDF publication state
+     * @param type_code one of the IMF or IAGA-2002 data type codes - only
+     *        the first letter is used to decode the code
+     * @return the publication state */
+    public static IMCDFPublicationState getPublicationState (String type_code)
+    {
+        if (type_code.length() > 0)
+        {
+            switch (type_code.charAt(0))
+            {
+                case 'A': return new IMCDFPublicationState (IMCDFPublicationState.PubState.ADJUSTED);
+                case 'R': return new IMCDFPublicationState (IMCDFPublicationState.PubState.RAW);
+                case 'Q': return new IMCDFPublicationState (IMCDFPublicationState.PubState.ADJUSTED);
+                case 'D': return new IMCDFPublicationState (IMCDFPublicationState.PubState.DEFINITIVE);
+                case 'T': return new IMCDFPublicationState (IMCDFPublicationState.PubState.RAW);
+                case 'Z': return new IMCDFPublicationState (IMCDFPublicationState.PubState.DEFINITIVE);
+            }
+        }
+        return new IMCDFPublicationState (IMCDFPublicationState.PubState.RAW);
+    }
+
 }
