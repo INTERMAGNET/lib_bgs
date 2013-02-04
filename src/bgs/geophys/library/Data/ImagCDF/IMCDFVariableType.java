@@ -62,10 +62,11 @@ public class IMCDFVariableType
     }
     
     /** create the name of the variable that will be used in the CDF file
-     * @param element_no the element number for this variable 
+     * @param element_no the element number for this variable (starting at 0)
      * @return the variable name */
     public String getCDFFileVariableName (int element_no)
     {
+        element_no ++;      // variable names are '1'-based
         return toString() + element_no;
     }
     
