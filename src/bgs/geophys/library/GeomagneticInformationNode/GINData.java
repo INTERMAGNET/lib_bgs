@@ -101,6 +101,7 @@ public class GINData
     throws GINDataException, ConfigFileException, ParameterException
     {        
         int orientation, count;
+        String test_components;
         
         // load verifying objects
         station_details_list = new StationDetails ();
@@ -109,7 +110,7 @@ public class GINData
 
         // store the sample rate
         this.samps_per_day = samps_per_day;
-        file_length = 16 * samps_per_day;
+        file_length = (16 * samps_per_day) + 4;
         this.components = components;
         
         // check the data
@@ -129,21 +130,19 @@ public class GINData
             throw new ParameterException ("Data type does not exist: " + data_type_desc);
         if (data_type_code.equalsIgnoreCase("j"))
             throw new ParameterException ("Data type 'j' not allowed here");
-        if ((sta_details.comp1_orient == 'H' || sta_details.comp1_orient == 'h') &&
-            (sta_details.comp2_orient == 'D' || sta_details.comp2_orient == 'd') &&
-            (sta_details.comp3_orient == 'Z' || sta_details.comp3_orient == 'z'))
+
+        if (components.length() != 4)
+            throw new GINDataException ("Unrecognised component orientation: " + components);
+        test_components = components.substring (0, 3);
+        if (test_components.equalsIgnoreCase("HDZ"))
             orientation = GeomagAbsoluteValue.ORIENTATION_HDZ;
-        else if ((sta_details.comp1_orient == 'X' || sta_details.comp1_orient == 'x') &&
-                 (sta_details.comp2_orient == 'Y' || sta_details.comp2_orient == 'y') &&
-                 (sta_details.comp3_orient == 'Z' || sta_details.comp3_orient == 'z'))
+        else if (test_components.equalsIgnoreCase("XYZ"))
             orientation = GeomagAbsoluteValue.ORIENTATION_XYZ;
-        else if ((sta_details.comp1_orient == 'D' || sta_details.comp1_orient == 'd') &&
-                 (sta_details.comp2_orient == 'I' || sta_details.comp2_orient == 'i') &&
-                 (sta_details.comp3_orient == 'F' || sta_details.comp3_orient == 'f'))
+        else if (test_components.equalsIgnoreCase("DIF"))
             orientation = GeomagAbsoluteValue.ORIENTATION_DIF;
         else
-            throw new ConfigFileException ("Unable to understand component codes for station: " + station_code);
-        
+            throw new GINDataException ("Unsupported component code: " + test_components);
+
         // record the data
         this.data_type_desc = data_type_desc;
         this.date = date;
@@ -160,7 +159,7 @@ public class GINData
         stats [0] = stats [1] = stats [2] = stats [3] = null;
     }
 
-    /** Creates a new instance of MinuteData from data on disk
+    /** Creates a new instance of GINData from data on disk
      * @param station_code the station code
      * @param samps_per_day the sample rate in samples per day
      * @param date the starting date for the data
@@ -174,7 +173,7 @@ public class GINData
                     boolean allow_j)
     throws GINDataException, ConfigFileException, ParameterException
     {
-        int total_data_points, orientation;
+        int total_data_points;
                         
         // load verifying objects
         station_details_list = new StationDetails ();
@@ -183,7 +182,7 @@ public class GINData
         
         // store the sample rate
         this.samps_per_day = samps_per_day;
-        file_length = 16 * samps_per_day;
+        file_length = (16 * samps_per_day) + 4;
         
         // check the station code and data type
         if ((date.getTime() % 1000) != 0)
@@ -191,30 +190,11 @@ public class GINData
         sta_details = station_details_list.findStation(station_code);
         if (sta_details == null)
             throw new ParameterException ("Station does not exist: " + station_code);
-        components = Character.toString (sta_details.comp1_orient) +
-                     Character.toString (sta_details.comp2_orient) +
-                     Character.toString (sta_details.comp3_orient) +
-                     Character.toString (sta_details.comp4_orient);
         data_type_code = gin_dictionary.find ("DATA_TYPE", GINDictionary.SEARCH_DATA_CASE_INDEPENDANT, data_type_desc);
         if (data_type_code == null)
             throw new ParameterException ("Data type does not exist: " + data_type_desc);
         if ((! allow_j) && data_type_code.equalsIgnoreCase("j"))
             throw new ParameterException ("Data type 'j' not allowed here");
-        if ((sta_details.comp1_orient == 'H' || sta_details.comp1_orient == 'h') &&
-            (sta_details.comp2_orient == 'D' || sta_details.comp2_orient == 'd') &&
-            (sta_details.comp3_orient == 'Z' || sta_details.comp3_orient == 'z'))
-            orientation = GeomagAbsoluteValue.ORIENTATION_HDZ;
-        else if ((sta_details.comp1_orient == 'X' || sta_details.comp1_orient == 'x') &&
-                 (sta_details.comp2_orient == 'Y' || sta_details.comp2_orient == 'y') &&
-                 (sta_details.comp3_orient == 'Z' || sta_details.comp3_orient == 'z'))
-            orientation = GeomagAbsoluteValue.ORIENTATION_XYZ;
-        else if ((sta_details.comp1_orient == 'D' || sta_details.comp1_orient == 'd') &&
-                 (sta_details.comp2_orient == 'I' || sta_details.comp2_orient == 'i') &&
-                 (sta_details.comp3_orient == 'F' || sta_details.comp3_orient == 'f'))
-            orientation = GeomagAbsoluteValue.ORIENTATION_DIF;
-        else
-            throw new ConfigFileException ("Unable to understand component codes for station: " + station_code);
-        
         // record the parameters
         this.data_type_desc = data_type_desc;
         this.date = date;
@@ -223,7 +203,7 @@ public class GINData
         data = new ArrayList<GeomagAbsoluteValue> ();
 
         // handle the special adjusted or reported data type
-        if (! data_type_code.equalsIgnoreCase("j")) readData (orientation, length);
+        if (! data_type_code.equalsIgnoreCase("j")) readData (length);
         else
         {
             // try quasi-definitive data first
@@ -231,7 +211,7 @@ public class GINData
             data_type_code = gin_dictionary.find ("DATA_TYPE", GINDictionary.SEARCH_DATA_CASE_INDEPENDANT, data_type_desc);
             if (data_type_code == null)
                 throw new GINDataException ("Missing code for " + data_type_desc + " data");
-            readData (orientation, length);
+            readData (length);
             total_data_points = getStats (0).count + getStats(1).count +
                                 getStats (2).count + getStats(3).count;
             if (total_data_points <= 0)
@@ -243,7 +223,7 @@ public class GINData
                 if (data_type_code == null)
                     throw new GINDataException ("Missing code for " + data_type_desc + " data");
                 data = new ArrayList<GeomagAbsoluteValue> ();
-                readData (orientation, length);
+                readData (length);
                 total_data_points = getStats (0).count + getStats(1).count +
                                     getStats (2).count + getStats(3).count;
                 if (total_data_points <= 0)
@@ -255,7 +235,7 @@ public class GINData
                     if (data_type_code == null)
                         throw new GINDataException ("Missing code for " + data_type_desc + " data");
                     data = new ArrayList<GeomagAbsoluteValue> ();
-                    readData (orientation, length);
+                    readData (length);
                 }
             }
         }
@@ -275,15 +255,15 @@ public class GINData
         int sample_count, count;
         long date_count, date_inc, data_offset;
         boolean new_file, null_flags [];
-        byte buffer [];
+        byte buffer [], test_components_bytes [];
         double samples [], read_samples [];
-        char data_char, station_char;
+        char data_char;
         SimpleMathsEvaluator evaluators [];
         AppDetails.AppDetailsFields app_details;
         Date now_date, end_data_date, start_window_date;
         SimpleDateFormat date_format;
         ByteBuffer internal_reader;
-        String filename, file_fault, general_fault;
+        String filename, file_fault, general_fault, test_components;
         RandomAccessFile writer;
         FileLock file_lock;
         Iterator iterator;
@@ -355,9 +335,7 @@ public class GINData
             }
         }
 
-        // check that the given orientation matches what is expected for the
-        // station - this search needs to be careful about the extra codes
-        // that the Edinburgh GIN uses (E, T and N)
+        // check the orientation
         null_flags = new boolean [4];
         if (general_fault == null)
         {
@@ -368,27 +346,8 @@ public class GINData
                 for (count=0; count<4; count++)
                 {
                     data_char = components.charAt(count);
-                    switch (count)
-                    {
-                    case 0: station_char = sta_details.comp1_orient; break;
-                    case 1: station_char = sta_details.comp2_orient; break;
-                    case 2: station_char = sta_details.comp3_orient; break;
-                    case 3: station_char = sta_details.comp4_orient; break;
-                    default: station_char = 'N';
-                    }
                     if (data_char == 'N' || data_char == 'n') null_flags [count] = true;
-                    else if (station_char == 'N' || station_char == 'n') null_flags [count] = true;
-                    else if (Character.toUpperCase(data_char) == Character.toUpperCase(station_char)) null_flags [count] = false;
-                    else
-                    {
-                        // don't overwrite a previous fault (but do keep processing so all null_flags are set)
-                        if (general_fault == null)
-                            general_fault = "Data components incompatible with station details: data=" +
-                                            components + ", station=" +
-                                            Character.toString(sta_details.comp1_orient) + Character.toString(sta_details.comp2_orient) +
-                                            Character.toString(sta_details.comp3_orient) + Character.toString(sta_details.comp4_orient);
-                        null_flags [count] = false;
-                    }
+                    else null_flags [count] = false;
                 }
             }
         }
@@ -449,7 +408,7 @@ public class GINData
                     catch (IOException e) { file_fault = "IO Error"; }
                 }
 
-                // if the file is empty, fill it with missing data
+                // if the file is empty, fill it with missing data and the component code
                 if (file_fault == null)
                 {
                     try
@@ -461,21 +420,23 @@ public class GINData
                                 internal_reader.putFloat((float) MISSING_DATA_FLAG);
                             for(data_offset=0; data_offset<samps_per_day; data_offset ++)
                                 writer.write (buffer);
+                            writer.write (components.getBytes());
                         }
-                    }
-                    catch (IOException e) { file_fault = "IO Error"; }
-                }
-                
-                // check the file size
-                if (file_fault == null)
-                {
-                    try
-                    {
-                        if (writer.length() != ((long) file_length))
+                        else if (writer.length() == ((long) file_length))
+                        {
+                            writer.seek (file_length -4);
+                            test_components_bytes = new byte [4];
+                            writer.read (test_components_bytes);
+                            test_components = new String (test_components_bytes);
+                            if (! components.equals(test_components))
+                                file_fault = "Mismatch in component orientation, " + components + " should be " + test_components;
+                        }
+                        else
                             file_fault = "Wrong size database file: " + filename;
                     }
                     catch (IOException e) { file_fault = "IO Error"; }
                 }
+                
             }
             
             // nothing more is needed for a missing data record
@@ -665,14 +626,15 @@ public class GINData
     //////////////////////////////////////////////////////////////////////////////////////
     
     // routine to read data from a data file
-    private void readData (int orientation, int length)
+    private void readData (int length)
     throws GINDataException
     {
-        int sample_count;
+        int sample_count, orientation;
         long date_count, data_offset, date_inc;
         boolean new_file;
         double samples [];
-        String filename;
+        byte test_components_bytes [];
+        String filename, test_components;
         RandomAccessFile reader;
         FileLock file_lock;
         
@@ -682,6 +644,8 @@ public class GINData
         file_lock = null;
         samples = new double [4];
         date_inc = 86400000 / samps_per_day;
+        components = null;
+        orientation = GeomagAbsoluteValue.ORIENTATION_UNKNOWN;
         try
         {
             // for each data point ...
@@ -705,9 +669,31 @@ public class GINData
                     if (reader != null) reader.close ();
                     try
                     {
+                        // open and lock the file
                         reader = new RandomAccessFile (filename, "r");
                         file_lock = reader.getChannel().lock(0, file_length, true);
-                    
+                        
+                        // read and check the orientation of the data
+                        reader.seek (file_length -4);
+                        test_components_bytes = new byte [4];
+                        reader.read (test_components_bytes);
+                        test_components = new String (test_components_bytes);
+                        if (components == null)
+                        {
+                            components = test_components.substring (0, 3);
+                            if (components.equalsIgnoreCase("HDZ"))
+                                orientation = GeomagAbsoluteValue.ORIENTATION_HDZ;
+                            else if (components.equalsIgnoreCase("XYZ"))
+                                orientation = GeomagAbsoluteValue.ORIENTATION_XYZ;
+                            else if (components.equalsIgnoreCase("DIF"))
+                                orientation = GeomagAbsoluteValue.ORIENTATION_DIF;
+                            else
+                                throw new GINDataException ("Unsupported component code: " + test_components);
+                            components = test_components;
+                        }
+                        else if (! components.equals(new String (test_components)))
+                            throw new GINDataException ("Orientation changes from " + components + " to " + test_components + " at " + date.toString());
+
                         // if needed seek to the first location
                         data_offset = time2position (date_count);
                         if (data_offset != 0)

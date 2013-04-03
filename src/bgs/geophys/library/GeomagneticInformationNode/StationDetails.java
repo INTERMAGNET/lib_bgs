@@ -23,22 +23,8 @@ implements ConfigFileInterface
     {
         /** 1.) 3-4 digit IAGA station code */
         public String station_code;
-        /** 2a.) 1st 4 digit sensor orientation - codes for the components are:
-         *       X, Y, Z, H, D (in min. arc), d (in nT), I, F,        
-         *       T (temperature in celsius), N (none) */
-        public char comp1_orient;
-        /** 2b.) 2nd 4 digit sensor orientation - codes for the components are:
-         *       X, Y, Z, H, D (in min. arc), d (in nT), I, F,        
-         *       T (temperature in celsius), N (none) */
-        public char comp2_orient;
-        /** 2c.) 3rd 4 digit sensor orientation - codes for the components are:
-         *       X, Y, Z, H, D (in min. arc), d (in nT), I, F,        
-         *       T (temperature in celsius), N (none) */
-        public char comp3_orient;
-        /** 2d.) 4th 4 digit sensor orientation - codes for the components are:
-         *       X, Y, Z, H, D (in min. arc), d (in nT), I, F,        
-         *       T (temperature in celsius), N (none) */
-        public char comp4_orient;
+        /** 2.) Reserved (was component orientation) */
+        public String reserved;
         /** 3.) Free text Observatory name */
         public String station_name;
         /** 4.) Observatory colatitude */
@@ -202,7 +188,7 @@ implements ConfigFileInterface
     public int getNFields() { return 11; }
     
     /** implementation of ConfigFileInterface: fill the object with data from the file
-     * @param row the row number beng set
+     * @param row the row number being set
      * @param column the column number being set
      * @param contents the value being set
      * @param file_line_number used in exceptions
@@ -225,12 +211,7 @@ implements ConfigFileInterface
             fields.station_code = contents;
             break;
         case 1:
-            if (contents.length() < 3 || contents.length() > 4)
-                throw new ConfigFileException ("There must be 3 or 4 component codes", file_line_number);
-            fields.comp1_orient = contents.charAt (0);
-            fields.comp2_orient = contents.charAt (1);
-            fields.comp3_orient = contents.charAt (2);
-            fields.comp4_orient = contents.charAt (3);
+            fields.reserved = contents;
             break;
         case 2:
             fields.station_name = contents;
