@@ -656,7 +656,8 @@ public class GINData
                 // or at midnight
                 if ((sample_count == 0) || ((date_count % 86400000) == 0)) new_file = true;
                 else new_file = false;
-            
+
+                
                 // generate the filename and open the file
                 if (new_file)
                 {
@@ -691,18 +692,20 @@ public class GINData
                                 throw new GINDataException ("Unsupported component code: " + test_components);
                             components = test_components;
                         }
-                        else if (! components.equals(new String (test_components)))
+                        else if (! components.equals(test_components))
                             throw new GINDataException ("Orientation changes from " + components + " to " + test_components + " at " + date.toString());
 
                         // if needed seek to the first location
                         data_offset = time2position (date_count);
-                        if (data_offset != 0)
-                            reader.seek (data_offset * (long) RECORD_LENGTH);
+                        reader.seek (data_offset * (long) RECORD_LENGTH);
                     }
                     catch (FileNotFoundException e)
                     {
                         reader = null;
                         file_lock = null;
+                        // the mising data values that will be generated where there is a missing
+                        // data file MUST have a valid orientation code
+                        orientation = GeomagAbsoluteValue.ORIENTATION_XYZ;
                     }
                 }
                 

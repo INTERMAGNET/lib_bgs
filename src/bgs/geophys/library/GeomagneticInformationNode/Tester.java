@@ -26,10 +26,10 @@ public class Tester
             // force properties to contain reference to GIN file location
             sys_props = System.getProperties();
             sys_props.setProperty ("GIN_READ_ONLY", "1");
-            sys_props.setProperty("GIN_DATA_DIR",    "\\\\mhlf\\gin\\test\\data");
-            sys_props.setProperty("GIN_SYS_TAB_DIR", "\\\\mhlf\\gin\\test\\data\\system_tables");
-//            sys_props.setProperty("GIN_DATA_DIR",    "\\\\mhlf\\gin\\data");
-//            sys_props.setProperty("GIN_SYS_TAB_DIR", "\\\\mhlf\\gin\\data\\system_tables");
+//            sys_props.setProperty("GIN_DATA_DIR",    "\\\\mhlf\\gin\\test\\data");
+//            sys_props.setProperty("GIN_SYS_TAB_DIR", "\\\\mhlf\\gin\\test\\data\\system_tables");
+            sys_props.setProperty("GIN_DATA_DIR",    "\\\\mhlf\\e_gin\\data");
+            sys_props.setProperty("GIN_SYS_TAB_DIR", "\\\\mhlf\\e_gin\\data\\system_tables");
 //            sys_props.setProperty("GIN_DATA_DIR",    "c:\\data");
 //            sys_props.setProperty("GIN_SYS_TAB_DIR", "c:\\data\\system_tables");
             
