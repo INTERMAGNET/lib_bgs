@@ -825,6 +825,10 @@ public class GeomagAbsoluteValue
     }
     public String getNativeOrientationCode (boolean show_missing_f)
     {
+        return getNativeOrientationCode(show_missing_f, true);
+    }
+    public String getNativeOrientationCode (boolean show_missing_f, boolean show_missing_f_as_missing)
+    {
         String string;
         
         switch (native_orientation)
@@ -835,7 +839,11 @@ public class GeomagAbsoluteValue
             default: return "";
         }
         if (FScalar_ok) string += "F";
-        else if (show_missing_f) string += "N";
+        else if (show_missing_f) 
+        {
+            if (show_missing_f_as_missing) string += "N";
+            else string += "F";
+        }
         return string;
     }
 
