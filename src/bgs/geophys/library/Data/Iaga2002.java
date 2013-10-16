@@ -360,7 +360,15 @@ public class Iaga2002 extends GeomagDataFormat
       * @throws IOException if there was an error reading the file
       * @throws GeomagDataException if there was an error in the data format - the
       *         messages associated with the exception will describe the problem */
+    /** file with no elevation is allowed if check_elevation is false, otherwise error
+     * if no elevation   */
     public static Iaga2002 read (InputStream is)
+    throws FileNotFoundException, IOException, GeomagDataException
+    {
+        return read(is, true);
+    }
+    
+    public static Iaga2002 read (InputStream is, boolean check_elevation)
     throws FileNotFoundException, IOException, GeomagDataException
     {
         int count, line_number, day_of_year, data_count, column1, column2;
@@ -425,7 +433,8 @@ public class Iaga2002 extends GeomagDataFormat
             } else if (header_name.equalsIgnoreCase("geodetic longitude")) {
                 try { longitude = Double.parseDouble(header_value); } catch (Exception e) { throw new GeomagDataException("Bad longitude at line number " + Integer.toString(line_number)); }
             } else if (header_name.equalsIgnoreCase("elevation")) {
-                try { elevation = Double.parseDouble(header_value); } catch (Exception e) { throw new GeomagDataException("Bad elevation at line number " + Integer.toString(line_number)); }
+                try { elevation = Double.parseDouble(header_value); } catch (Exception e) { 
+                    if(check_elevation)throw new GeomagDataException("Bad elevation at line number " + Integer.toString(line_number)); }
             } else if (header_name.equalsIgnoreCase("reported"))
                 comp_code = header_value;
             else if (header_name.equalsIgnoreCase("sensor orientation"))
@@ -455,7 +464,7 @@ public class Iaga2002 extends GeomagDataFormat
                 if (longitude == MISSING_HEADER_VALUE)
                     throw new GeomagDataException("'Geodetic Longitude' missing from header");
                 if (elevation == MISSING_HEADER_VALUE)
-                    throw new GeomagDataException("'Elevation' missing from header");
+                    if(check_elevation) throw new GeomagDataException("'Elevation' missing from header");
                 if (comp_code == null)
                     throw new GeomagDataException("'Reported' code missing from header");
                 if (sensor_orientation == null)
