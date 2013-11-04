@@ -253,6 +253,12 @@ public class ImagCDFile
         int day;
         for (day=0; day<n_days; day++) data [day].setRecordedElements(comps);
     }
+    /** utility routine to get the component code for the first day in the file 
+     * @param comps the component code */
+    public String getRecordedElements ()
+    {
+       return data [0].getRecordedElements();
+    }
     
     /** utility routine to set the code for the institute for each day in the file 
      * @param inst the institute code */
