@@ -71,9 +71,9 @@ implements Comparable <GDASAddressConfig>
     {
         this.host_name = host_name;
         this.ip_port = ip_port;
-        this.connection_check_delay = 3600;
+        this.connection_check_delay = 600; // 10 mins
         this.sdas_conn_shutdown_period = 20;
-        this.socket_timeout = 0;
+        this.socket_timeout = 10; // 10 secs
         this.user_in_use = true;
         this.hostname_check = "";
         this.gdas_address_status = null;

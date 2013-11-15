@@ -1,3 +1,14 @@
+Version 1.3
+===========
+
+Modified code to support 1 pico Tesla output files as an option to configuration.
+Previous output format is still supported. Changed behaviour of alarms so that 
+GDAS systems that have no 'in use' address set do not produce an alarm state.
+Changed some default parameters to more optimised values. Small bug-fix that
+prevents XML null characters being written into XML status file as part of the most
+recent exception information (this was causing status viewer to crash). 
+
+
 Version 1.2
 ===========
 

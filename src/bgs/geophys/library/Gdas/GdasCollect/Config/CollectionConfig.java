@@ -40,6 +40,9 @@ public class CollectionConfig
     /** list of different file locking types */
     public enum FileLockingType {NONE, FILE_LEVEL, RECORD_LEVEL}
     
+    /** list of 1 second output formats */
+    public enum OutputFileFormat {HUNDRED_PT, ONE_PT}
+    
     /** the file used to read/write the configuration - will
      * be null if the configuration has not ben read or written */
     public File config_file;
@@ -50,7 +53,9 @@ public class CollectionConfig
     private String base_dir;
     /** configuration variable: code for the type of record termination */
     private TerminationType record_term_code;
-    /** configuration variable: code for the type of record locking */
+    /** configuration variable: code for the type of output file format */
+    private OutputFileFormat output_file_format;    
+    /** configuration variable: code for the type of record locking */    
     private FileLockingType file_lock_code;
     /** configuration variable: directory for log files (null = no log file) - only used by background processor */
     private String log_dir;
@@ -350,6 +355,10 @@ public class CollectionConfig
     /** Getter for property record_term_code.
      * @return Value of property record_term_code. */
     public TerminationType getRecordTerminationType() { return record_term_code; }
+    
+    /** Getter for property output_file_format code.
+     * @return Value of property output_file_format code. */
+    public OutputFileFormat getOutputFileFormat() { return output_file_format; }
 
     /** Getter for property file_lock_code.
      * @return Value of property file_lock_code. */
@@ -387,6 +396,9 @@ public class CollectionConfig
     
     /** setter property for record_term_code */
     public void setRecordTerminationType (TerminationType record_term_code) { this.record_term_code = record_term_code; }
+    
+    /** setter property for output_file_format code */
+    public void setOutputFileFormat (OutputFileFormat ouput_file_fmt) { this.output_file_format = ouput_file_fmt; }
     
     /** setter property for file_lock_code */
     public void setFileLockCode (FileLockingType file_lock_code) { this.file_lock_code = file_lock_code; }
@@ -622,6 +634,7 @@ public class CollectionConfig
         base_dir = ".";
         record_term_code = TerminationType.NATIVE;
         file_lock_code = FileLockingType.FILE_LEVEL;
+        output_file_format = OutputFileFormat.HUNDRED_PT;
         log_dir = null;
         write_to_stderr = false;
         mrrd_dir = ".";
@@ -646,6 +659,7 @@ public class CollectionConfig
         xstream_plus.configField (CollectionConfig.class, XStreamPlus.ACTION_OMIT_MEMBER,      "config_file",          "");
         xstream_plus.configField (CollectionConfig.class, XStreamPlus.ACTION_MAKE_ATTRIBUTE,   "write_to_stderr",      "WriteLogToStderr");
         xstream_plus.configField (CollectionConfig.class, XStreamPlus.ACTION_MAKE_FIELD,       "record_term_code",     "RecordTerminationCode");
+        xstream_plus.configField (CollectionConfig.class, XStreamPlus.ACTION_MAKE_FIELD,       "ouput_file_format",    "OutputFileFormat");
         xstream_plus.configField (CollectionConfig.class, XStreamPlus.ACTION_MAKE_FIELD,       "file_lock_code",       "FileLockCode");
         xstream_plus.configField (CollectionConfig.class, XStreamPlus.ACTION_MAKE_FIELD,       "base_dir",             "BaseDirectory");
         xstream_plus.configField (CollectionConfig.class, XStreamPlus.ACTION_MAKE_FIELD,       "log_dir",              "LogDirectory");

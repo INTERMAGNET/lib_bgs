@@ -62,11 +62,11 @@ public class GDASConfig implements Comparable<GDASConfig>
         sdas_t_chan_index = 3;
         sdas_f_chan_index = 4;
         watchdog_timeout = 900;
-        max_duration = 300;
+        max_duration = 3600;
         max_duration_ms = (long) max_duration * 1000l;
         this.collect_delay = 60;
         enable_data_collection = true;
-        enable_mean_calculation = true;
+        enable_mean_calculation = false;
         gdas_status = null;
     }
             

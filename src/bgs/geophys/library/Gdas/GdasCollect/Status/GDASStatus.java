@@ -284,12 +284,25 @@ implements StatusAlarm
         return gdas_name.compareTo(o.gdas_name); 
     }
     
+    public boolean hasInUseGDASAddress(){
+        GDASAddressStatus addstat;
+        for(int i=0; i<this.getNAddressStatus(); i++){
+            addstat = this.getAddressStatus(i);
+            if(addstat.isInUse())
+                return true;
+        }
+        return false;
+    }
+    
     public boolean isAlarmed() 
     {
         int count;
         GDASAddressStatus addr_status;
         ScriptStatus script_status;
-
+        
+        // if collection has no addresses in use on this system always return false      
+        if (! hasInUseGDASAddress()) return false;
+        
         if (isAmountFgDataCollectedAlarm()) return true;
         if (isAmountPrDataCollectedAlarm()) return true;
         if (isCollectDelayAlarm()) return true;
