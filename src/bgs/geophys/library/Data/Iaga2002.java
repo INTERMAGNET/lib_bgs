@@ -654,7 +654,7 @@ public class Iaga2002 extends GeomagDataFormat
         else if (data_type.equalsIgnoreCase("V")) data_type_code = "v";
         else if (data_type.equalsIgnoreCase("Reported")) data_type_code = "v";
         else if (data_type.equalsIgnoreCase("R")) data_type_code = "v";
-        else data_type_code = "q";
+        else data_type_code = "";
         
         filename = station_code + date_format.format (start_date) + data_type_code +file_period+ file_ext;
         if (force_lower_case) filename = filename.toLowerCase();
