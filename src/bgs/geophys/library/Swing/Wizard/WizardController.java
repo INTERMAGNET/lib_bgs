@@ -90,7 +90,12 @@ public class WizardController implements ActionListener {
         Object nextPanelDescriptor = descriptor.getNextPanelDescriptor();
         
         if (nextPanelDescriptor instanceof WizardPanelDescriptor.FinishIdentifier) {
-            wizard.close(Wizard.FINISH_RETURN_CODE);
+            WizardPanelDescriptor oldPanelDescriptor = wizard.getModel().getCurrentPanelDescriptor();
+            if (oldPanelDescriptor != null)
+            {
+                if (oldPanelDescriptor.aboutToHidePanel())
+                    wizard.close(Wizard.FINISH_RETURN_CODE);
+            }
         } else {        
             wizard.setCurrentPanel(nextPanelDescriptor);
         }
