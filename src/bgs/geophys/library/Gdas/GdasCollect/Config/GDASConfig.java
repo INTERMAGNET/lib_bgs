@@ -18,7 +18,9 @@ import java.util.*;
  */
 public class GDASConfig implements Comparable<GDASConfig>
 {
-   
+   /** list of 1 second output formats */
+    public enum OutputFileFormat {HUNDRED_PT, ONE_PT}
+    
     /**configuration variable: the name of the system */
     private GDASName gdas_name;
     /** configuration variable: a list of addresses by which the host can be reached - the addresses are used
@@ -35,8 +37,10 @@ public class GDASConfig implements Comparable<GDASConfig>
     private int sdas_t_chan_index;
     /** configuration variable: the channel index for ten second f data */
     private int sdas_f_chan_index;
+    /** configuration variable: the output format of the data */
+    private OutputFileFormat output_file_format;
     /** configuration variable: the amount of time (in seconds) after which a thread which has not collected new data or
-     * produced an error will be said to be dead (and will be restarted) */
+     * produced an error will be said to be dead (and will be restarted) */    
     private int watchdog_timeout;
     /** configuration variable: the maximum duration for a single data transfer (in seconds) */
     private int max_duration;
@@ -61,6 +65,7 @@ public class GDASConfig implements Comparable<GDASConfig>
         sdas_z_chan_index = 2;
         sdas_t_chan_index = 3;
         sdas_f_chan_index = 4;
+        output_file_format = OutputFileFormat.HUNDRED_PT;
         watchdog_timeout = 900;
         max_duration = 3600;
         max_duration_ms = (long) max_duration * 1000l;
@@ -94,6 +99,7 @@ public class GDASConfig implements Comparable<GDASConfig>
         this.sdas_z_chan_index = o.sdas_z_chan_index;
         this.sdas_t_chan_index = o.sdas_t_chan_index;
         this.sdas_f_chan_index = o.sdas_f_chan_index;
+        this.output_file_format = o.output_file_format;
         this.watchdog_timeout = o.watchdog_timeout;
         this.max_duration = o.max_duration;
         this.max_duration_ms = (long) max_duration * 1000l;
@@ -173,6 +179,7 @@ public class GDASConfig implements Comparable<GDASConfig>
     public int getSdasZChannelIndex () { return sdas_z_chan_index; }
     public int getSdasTChannelIndex () { return sdas_t_chan_index; }
     public int getSdasFChannelIndex () { return sdas_f_chan_index; }
+    public OutputFileFormat getOutputFileFormat() { return output_file_format; }
     public int getWatchdogTimeout () { return watchdog_timeout; }
     public int getMaximumDuration () { return max_duration; }
     public long getMaximumDurationMs () { return max_duration_ms; }
@@ -189,6 +196,7 @@ public class GDASConfig implements Comparable<GDASConfig>
     public void setSdasZChannelIndex (int sdas_z_chan_index) { this.sdas_z_chan_index = sdas_z_chan_index; }
     public void setSdasTChannelIndex (int sdas_t_chan_index) { this.sdas_t_chan_index = sdas_t_chan_index; }
     public void setSdasFChannelIndex (int sdas_f_chan_index) { this.sdas_f_chan_index = sdas_f_chan_index; }
+    public void setOutputFileFormat (OutputFileFormat output_file_format) { this.output_file_format = output_file_format; }
     public void setWatchdogTimeout (int watchdog_timeout) { this.watchdog_timeout = watchdog_timeout; }
     public void setMaximumDuration (int max_duration) 
     { 

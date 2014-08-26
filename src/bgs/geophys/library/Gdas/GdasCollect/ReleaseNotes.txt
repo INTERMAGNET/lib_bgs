@@ -1,3 +1,11 @@
+Version 1.4
+===========
+
+Modified code to support 1 pico Tesla output files on a per GDAS system basis.
+This allows individual GDAS systems to be configured for picoTesla or nanoTesla
+output file formats.
+
+
 Version 1.3
 ===========
 
