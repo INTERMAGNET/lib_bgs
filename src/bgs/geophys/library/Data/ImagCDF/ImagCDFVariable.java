@@ -7,7 +7,6 @@ package bgs.geophys.library.Data.ImagCDF;
 import gsfc.nssdc.cdf.CDFException;
 import gsfc.nssdc.cdf.Variable;
 import java.text.ParseException;
-import java.util.Date;
 
 /**
  * A class that holds an ImagCDF variable along with it's metadata
@@ -30,10 +29,7 @@ public class ImagCDFVariable
     private double valid_max;
     private String units;
     private double fill_val;
-    private Date start_date;
-    private double samp_per;
     private String elem_rec;
-    private double orig_freq;
     
     // private member data - the data array
     private double data [];
@@ -41,25 +37,24 @@ public class ImagCDFVariable
     /** create a ImagCDF variable from the contents of a CDF file
      * @param cdf the open CDF file encapsulated in an ImagCDFLowLevel object
      * @param variable_type the type of data this object should look for in the CDF file
-     * @param element_no the element number, 0 for 1st element, ...
+     * @param suffix the suffix for the element name (numbers starting at '1' for temperature elements,
+     *               geomagnetic element codes for geomagnetic elements)
      * @throws CDFException if there is a problem reading the data */
-    public ImagCDFVariable (ImagCDFLowLevel cdf, IMCDFVariableType variable_type, int element_no)
-    throws CDFException, ParseException
+    public ImagCDFVariable (ImagCDFLowLevel cdf, IMCDFVariableType variable_type, String suffix)
+    throws CDFException
     {
         Variable var;
 
         this.variable_type = variable_type;
-        var = cdf.getVariable (variable_type.getCDFFileVariableName(element_no));
+        var = cdf.getVariable (variable_type.getCDFFileVariableName(suffix));
         
         field_nam =                             cdf.getVariableAttributeString("FIELDNAM",  var);
         valid_min =                             cdf.getVariableAttributeDouble("VALIDMIN",  var);
         valid_max =                             cdf.getVariableAttributeDouble("VALIDMAX",  var);
         units =                                 cdf.getVariableAttributeString("UNITS",     var);
         fill_val =                              cdf.getVariableAttributeDouble("FILLVAL",   var);
-        start_date = ImagCDFLowLevel.parseDate (cdf.getVariableAttributeString("StartDate", var));
-        samp_per =                              cdf.getVariableAttributeDouble("SampPer",   var);
-        elem_rec =                              cdf.getVariableAttributeString("ElemRec",   var).toUpperCase();
-        orig_freq =                             cdf.getVariableAttributeDouble("OrigFreq",  var);
+        
+        elem_rec = suffix;
         
         data = ImagCDFLowLevel.getDataArray (var);
 
@@ -74,17 +69,14 @@ public class ImagCDFVariable
      * @param valid_max the largest possible value that the data can take
      * @param units name of the units that the data is in
      * @param fill_val the value that, when present in the data, shows that the data point was not recorded
-     * @param samp_per the period between samples, in seconds
-     * @param start_date the date/time of the first data sample
-     * @param elem_rec for geomagnetic data the element the this data represents.
+     * @param elem_rec for geomagnetic data the element that this data represents.
      *                 for temperature data the name of the location where temperature was recorded
-     * @param orig_freq the frequency that the data was originally recorded at
      * @param data the data as an array
      * @throws CDFException if the elem_rec or samp_per are invalid */
     public ImagCDFVariable (IMCDFVariableType variable_type, String field_nam,
                             double valid_min, double valid_max,
-                            String units, double fill_val, double samp_per, Date start_date,
-                            String elem_rec, double orig_freq, double data [])
+                            String units, double fill_val,
+                            String elem_rec, double data [])
     throws CDFException
     {
         this.variable_type = variable_type;
@@ -93,10 +85,7 @@ public class ImagCDFVariable
         this.valid_max = valid_max;
         this.units = units;
         this.fill_val = fill_val;
-        this.start_date = start_date;
-        this.samp_per = samp_per;
         this.elem_rec = elem_rec;
-        this.orig_freq = orig_freq;
         this.data = data;
         
         checkMetadata ();
@@ -104,24 +93,36 @@ public class ImagCDFVariable
 
     /** write this data to a CDF file
      * @param cdf the CDF file to write into
-     * @param element_no the number of this element (contiguous from one for each variable_type)
+     * @param suffix the suffix for the element name (numbers starting at '1' for temperature elements,
+     *               geomagnetic element codes for geomagnetic elements)
      * @throws CDFException if there is an error */
-    public void write (ImagCDFLowLevel cdf, int element_no)
+    public void write (ImagCDFLowLevel cdf, String suffix)
     throws CDFException
     {
+        int count;
         Variable var;
         
-        var = cdf.createDataArray (variable_type.getCDFFileVariableName(element_no), data);
+        var = cdf.createDataVariable (variable_type.getCDFFileVariableName(suffix), ImagCDFLowLevel.CDFVariableType.Double);
 
-        cdf.addVariableAttribute ("FIELDNAM",  var, field_nam);
-        cdf.addVariableAttribute ("VALIDMIN",  var, new Double (valid_min));
-        cdf.addVariableAttribute ("VALIDMAX",  var, new Double (valid_max));
-        cdf.addVariableAttribute ("UNITS",     var, units);
-        cdf.addVariableAttribute ("FILLVAL",   var, new Double (fill_val));
-        cdf.addVariableAttribute ("StartDate", var, ImagCDFLowLevel.formatDate(start_date));
-        cdf.addVariableAttribute ("SampPer",   var, new Double (samp_per));
-        cdf.addVariableAttribute ("ElemRec",   var, elem_rec);
-        cdf.addVariableAttribute ("OrigFreq",  var, new Double (orig_freq));
+        cdf.addVariableAttribute ("FIELDNAM",      var, field_nam);
+        cdf.addVariableAttribute ("VALIDMIN",      var, new Double (valid_min));
+        cdf.addVariableAttribute ("VALIDMAX",      var, new Double (valid_max));
+        cdf.addVariableAttribute ("UNITS",         var, units);
+        cdf.addVariableAttribute ("FILLVAL",       var, new Double (fill_val));
+        if (isVectorGeomagneticData())
+            cdf.addVariableAttribute("DEPEND_0",   var, IMCDFVariableType.VectorTimeStampsVarName);
+        else if (isScalarGeomagneticData())
+            cdf.addVariableAttribute("DEPEND_0",   var, IMCDFVariableType.ScalarTimeStampsVarName);
+        else
+            cdf.addVariableAttribute("DEPEND_0",   var, IMCDFVariableType.getTemperatureTimeStampsVarName(suffix));
+        cdf.addVariableAttribute ("DISPLAY_TYPE",  var, "time_series");
+        if (isScalarGeomagneticData() || isVectorGeomagneticData())
+            cdf.addVariableAttribute ("LABLAXIS",  var, suffix);
+        else
+            cdf.addVariableAttribute ("LABLAXIS",  var, "Temperature " + suffix);
+        
+        for (count=0; count<data.length; count++)
+            cdf.addData (var, count, data[count]);
     }
     
     public IMCDFVariableType getVariableType () { return variable_type; }
@@ -130,10 +131,7 @@ public class ImagCDFVariable
     public double getValidMaximum () { return valid_max; }
     public String getUnits () { return units; }
     public double getFillValue () { return fill_val; }
-    public Date getStartDate () { return start_date; }
-    public double getSamplePeriod () { return samp_per; }
     public String getElementRecorded () { return elem_rec; }
-    public double getOriginalFrequency () { return orig_freq; }
     
     public double [] getData () { return data; }
 
@@ -178,8 +176,6 @@ public class ImagCDFVariable
             if (elem_rec.length() != 1 || "XYZHDEVIFSG".indexOf (elem_rec) < 0)
                 throw new CDFException ("Data array '" + field_nam + "' contains an invalid element code: " + elem_rec);
         }
-        if (samp_per <= 0.0)
-            throw new CDFException ("Data array '" + field_nam + "' has an invlaid sample period: " + Double.toString(samp_per));
     }
     
 }

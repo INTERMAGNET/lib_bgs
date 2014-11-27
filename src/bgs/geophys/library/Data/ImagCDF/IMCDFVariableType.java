@@ -17,6 +17,14 @@ import java.text.ParseException;
 public class IMCDFVariableType 
 {
     
+    public static final String VectorTimeStampsVarName = "GeomagneticVectorTimes";
+    public static final String ScalarTimeStampsVarName = "GeomagneticScalarTimes";
+    
+    public static String getTemperatureTimeStampsVarName (String suffix)
+    {
+        return "Temperature" + suffix + "Times";
+    }
+    
     /** code for the type of data that can be held:
      * GeomagneticFieldElement - geomagnetic data
      * Temperature - temperature data */
@@ -55,19 +63,18 @@ public class IMCDFVariableType
     {
         switch (code)
         {
-            case GeomagneticFieldElement: return "GeomagneticFieldElement";
+            case GeomagneticFieldElement: return "GeomagneticField";
             case Temperature: return "Temperature";
         }
         return "Unknown";
     }
     
     /** create the name of the variable that will be used in the CDF file
-     * @param element_no the element number for this variable (starting at 0)
+     * @param suffix the suffix to the base name
      * @return the variable name */
-    public String getCDFFileVariableName (int element_no)
+    public String getCDFFileVariableName (String suffix)
     {
-        element_no ++;      // variable names are '1'-based
-        return toString() + element_no;
+        return toString() + suffix;
     }
     
 }

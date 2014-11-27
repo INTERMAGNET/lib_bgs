@@ -5,14 +5,12 @@
 package bgs.geophys.library.Data.ImagCDF;
 
 import gsfc.nssdc.cdf.*;
+import gsfc.nssdc.cdf.util.CDFTT2000;
 import java.io.File;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  *
@@ -35,14 +33,22 @@ public class ImagCDFLowLevel
     public enum CDFCompressType {None, RLE, Huff, AHuff, GZip1, GZip2, GZip3, 
                                  GZip4, GZip5, GZip6, GZip7, GZip8, GZip9}
 
+    /** an enumeration listing types of variable that can be created */
+    public enum CDFVariableType {Double, TT2000}
+    
     // private member data for this class
     private CDF cdf;
 
     // static initialisers - creation of formatting objects
     private static final SimpleDateFormat dataDateFormat;
+    private static final TimeZone gmtTimeZone;
+    private static final GregorianCalendar greg_cal;
     static
     {
         DateFormatSymbols english_date_format_symbols;
+        
+        gmtTimeZone = TimeZone.getTimeZone("gmt");
+        greg_cal = new GregorianCalendar(gmtTimeZone);
 
         try { english_date_format_symbols = new DateFormatSymbols (Locale.UK); }
         catch (MissingResourceException e) { english_date_format_symbols = null; }
@@ -173,24 +179,72 @@ public class ImagCDFLowLevel
     
     /** add a global attribute to the CDF file and make an entry in it
      * @param name the attribute name (must be unique)
+     * @param entry_no the entry number (zero based)
+     * @param mandatory if true, throw an exception if the value is null
      * @param value the contents of the entry
      * @throws CDFException if there is an error */
-    public void addGlobalAttribute (String name, String value)
+    public void addGlobalAttribute (String name, int entry_no, boolean mandatory, String value)
     throws CDFException
     {
-        Entry.create (Attribute.create (cdf, name, CDF.GLOBAL_SCOPE), 0, CDF.CDF_CHAR, value);        
+        if (value == null)
+        {
+            if (mandatory) throw new CDFException ("Missing value for mandatory attribute " + name);
+        }
+        else
+            Entry.create (Attribute.create (cdf, name, CDF.GLOBAL_SCOPE), 0, CDF.CDF_CHAR, value);        
     }
     
     /** add a global attribute to the CDF file and make an entry in it
      * @param name the attribute name (must be unique)
+     * @param entry_no the entry number (zero based)
+     * @param mandatory if true, throw an exception if the value is null
      * @param value the contents of the entry
      * @throws CDFException if there is an error */
-    public void addGlobalAttribute (String name, Double value)
+    public void addGlobalAttribute (String name, int entry_no, boolean mandatory, IMCDFPrintEnum value)
     throws CDFException
     {
-        Entry.create (Attribute.create (cdf, name, CDF.GLOBAL_SCOPE), 0, CDF.CDF_DOUBLE, new Double (value));
+        if (value == null)
+        {
+            if (mandatory) throw new CDFException ("Missing value for mandatory attribute " + name);
+        }
+        else
+            Entry.create (Attribute.create (cdf, name, CDF.GLOBAL_SCOPE), 0, CDF.CDF_CHAR, value.toString());
+    }
+    
+    /** add a global attribute to the CDF file and make an entry in it
+     * @param name the attribute name (must be unique)
+     * @param entry_no the entry number (zero based)
+     * @param mandatory if true, throw an exception if the value is null
+     * @param value the contents of the entry
+     * @throws CDFException if there is an error */
+    public void addGlobalAttribute (String name, int entry_no, boolean mandatory, Double value)
+    throws CDFException
+    {
+        if (value == null)
+        {
+            if (mandatory) throw new CDFException ("Missing value for mandatory attribute " + name);
+        }
+        else
+            Entry.create (Attribute.create (cdf, name, CDF.GLOBAL_SCOPE), 0, CDF.CDF_DOUBLE, new Double (value));
     }
 
+    /** add a global attribute to the CDF file and make an entry in it
+     * @param name the attribute name (must be unique)
+     * @param entry_no the entry number (zero based)
+     * @param mandatory if true, throw an exception if the value is null
+     * @param value the contents of the entry
+     * @throws CDFException if there is an error */
+    public void addGlobalAttribute (String name, int entry_no, boolean mandatory, Date value)
+    throws CDFException
+    {
+        if (value == null)
+        {
+            if (mandatory) throw new CDFException ("Missing value for mandatory attribute " + name);
+        }
+        else
+            Entry.create (Attribute.create (cdf, name, CDF.GLOBAL_SCOPE), 0, CDF.CDF_TIME_TT2000, new Long (ImagCDFLowLevel.DateToTT2000(value)));
+    }
+    
     /** add a variable attribute to the CDF file and make an entry in it
      * @param name the attribute name
      * @param var the variable that this entry applies to
@@ -219,19 +273,51 @@ public class ImagCDFLowLevel
         var.putEntry (attr, CDF.CDF_DOUBLE, value);
     }
     
-    /** create a data array in the CDF file
+    /** create a 0 dimensional data array in the CDF file
+     * @param name the name of the variable
+     * @param var_type the type of variable to create (Double or Long))
      * @return the variable that is used to hold the data
      * @throws CDFException if there is an error */
-    public Variable createDataArray (String name, double data [])
+    public Variable createDataVariable (String name, CDFVariableType var_type)
     throws CDFException
     {
-        int count;
         Variable var;
-        
-        var = Variable.create (cdf, name, CDF.CDF_DOUBLE, 1, 1, new long [] {data.length}, CDF.VARY, new long [] {CDF.VARY} );
-        var.putRecord (data);
+
+        switch (var_type)
+        {
+            case Double:
+                var = Variable.create (cdf, name, CDF.CDF_DOUBLE, 1, 0, new long [] {1}, CDF.VARY, new long [] {CDF.VARY} );
+                break;
+            case TT2000:
+                var = Variable.create (cdf, name, CDF.CDF_TIME_TT2000, 1, 0, new long [] {1}, CDF.VARY, new long [] {CDF.VARY} );
+                break;
+            default:
+                throw new CDFException ("Unrecongnised data type");
+        }
         
         return var;
+    }
+       
+    /** add the next sample data to a single data variable in the CDF file 
+     * @param var the variable to write to
+     * @param rec_no the record to write to
+     * @param data the data to write
+     * @throws CDFException if there is an error */
+    public void addData (Variable var, int rec_no, double data)
+    throws CDFException
+    {
+        var.putRecord (rec_no, data);
+    }
+    
+    /** add the next sample data to a single data variable in the CDF file 
+     * @param var the variable to write to
+     * @param rec_no the record to write to
+     * @param data the data to write
+     * @throws CDFException if there is an error */
+    public void addTimeStamp (Variable var, int rec_no, long data)
+    throws CDFException
+    {
+        var.putRecord (rec_no, data);
     }
 
     /** ------------------------------------------------------------------------
@@ -240,22 +326,53 @@ public class ImagCDFLowLevel
 
     /** get the contents of a global attribute
      * @param name the name of the attribute
+     * @param entry_no the entry number (zero based)
+     * @param mandatory if true, throw an exception if the attribute entry
+     *                  does not exist, otherwise return null
      * @return the value of the attribute
      * @throws CDFException if there is an error */
-    public String getGlobalAttributeString (String name)
+    public String getGlobalAttributeString (String name, int entry_no, boolean mandatory)
     throws CDFException
     {
-        return (String) cdf.getAttribute (name).getEntry(0).getData();
+        Entry entry;
+        
+        entry = getAttributeEntry(name, entry_no, mandatory);
+        if (entry == null) return null;
+        return (String) entry.getData();
     }
 
     /** get the contents of a global attribute
      * @param name the name of the attribute
+     * @param entry_no the entry number (zero based)
+     * @param mandatory if true, throw an exception if the attribute entry
+     *                  does not exist, otherwise return null
      * @return the value of the attribute
      * @throws CDFException if there is an error */
-    public double getGlobalAttributeDouble (String name)
+    public Double getGlobalAttributeDouble (String name, int entry_no, boolean mandatory)
     throws CDFException
     {
-        return ((Double) cdf.getAttribute (name).getEntry(0).getData()).doubleValue();
+        Entry entry;
+        
+        entry = getAttributeEntry(name, entry_no, mandatory);
+        if (entry == null) return null;
+        return ((Double) entry.getData());
+    }
+    
+    /** get the contents of a global attribute
+     * @param name the name of the attribute
+     * @param entry_no the entry number (zero based)
+     * @param mandatory if true, throw an exception if the attribute entry
+     *                  does not exist, otherwise return null
+     * @return the value of the attribute
+     * @throws CDFException if there is an error */
+    public Date getGlobalAttributeDate (String name, int entry_no, boolean mandatory)
+    throws CDFException
+    {
+        Entry entry;
+        
+        entry = getAttributeEntry(name, entry_no, mandatory);
+        if (entry == null) return null;
+        return TT2000ToDate ((Long) entry.getData());
     }
     
     /** get the contents of a variable attribute
@@ -303,6 +420,21 @@ public class ImagCDFLowLevel
     /** ------------------------------------------------------------------------
      *  ---------------------------- Useful utilities --------------------------
      *  ------------------------------------------------------------------------*/
+
+    /** get an attribute entry, optionally throwing an exception if it doesn't exit */
+    public Entry getAttributeEntry (String name, int entry_no, boolean mandatory)
+    throws CDFException
+    {
+        try
+        {
+            return cdf.getAttribute (name).getEntry(entry_no);
+        }
+        catch (CDFException ex)
+        {
+            if (mandatory) throw ex;
+        }
+        return null;
+    }
     
     /** a utility call that allows an application to check whether the CDF native library
      * is available and return gracefully if not.
@@ -370,20 +502,21 @@ public class ImagCDFLowLevel
     {
         CDFData cdf_data;
 
-        cdf_data = var.getRecordObject(0l);
+        cdf_data = var.getRecordsObject(0l, var.getNumWrittenRecords());
         return (double []) cdf_data.getData();
     }
     
-    
-    public static Date parseDate (String string_date) 
-    throws ParseException
+    /** get TT2000 time stamps from a variable
+     * @param name the name of the variable
+     * @return the data
+     * @throws CDFException  if there is an error */
+    public static long [] getTimeStampArray (Variable var)
+    throws CDFException
     {
-        return dataDateFormat.parse(string_date);
-    }
-    
-    public static String formatDate (Date date)
-    {
-        return dataDateFormat.format(date);
+        CDFData cdf_data;
+
+        cdf_data = var.getRecordsObject(0l, var.getNumWrittenRecords());
+        return (long []) cdf_data.getData();
     }
     
     /** find the maximum or minimum value that a particualr geomagnetic element
@@ -400,13 +533,13 @@ public class ImagCDFLowLevel
         }
         else if (element.equalsIgnoreCase("D"))
         {
-            if (max) return 360.0 * 60.0;
-            return -180.0 * 60.0;
+            if (max) return 360.0;
+            return -360.0;
         }
         else if (element.equalsIgnoreCase("I"))
         {
-            if (max) return 180.0 * 60.0;
-            return -180.0 * 60.0;
+            if (max) return 90.0;
+            return -90.0;
         }
         else if (element.equalsIgnoreCase("F"))
         {
@@ -434,10 +567,29 @@ public class ImagCDFLowLevel
         if ("XYZHEVFSG".indexOf(element.toUpperCase()) >= 0)
             return "nT";
         else if ("DI".indexOf(element.toUpperCase()) >= 0)
-            return "Minutes of arc";
+            return "Degrees of arc";
         return "Unknown";
     }
    
+    public static long DateToTT2000 (Date date)
+    throws CDFException
+    {
+        greg_cal.setTime(date);
+        return CDFTT2000.fromGregorianTime(greg_cal);
+    }
+    
+    public static long DateToTT2000 (long date)
+    throws CDFException
+    {
+        greg_cal.setTimeInMillis(date);
+        return CDFTT2000.fromGregorianTime(greg_cal);
+    }
+    
+    public static Date TT2000ToDate (long tt2000)
+    {
+        return new Date (CDFTT2000.toGregorianTime(tt2000).getTimeInMillis());
+    }
+    
     /** ------------------------------------------------------------------------
      *  ---------------------------- Private code ------------------------------
      *  ------------------------------------------------------------------------*/
