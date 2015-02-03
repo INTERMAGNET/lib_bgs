@@ -71,7 +71,7 @@ public class GeomagAbsoluteValue
     protected boolean X_ok, Y_ok, Z_ok, H_ok, D_ok, I_ok, F_ok, FScalar_ok, FDiff_ok;
 
     // which type of F data
-    protected int FType;
+    protected int FScalarType;
     
     // the original orientation code
     protected int native_orientation;
@@ -112,6 +112,7 @@ public class GeomagAbsoluteValue
         X_ok = Y_ok = Z_ok = false;
         H_ok = D_ok = I_ok = F_ok = false;
         FScalar_ok = FDiff_ok = false;
+        FScalarType = COMPONENT_UNKNOWN;
     }
     
     /** Creates a new empty instance of GeomagAbsoluteValue */
@@ -123,12 +124,14 @@ public class GeomagAbsoluteValue
         X_ok = Y_ok = Z_ok = false;
         H_ok = D_ok = I_ok = F_ok = false;
         FScalar_ok = FDiff_ok = false;
+        FScalarType = COMPONENT_UNKNOWN;
     }
     
     /** Creates an instance of GeomagAbsoluteValue where all elements are already known */
     public GeomagAbsoluteValue (double x, double y, double z, double f, double h, 
                                 double d, double i, double f_scalar, double f_diff, 
-                                double missingDataValue, int orientation, int angle_units)
+                                double missingDataValue, int orientation,
+                                int angle_units)
     {
         this.missingDataValue = missingDataValue;
         missingComponentValue = 88888.8;
@@ -168,10 +171,19 @@ public class GeomagAbsoluteValue
                     throw new IllegalArgumentException ("Bad geomagnetic angular measure code");
             }
         }
+        FScalarType = COMPONENT_UNKNOWN;
         if (f_scalar == missingDataValue ||f_scalar==missingComponentValue ) FScalar_ok = false;
-        else this.FScalar = f_scalar;
+        else 
+        {
+            this.FScalar = f_scalar;
+            FScalarType = COMPONENT_F_SCALAR;
+        }
         if (f_diff == missingDataValue|| f_diff==missingComponentValue ) FDiff_ok = false;
-        else this.FDiff = f_diff;
+        else 
+        {
+            this.FDiff = f_diff;
+            FScalarType = COMPONENT_F_DIFF;
+        }
     }
     
     /** Creates a new instance of GeomagAbsoluteValue from absolute vector
@@ -206,9 +218,10 @@ public class GeomagAbsoluteValue
 
     }
 
-    public void setF(double FScalar, int FScalarType){
-    this.FType = FScalarType;
-    switch (FScalarType)
+    public void setF(double FScalar, int FScalarType)
+    {
+        this.FScalarType = FScalarType;
+        switch (FScalarType)
         {
             case COMPONENT_F_DIFF:   // used after 2009
                 if (FScalar == missingDataValue ||FScalar==missingComponentValue){
@@ -272,6 +285,7 @@ public class GeomagAbsoluteValue
         this.missingDataValue = missingDataValue;
         missingComponentValue = 88888.8;
         FScalar_ok = FDiff_ok = false;
+        FScalarType = COMPONENT_UNKNOWN;
         switch (orientation)
         {
         case ORIENTATION_XYZ:
@@ -364,6 +378,7 @@ public class GeomagAbsoluteValue
         missingDataValue = 99999.9;
         missingComponentValue = 88888.8;
         FScalar_ok = FDiff_ok = false;
+        FScalarType = COMPONENT_UNKNOWN;
         switch (orientation)
         {
         case ORIENTATION_XYZ:
@@ -838,13 +853,23 @@ public class GeomagAbsoluteValue
             case ORIENTATION_XYZ: string = "XYZ"; break;
             default: return "";
         }
-        if (FScalar_ok) string += "F";
-        else if (show_missing_f) 
+        switch (FScalarType)
         {
-            if (show_missing_f_as_missing) string += "N";
-            else string += "F";
+            case COMPONENT_F_SCALAR: string += "S"; break;
+            case COMPONENT_F_DIFF: string += "G"; break;
+            default:
+                if (show_missing_f) 
+                {
+                    if (show_missing_f_as_missing) string += "N";
+                    else string += "F";
+                }
+                break;
         }
         return string;
+    }
+    public int getFScalarType ()
+    {
+        return FScalarType;
     }
 
     public boolean isComponentMissing (int comp)
@@ -875,29 +900,7 @@ public class GeomagAbsoluteValue
       if (FDiff_ok) return false;
       return true;
     }
-    
-    /** get a string version of a component code
-     * @param code one of the COMPONENT_xxx codes */
-    public String getComponentName (int code)
-    {
-        String string;
         
-        switch (resolveNative(code))
-        {
-            case COMPONENT_X: string = "X"; break;
-            case COMPONENT_Y: string = "Y"; break;
-            case COMPONENT_Z: string = "Z"; break;
-            case COMPONENT_F: string = "F"; break;
-            case COMPONENT_H: string = "H"; break;
-            case COMPONENT_D: string = "D"; break;
-            case COMPONENT_I: string = "I"; break;
-            case COMPONENT_F_SCALAR: string = "F (scalar)"; break;
-            case COMPONENT_F_DIFF: string = "F Difference"; break;
-            default: string = "Unknown"; break;
-        }
-        return string;
-    }
-    
     /** get a string version of the appropriate units for any component
      * @param code one of the COMPONENT_xxx codes
      * @param angle_units one of the ANGLE_xxx codes
@@ -1034,7 +1037,14 @@ public class GeomagAbsoluteValue
         if (F_ok) string += ", dF: " + Double.toString(FDiff);
         return string;
     }
-    
+
+    /** get a string version of a component code
+     * @param component one of the COMPONENT_xxx codes */
+    public static String getComponentName (int component)
+    {
+        return getComponentName(component, true);
+    }
+            
     public static String getComponentName (int component, boolean short_form)
     {
         if (short_form)
@@ -1048,8 +1058,8 @@ public class GeomagAbsoluteValue
             case GeomagAbsoluteValue.COMPONENT_Z: return "Z";
             case GeomagAbsoluteValue.COMPONENT_H: return "H";
             case GeomagAbsoluteValue.COMPONENT_F: return "F";
-            case GeomagAbsoluteValue.COMPONENT_F_SCALAR: return "F(S)";
-            case GeomagAbsoluteValue.COMPONENT_F_DIFF: return "dF";
+            case GeomagAbsoluteValue.COMPONENT_F_SCALAR: return "S";
+            case GeomagAbsoluteValue.COMPONENT_F_DIFF: return "G";
             }
             return "U";
         }

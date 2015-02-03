@@ -27,7 +27,10 @@ public class ImagCDDataDay
 {
     
     /** value used to flag missing data (except K-indices) */
-    public static final int MISSING_DATA    = 999999;
+    public static final int MISSING_DATA = 999999;
+    
+    /** value used to flag missing component (ie not recorded) */
+    public static final int MISSING_COMPONENT  = 888888;
     
     /** value used to flag a missing K index */
     public static final int MISSING_K_INDEX = 999;
