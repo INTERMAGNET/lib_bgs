@@ -190,6 +190,10 @@ public class ImagCDFLowLevel
         {
             if (mandatory) throw new CDFException ("Missing value for mandatory attribute " + name);
         }
+        else if (value.length() <= 0)
+        {
+            if (mandatory) throw new CDFException ("Missing value for mandatory attribute " + name);
+        }
         else
             Entry.create (Attribute.create (cdf, name, CDF.GLOBAL_SCOPE), 0, CDF.CDF_CHAR, value);        
     }

@@ -38,7 +38,8 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
         
     private WizardModel wizardModel;
     private WizardController wizardController;
-    private JDialog wizardDialog;
+    private JFrame wizardFrame;         // this is used if the Wizard is a main window
+    private JDialog wizardDialog;       // this is used if the Wizard is a dialog - only one of these two is used
         
     private JPanel cardPanel;
     private CardLayout cardLayout;            
@@ -60,12 +61,27 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     
     
     /**
-     * Default constructor. This method creates a new WizardModel object and passes it
-     * into the overloaded constructor.
+     * This method creates a new WizardModel object and a JFrame (main window)
      */    
-    public Wizard() 
+    public Wizard (String title) 
     {
-        this((Frame)null);
+        this (title, null);
+    }
+    
+    /**
+     * This method creates a new WizardModel object and a JFrame (main window)
+     */    
+    public Wizard (String title, Image icon) 
+    {
+        wizardModel = new WizardModel();
+        wizardFrame = new JFrame (title);
+        wizardDialog = null;
+        
+        wizardFrame.setDefaultCloseOperation (WindowConstants.DO_NOTHING_ON_CLOSE);
+        wizardFrame.addWindowListener (this);
+        if (icon != null) wizardFrame.setIconImage (icon);
+
+        initComponents();
     }
     
     /**
@@ -76,6 +92,7 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     public Wizard(Dialog owner) 
     {
         wizardModel = new WizardModel();
+        wizardFrame = null;
         wizardDialog = new JDialog(owner);
         initComponents();
     }
@@ -88,6 +105,7 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     public Wizard(Frame owner) 
     {
         wizardModel = new WizardModel();
+        wizardFrame = null;
         wizardDialog = new JDialog(owner);         
         initComponents();
     }
@@ -95,11 +113,22 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     /**
      * Returns an instance of the JDialog that this class created. This is useful in
      * the event that you want to change any of the JDialog parameters manually.
-     * @return The JDialog instance that this class created.
+     * @return The JDialog instance that this class created. NB - this may be null
+     *  (if the Wizard is displaying in a JFrame)
      */    
     public JDialog getDialog() 
     {
         return wizardDialog;
+    }
+    /**
+     * Returns an instance of the JFrame that this class created. This is useful in
+     * the event that you want to change any of the JFrame parameters manually.
+     * @return The JFrame instance that this class created. NB - this may be null
+     *  (if the Wizard is displaying in a JDialog)
+     */    
+    public JFrame getFrame() 
+    {
+        return wizardFrame;
     }
     
     public void addButtonListener (WizardListeners.WizardButtonListener listener) 
@@ -115,10 +144,11 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     /**
      * Returns the owner of the generated javax.swing.JDialog.
      * @return The owner (java.awt.Frame or java.awt.Dialog) of the javax.swing.JDialog generated
-     * by this class.
+     * by this class. May be null if the wizard has no owner
      */    
     public Component getOwner() 
     {
+        if (wizardDialog == null) return null;
         return wizardDialog.getOwner();
     }
     
@@ -128,7 +158,8 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
      */    
     public void setTitle(String s) 
     {
-        wizardDialog.setTitle(s);
+        if (wizardDialog == null) wizardFrame.setTitle(s);
+        else wizardDialog.setTitle(s);
     }
     
     /**
@@ -137,6 +168,7 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
      */    
     public String getTitle() 
     {
+        if (wizardDialog == null) return wizardFrame.getTitle();
         return wizardDialog.getTitle();
     }
     
@@ -146,7 +178,8 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
      */    
     public void setModal(boolean b) 
     {
-        wizardDialog.setModal(b);
+        if (wizardDialog != null)
+            wizardDialog.setModal(b);
     }
     
     /**
@@ -155,6 +188,7 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
      */    
     public boolean isModal() 
     {
+        if (wizardDialog == null) return true;
         return wizardDialog.isModal();
     }
     
@@ -166,10 +200,17 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
      */    
     public int showModalDialog() 
     {
-        
-        wizardDialog.setModal(true);
-        wizardDialog.pack();
-        wizardDialog.setVisible(true);
+        if (wizardDialog == null)
+        {
+            wizardFrame.pack();
+            wizardFrame.setVisible(true);
+        }
+        else
+        {
+            wizardDialog.setModal(true);
+            wizardDialog.pack();
+            wizardDialog.setVisible(true);
+        }
         
         return returnCode;
     }
@@ -179,9 +220,17 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
      */    
     public void showNonModalDialog() 
     {
-        wizardDialog.setModal(false);
-        wizardDialog.pack();
-        wizardDialog.setVisible(true);
+        if (wizardDialog == null)
+        {
+            wizardFrame.pack();
+            wizardFrame.setVisible(true);
+        }
+        else
+        {
+            wizardDialog.setModal(false);
+            wizardDialog.pack();
+            wizardDialog.setVisible(true);
+        }
     }
     
     /**
@@ -356,7 +405,8 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     void close(int code) 
     {
         returnCode = code;
-        wizardDialog.dispose();
+        if (wizardDialog == null) wizardFrame.dispose();
+        else wizardDialog.dispose();
     }
     
     /**
@@ -371,8 +421,16 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
         wizardModel.addPropertyChangeListener(this);       
         wizardController = new WizardController(this);       
 
-        wizardDialog.getContentPane().setLayout(new BorderLayout());
-        wizardDialog.addWindowListener(this);
+        if (wizardDialog == null)
+        {
+            wizardFrame.getContentPane().setLayout(new BorderLayout());
+            wizardFrame.addWindowListener(this);
+        }
+        else
+        {
+            wizardDialog.getContentPane().setLayout(new BorderLayout());
+            wizardDialog.addWindowListener(this);
+        }
                 
         //  Create the outer wizard panel, which is responsible for three buttons:
         //  Next, Back, and Cancel. It is also responsible a JPanel above them that
@@ -418,9 +476,16 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
         
         buttonPanel.add(buttonBox, java.awt.BorderLayout.EAST);
         
-        wizardDialog.getContentPane().add(buttonPanel, java.awt.BorderLayout.SOUTH);
-        wizardDialog.getContentPane().add(cardPanel, java.awt.BorderLayout.CENTER);
-
+        if (wizardDialog == null)
+        {
+            wizardFrame.getContentPane().add(buttonPanel, java.awt.BorderLayout.SOUTH);
+            wizardFrame.getContentPane().add(cardPanel, java.awt.BorderLayout.CENTER);
+        }
+        else
+        {
+            wizardDialog.getContentPane().add(buttonPanel, java.awt.BorderLayout.SOUTH);
+            wizardDialog.getContentPane().add(cardPanel, java.awt.BorderLayout.CENTER);
+        }
     }
     
    /**
@@ -434,11 +499,13 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     }
 
     public void addWindowListener (WindowListener listener) {
-        wizardDialog.addWindowListener(listener);
+        if (wizardDialog == null) wizardFrame.addWindowListener(listener);
+        else wizardDialog.addWindowListener(listener);
     }
     
     public void removeWindowListener (WindowListener listener) {
-        wizardDialog.removeWindowListener(listener);
+        if (wizardDialog == null) wizardFrame.removeWindowListener(listener);
+        else wizardDialog.removeWindowListener(listener);
     }
 
     /** set the text for the back button on all future panels - 
