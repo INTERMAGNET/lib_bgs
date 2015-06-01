@@ -12,6 +12,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -39,6 +40,9 @@ public class ImagCDF
      * filename */
     public enum FilenameSamplePeriod {ANNUAL, MONTHLY, DAILY, HOURLY, MINUTE, SECOND}
 
+    /* a list of listeners who will recieve "percent complete" notification during writing of data */
+    public List<IMCDFWriteProgressListener> write_progress_listeners;
+    
     /** constant value used to indicate missing data */
     public static final double MISSING_DATA_VALUE = 99999.0;
     
@@ -84,6 +88,8 @@ public class ImagCDF
         ImagCDFLowLevel cdf;
         IMCDFVariableType field_var_type, temperature_var_type;
         List<String> links, pids;
+        
+        write_progress_listeners = new ArrayList<> ();
         
         // check that the CDF libraries are available
         string = ImagCDFLowLevel.checkNativeLib("");
@@ -219,6 +225,8 @@ public class ImagCDF
     {
         int count;
         
+        write_progress_listeners = new ArrayList<> ();
+        
         // global metadata
         this.format_description = "INTERMAGNET CDF Format";
         this.format_version = "1.0";
@@ -231,14 +239,14 @@ public class ImagCDF
         this.longitude = longitude;
         this.elevation = elevation;
         this.institution = institution;
-        this.vector_sens_orient = vector_sens_orient;
+        this.vector_sens_orient = vector_sens_orient == null ? "" : vector_sens_orient;
         this.standard_level = standard_level;
         this.standard_name = standard_name;
-        this.standard_version = standard_version;
-        this.partial_stand_desc = partial_stand_desc;
+        this.standard_version = standard_version == null ? "" : standard_version;
+        this.partial_stand_desc = partial_stand_desc == null ? "" : partial_stand_desc;
         this.source = source;
         this.terms_of_use = getINTERMAGNETTermsOfUse();
-        this.unique_identifier = unique_identifier;
+        this.unique_identifier = unique_identifier == null ? "" : unique_identifier;
         this.parent_identifiers = parent_identifiers;
         this.reference_links = reference_links;
         
@@ -316,6 +324,24 @@ public class ImagCDF
         
         checkMetadata();
     }
+    
+    public void addWriteProgressListener (IMCDFWriteProgressListener listener)
+    {
+        write_progress_listeners.add (listener);
+    }
+    public void removeWriteProgressListener (IMCDFWriteProgressListener listener)
+    {
+        write_progress_listeners.remove(listener);
+    }
+    private void callWriteProgressListeners (int var_write_count, int n_vars)
+    {
+        Iterator<IMCDFWriteProgressListener> i;
+        int percent;
+        
+        i = write_progress_listeners.iterator();
+        percent = (var_write_count * 100) / n_vars;
+        while (i.hasNext()) i.next().percentComplete(percent);
+    }
 
     /** write this data to a CDF file
      * @param cdf_file the CDF file to write into
@@ -325,7 +351,7 @@ public class ImagCDF
     public void write (File cdf_file, boolean compress, boolean overwrite_existing)
     throws CDFException
     {
-        int count;
+        int count, n_data_arrays, n_written;
         ImagCDFLowLevel cdf;
         
         cdf = new ImagCDFLowLevel (cdf_file, 
@@ -357,17 +383,31 @@ public class ImagCDF
         for (count=0; count<reference_links.length; count++)
             cdf.addGlobalAttribute ("References",        count, true, reference_links [count].toString());
         
+        n_data_arrays = elements.length + temperatures.length + (scalar_time_stamps == null ? 1 : 2);
+        n_written = 0;
+        callWriteProgressListeners(n_written, n_data_arrays);
+        
         for (count=0; count<elements.length; count++)
+        {
             elements[count].write (cdf, elements[count].getElementRecorded());
-         vector_time_stamps.write (cdf);
-         if (scalar_time_stamps != null) scalar_time_stamps.write (cdf);
+            callWriteProgressListeners(++ n_written, n_data_arrays);
+        }
+        vector_time_stamps.write (cdf);
+        callWriteProgressListeners(++ n_written, n_data_arrays);
+        if (scalar_time_stamps != null)
+        {
+            scalar_time_stamps.write (cdf);
+            callWriteProgressListeners(++ n_written, n_data_arrays);
+        }
          
-         for (count=0; count<temperatures.length; count++)
-         {
+        for (count=0; count<temperatures.length; count++)
+        {
             temperatures[count].write(cdf, Integer.toString (count));
             temperature_time_stamps[count].write (cdf);
-         }
+            callWriteProgressListeners(++ n_written, n_data_arrays);
+        }
 
+        callWriteProgressListeners(n_data_arrays, n_data_arrays);
         cdf.close ();
     }
     

@@ -129,7 +129,7 @@ public class ImagCDFVariableTS
     }
 
     public String getVarName () { return var_name; }
-    public Date getStartDate () { return new Date (time_stamps [0]); }
+    public Date getStartDate () { return ImagCDFLowLevel.TT2000ToDate(time_stamps [0]); }
     public int getNSamples () { return time_stamps.length; }
             
     
