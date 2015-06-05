@@ -196,7 +196,7 @@ public class ImagCDFFilename
             case HOURLY:  dateFormat = yyyyMMdd_HH; break;
             case MINUTE:  dateFormat = yyyyMMdd_HHmm; break;
             case SECOND:  dateFormat = yyyyMMdd_HHmmss; break;
-            default:      dateFormat = yyyyMMdd_HHmmss;
+            default:      dateFormat = yyyyMMdd_HHmmss; break;
         }
         
         filename = this.getObservatoryCode()

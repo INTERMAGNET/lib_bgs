@@ -34,17 +34,29 @@ import java.util.TimeZone;
  * @author smf
  */
 public class ImagCDF 
+implements IMCDFWriteProgressListener
 {
-    
+
     /** an enumeration that defines possible sample period values for the
      * filename */
     public enum FilenameSamplePeriod {ANNUAL, MONTHLY, DAILY, HOURLY, MINUTE, SECOND}
 
-    /* a list of listeners who will recieve "percent complete" notification during writing of data */
-    public List<IMCDFWriteProgressListener> write_progress_listeners;
-    
     /** constant value used to indicate missing data */
     public static final double MISSING_DATA_VALUE = 99999.0;
+
+    /** the version of the data format that this software supports */
+    public static final String FORMAT_VERSION_SUPPORTED = "1.1";
+    
+    // a list of listeners who will recieve "percent complete" notification during writing of data
+    private List<IMCDFWriteProgressListener> write_progress_listeners;
+    
+    // an array that holds the number of points in each variable to be written out and a pointer that
+    // shows which variable from this array is currently being written - the pointer can be set to
+    // both < 0 (before the start of writing) and >= the array length (after the end of writing)
+    // n_data_points_total is the total number of data points to write to file
+    private int n_samples_per_variable [];
+    private int variable_being_written_index;
+    private int n_data_points_total;
     
     // private member data - the CDF global attributes
     private String format_description;
@@ -229,7 +241,7 @@ public class ImagCDF
         
         // global metadata
         this.format_description = "INTERMAGNET CDF Format";
-        this.format_version = "1.0";
+        this.format_version = FORMAT_VERSION_SUPPORTED;
         this.title = "Geomagnetic time series data";
         this.iaga_code = iaga_code;
         this.pub_level = pub_level;
@@ -333,13 +345,25 @@ public class ImagCDF
     {
         write_progress_listeners.remove(listener);
     }
-    private void callWriteProgressListeners (int var_write_count, int n_vars)
+    private void callWriteProgressListeners (int current_data_set_percent)
     {
         Iterator<IMCDFWriteProgressListener> i;
-        int percent;
+        int n_data_points_written, percent, count;
+        
+        // convert the percentage through the current data set to the number of data points written
+        // then work out the percentage of all data points written
+        if (variable_being_written_index < 0 || current_data_set_percent < 0) percent = 0;
+        else if (variable_being_written_index >= n_samples_per_variable.length || current_data_set_percent > 100) percent = 100;
+        else
+        {
+            n_data_points_written = 0;
+            for (count=0; count<variable_being_written_index; count++)
+                n_data_points_written += n_samples_per_variable [count];
+            n_data_points_written += (n_samples_per_variable [variable_being_written_index] * current_data_set_percent) / 100;
+            percent = (n_data_points_written * 100) / n_data_points_total;
+        }
         
         i = write_progress_listeners.iterator();
-        percent = (var_write_count * 100) / n_vars;
         while (i.hasNext()) i.next().percentComplete(percent);
     }
 
@@ -351,8 +375,9 @@ public class ImagCDF
     public void write (File cdf_file, boolean compress, boolean overwrite_existing)
     throws CDFException
     {
-        int count, n_data_arrays, n_written;
+        int count;
         ImagCDFLowLevel cdf;
+        List <Integer> lengths;
         
         cdf = new ImagCDFLowLevel (cdf_file, 
                                    overwrite_existing ? ImagCDFLowLevel.CDFOpenType.CDFForceCreate : ImagCDFLowLevel.CDFOpenType.CDFCreate,
@@ -383,31 +408,69 @@ public class ImagCDF
         for (count=0; count<reference_links.length; count++)
             cdf.addGlobalAttribute ("References",        count, true, reference_links [count].toString());
         
-        n_data_arrays = elements.length + temperatures.length + (scalar_time_stamps == null ? 1 : 2);
-        n_written = 0;
-        callWriteProgressListeners(n_written, n_data_arrays);
+        // check temperature time stamps array is the same length as the temperature array
+        if (temperatures == null) temperatures = new ImagCDFVariable[0];
+        if (temperature_time_stamps == null) temperature_time_stamps = new ImagCDFVariableTS[0];
+        if (temperatures.length != temperature_time_stamps.length)
+            throw new CDFException ("Temperature time stamps array was be the same length as array of temperatures");
         
+        // set up variables for minitoring progress - the array containing the length of each sample must correspond to the
+        // order in what the data is written to file
+        lengths = new ArrayList <> ();
+        for (count=0; count<elements.length; count++)
+            lengths.add (new Integer(elements[count].getData().length));
+        lengths.add (new Integer (vector_time_stamps.getNSamples()));
+        if (scalar_time_stamps != null)
+            lengths.add (new Integer (scalar_time_stamps.getNSamples()));
+        for (count=0; count<temperatures.length; count++)
+        {
+            lengths.add (new Integer (temperatures[count].getData().length));
+            lengths.add (new Integer (temperature_time_stamps[count].getNSamples()));
+        }
+        n_samples_per_variable = new int [lengths.size()];
+        n_data_points_total = 0;
+        for (count=0; count<n_samples_per_variable.length; count++)
+        {
+            n_samples_per_variable [count] = lengths.get(count).intValue();
+            n_data_points_total += lengths.get(count).intValue();
+        }
+        variable_being_written_index = -1;
+        callWriteProgressListeners (-1);
+        
+        // write the individual variables to the file
         for (count=0; count<elements.length; count++)
         {
+            variable_being_written_index ++;
+            elements[count].addWriteProgressListener(this);
             elements[count].write (cdf, elements[count].getElementRecorded());
-            callWriteProgressListeners(++ n_written, n_data_arrays);
+            elements[count].removeWriteProgressListener(this);
         }
+        variable_being_written_index ++;
+        vector_time_stamps.addWriteProgressListener(this);
         vector_time_stamps.write (cdf);
-        callWriteProgressListeners(++ n_written, n_data_arrays);
+        vector_time_stamps.removeWriteProgressListener(this);
         if (scalar_time_stamps != null)
         {
+            variable_being_written_index ++;
+            scalar_time_stamps.addWriteProgressListener(this);
             scalar_time_stamps.write (cdf);
-            callWriteProgressListeners(++ n_written, n_data_arrays);
+            scalar_time_stamps.removeWriteProgressListener(this);
         }
          
         for (count=0; count<temperatures.length; count++)
         {
+            variable_being_written_index ++;
+            temperatures[count].addWriteProgressListener(this);
             temperatures[count].write(cdf, Integer.toString (count));
+            temperatures[count].removeWriteProgressListener(this);
+            variable_being_written_index ++;
+            temperature_time_stamps[count].addWriteProgressListener(this);
             temperature_time_stamps[count].write (cdf);
-            callWriteProgressListeners(++ n_written, n_data_arrays);
+            temperature_time_stamps[count].removeWriteProgressListener(this);
         }
 
-        callWriteProgressListeners(n_data_arrays, n_data_arrays);
+        variable_being_written_index ++;
+        callWriteProgressListeners (101);
         cdf.close ();
     }
     
@@ -567,7 +630,7 @@ public class ImagCDF
     {
         if (! title.equalsIgnoreCase             ("Geomagnetic time series data")) throw new CDFException ("Format Error");
         if (! format_description.equalsIgnoreCase("INTERMAGNET CDF Format"))       throw new CDFException ("Format Error");
-        if (! format_version.equalsIgnoreCase    ("1.0"))                          throw new CDFException ("Format Error");
+        if (! format_version.equalsIgnoreCase    (FORMAT_VERSION_SUPPORTED))       throw new CDFException ("Format Error");
 
         switch (standard_level.getStandardLevel())
         {
@@ -584,4 +647,11 @@ public class ImagCDF
         if (reference_links == null) reference_links = new URL [0];
     }
 
+    // used to receive progress reports from ImagCDFVariable objects when they are writing data
+    @Override
+    public void percentComplete(int percent_complete) 
+    {
+        callWriteProgressListeners(percent_complete);
+    }
+    
 }

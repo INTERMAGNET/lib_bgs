@@ -7,8 +7,11 @@ package bgs.geophys.library.Data.ImagCDF;
 import gsfc.nssdc.cdf.CDFException;
 import gsfc.nssdc.cdf.Variable;
 import gsfc.nssdc.cdf.util.CDFTT2000;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.List;
 import java.util.TimeZone;
 
 /**
@@ -20,9 +23,12 @@ import java.util.TimeZone;
 public class ImagCDFVariableTS 
 {
 
+    // a list of listeners who will recieve "percent complete" notification during writing of data
+    private List<IMCDFWriteProgressListener> write_progress_listeners;
+    
     private String var_name;
-    private long time_stamps [];
-    private double sample_period;
+    private long time_stamps [];        // in CDF_TT2000 = nanoseconds since 20000101T000000Z
+    private double sample_period;       // set to -1 until calculated - in seconds
     
     /** create an ImagCDF variable time stamp series from the contents of a CDF file
      * @param cdf the open CDF file encapsulated in an ImagCDFLowLevel object
@@ -33,6 +39,8 @@ public class ImagCDFVariableTS
     {
         Variable var;
 
+        write_progress_listeners = new ArrayList<> ();
+        
         this.var_name = var_name;
         var = cdf.getVariable (var_name);
         time_stamps = ImagCDFLowLevel.getTimeStampArray (var);
@@ -51,6 +59,8 @@ public class ImagCDFVariableTS
     {
         int count;
         long time_in_millis;
+        
+        write_progress_listeners = new ArrayList<> ();
         
         this.var_name = var_name;
         time_stamps = new long [n_samples];
@@ -80,6 +90,24 @@ public class ImagCDFVariableTS
         sample_period = -1.0;
     }
     
+    public void addWriteProgressListener (IMCDFWriteProgressListener listener)
+    {
+        write_progress_listeners.add (listener);
+    }
+    public void removeWriteProgressListener (IMCDFWriteProgressListener listener)
+    {
+        write_progress_listeners.remove(listener);
+    }
+    private void callWriteProgressListeners (int var_write_count, int n_vars)
+    {
+        Iterator<IMCDFWriteProgressListener> i;
+        int percent;
+        
+        i = write_progress_listeners.iterator();
+        percent = (var_write_count * 100) / n_vars;
+        while (i.hasNext()) i.next().percentComplete(percent);
+    }
+    
     /** write this data to a CDF file
      * @param cdf the CDF file to write into
      * @throws CDFException if there is an error */
@@ -91,8 +119,15 @@ public class ImagCDFVariableTS
         
         var = cdf.createDataVariable (var_name, ImagCDFLowLevel.CDFVariableType.TT2000);
 
+        callWriteProgressListeners(0, time_stamps.length);
         for (count=0; count<time_stamps.length; count++)
+        {
             cdf.addTimeStamp (var, count, time_stamps[count]);
+            // don't send progress every sample or we'll slow right down!
+            if ((count % 500) == 0)
+                callWriteProgressListeners(count, time_stamps.length);
+        }
+        callWriteProgressListeners(time_stamps.length, time_stamps.length);
     }   
     
     public Date [] getTimeStamps ()
@@ -123,7 +158,7 @@ public class ImagCDFVariableTS
             test_diff = time_stamps [count] - time_stamps [count -1];
             if (test_diff != diff) throw new CDFException ("Time difference not constant");
         }
-        sample_period = (double) diff;
+        sample_period = (double) diff / 1000000000.0;
         
         return sample_period;
     }

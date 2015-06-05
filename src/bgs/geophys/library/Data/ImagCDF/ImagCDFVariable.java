@@ -7,6 +7,9 @@ package bgs.geophys.library.Data.ImagCDF;
 import gsfc.nssdc.cdf.CDFException;
 import gsfc.nssdc.cdf.Variable;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * A class that holds an ImagCDF variable along with it's metadata
@@ -19,6 +22,8 @@ import java.text.ParseException;
 public class ImagCDFVariable 
 {
     
+    // a list of listeners who will recieve "percent complete" notification during writing of data
+    private List<IMCDFWriteProgressListener> write_progress_listeners;
     
     // private member data - the type of data that this object holds
     private IMCDFVariableType variable_type;
@@ -45,6 +50,8 @@ public class ImagCDFVariable
     {
         Variable var;
 
+        write_progress_listeners = new ArrayList<> ();
+        
         this.variable_type = variable_type;
         var = cdf.getVariable (variable_type.getCDFFileVariableName(suffix));
         
@@ -79,6 +86,8 @@ public class ImagCDFVariable
                             String elem_rec, double data [])
     throws CDFException
     {
+        write_progress_listeners = new ArrayList<> ();
+        
         this.variable_type = variable_type;
         this.field_nam = field_nam;
         this.valid_min = valid_min;
@@ -89,6 +98,24 @@ public class ImagCDFVariable
         this.data = data;
         
         checkMetadata ();
+    }
+
+    public void addWriteProgressListener (IMCDFWriteProgressListener listener)
+    {
+        write_progress_listeners.add (listener);
+    }
+    public void removeWriteProgressListener (IMCDFWriteProgressListener listener)
+    {
+        write_progress_listeners.remove(listener);
+    }
+    private void callWriteProgressListeners (int var_write_count, int n_vars)
+    {
+        Iterator<IMCDFWriteProgressListener> i;
+        int percent;
+        
+        i = write_progress_listeners.iterator();
+        percent = (var_write_count * 100) / n_vars;
+        while (i.hasNext()) i.next().percentComplete(percent);
     }
 
     /** write this data to a CDF file
@@ -121,8 +148,15 @@ public class ImagCDFVariable
         else
             cdf.addVariableAttribute ("LABLAXIS",  var, "Temperature " + suffix);
         
+        callWriteProgressListeners(0, data.length);
         for (count=0; count<data.length; count++)
+        {
             cdf.addData (var, count, data[count]);
+            // don't send progress every sample or we'll slow right down!
+            if ((count % 500) == 0)
+                callWriteProgressListeners(count, data.length);
+        }
+        callWriteProgressListeners(data.length, data.length);
     }
     
     public IMCDFVariableType getVariableType () { return variable_type; }
