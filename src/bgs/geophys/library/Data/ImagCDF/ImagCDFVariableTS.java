@@ -98,20 +98,24 @@ public class ImagCDFVariableTS
     {
         write_progress_listeners.remove(listener);
     }
-    private void callWriteProgressListeners (int var_write_count, int n_vars)
+    private boolean callWriteProgressListeners (int var_write_count, int n_vars)
     {
         Iterator<IMCDFWriteProgressListener> i;
         int percent;
+        boolean continue_writing;
         
         i = write_progress_listeners.iterator();
         percent = (var_write_count * 100) / n_vars;
-        while (i.hasNext()) i.next().percentComplete(percent);
+        continue_writing = true;
+        while (i.hasNext()) continue_writing &= i.next().percentComplete(percent);
+        return continue_writing;
     }
     
     /** write this data to a CDF file
      * @param cdf the CDF file to write into
+     * @return true if the write completed, false if it was interrupted 
      * @throws CDFException if there is an error */
-    public void write (ImagCDFLowLevel cdf)
+    public boolean write (ImagCDFLowLevel cdf)
     throws CDFException
     {
         int count;
@@ -119,15 +123,22 @@ public class ImagCDFVariableTS
         
         var = cdf.createDataVariable (var_name, ImagCDFLowLevel.CDFVariableType.TT2000);
 
-        callWriteProgressListeners(0, time_stamps.length);
-        for (count=0; count<time_stamps.length; count++)
-        {
-            cdf.addTimeStamp (var, count, time_stamps[count]);
-            // don't send progress every sample or we'll slow right down!
-            if ((count % 500) == 0)
-                callWriteProgressListeners(count, time_stamps.length);
-        }
-        callWriteProgressListeners(time_stamps.length, time_stamps.length);
+        if (! callWriteProgressListeners(0, time_stamps.length)) return false;
+        cdf.addTimeStamp (var, 0, time_stamps);
+//        for (count=0; count<time_stamps.length; count++)
+//        {
+//            cdf.addTimeStamp (var, count, time_stamps[count]);
+//            // don't send progress every sample or we'll slow right down!
+//            if ((count % 500) == 0)
+//            {
+//                if (! callWriteProgressListeners(count, time_stamps.length)) 
+//                {
+//                    return false;
+//                }
+//            }
+//        }
+        if (! callWriteProgressListeners(time_stamps.length, time_stamps.length)) return false;
+        return true;
     }   
     
     public Date [] getTimeStamps ()

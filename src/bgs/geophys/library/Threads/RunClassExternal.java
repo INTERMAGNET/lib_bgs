@@ -9,6 +9,10 @@ package bgs.geophys.library.Threads;
 import java.lang.reflect.*;
 import java.util.*;
 import java.io.*;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLDecoder;
 
 /**
  * Run a class in a new virtual machine. The class must have a static method
@@ -29,15 +33,17 @@ public class RunClassExternal
     // a list of all the RunClassExternal processes that are running
     private static Vector<RunClassExternal> process_list;
     
+    // a list of properties that will be set when a java command is run
+    private static Hashtable<String, String> java_extra_properties;
+    
     // contents of the System properties java.home and java.class.path (may be null)
     private static String java_dir;
-    private static String java_classpath;
     
     /** static member initialisation */
     static
     {
         java_dir = System.getProperty ("java.home");
-        java_classpath = System.getProperty ("java.class.path");
+        java_extra_properties = new Hashtable<> ();
         process_list = new Vector<RunClassExternal> ();
     }
     
@@ -103,7 +109,6 @@ public class RunClassExternal
         Method main_method;
         
         if (java_dir == null) throw new ClassNotFoundException ("java.home not defined");
-        if (java_classpath == null) throw new ClassNotFoundException ("java.class.path not defined");
         class_loader = ClassLoader.getSystemClassLoader();
         new_class = class_loader.loadClass (class_name);
         class_array = new Class [1];
@@ -118,15 +123,33 @@ public class RunClassExternal
      * @throws IOException if the programme could not be run */
     public void start() throws IOException
     {        
-        int count;
-        String command, java_args [];
+        int count, arg_count;
+        String java_args [], value;
+        ClassLoader cl;
+        URL paths [];
+        Set<String> props;
+
         
-        java_args = new String [4 + args.length];
-        java_args [0] = java_dir + File.separator + "bin" + File.separator + "java";
-        java_args [1] = "-cp";
-        java_args [2] = java_classpath;
-        java_args [3] = class_name;
-        for (count=0; count<args.length; count++) java_args [count + 4] = args [count];
+        java_args = new String [4 + java_extra_properties.size() + args.length];
+        arg_count = 0;
+        java_args [arg_count ++] = java_dir + File.separator + "bin" + File.separator + "java";
+        java_args [arg_count ++] = "-cp";
+        cl = ClassLoader.getSystemClassLoader();
+        paths = ((URLClassLoader) cl).getURLs ();
+        for (count=0; count<paths.length; count++)
+        {
+            if (count <= 0) java_args[arg_count] = URLDecoder.decode(paths[count].getFile(), "UTF-8");
+            else java_args[arg_count] += File.pathSeparator + URLDecoder.decode(paths[count].getFile(), "UTF-8");
+        }
+        arg_count ++;
+        props = java_extra_properties.keySet();
+        for (String name : props)
+        {
+            value = java_extra_properties.get(name);
+            java_args [arg_count ++] = "-D" + name + "=" + value;
+        }
+        java_args [arg_count ++] = class_name;
+        for (count=0; count<args.length; count++) java_args [arg_count ++] = args [count];
 
         // create a new VM
         process = Runtime.getRuntime().exec(java_args);
@@ -188,4 +211,14 @@ public class RunClassExternal
         return array;
     }
     
+    /** add a property to the properties that will be set when a class is run */
+    public static void addToProperties (String name, String value)
+    {
+        java_extra_properties.put (name, value);
+    }
+    
+    public static void removeFromProperties (String name)
+    {
+        java_extra_properties.remove (name);
+    }
 }

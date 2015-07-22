@@ -25,6 +25,9 @@ public class ThreadMultiStreamReader extends Thread
         private DataInputStream stream;  // the stream to read from
         private boolean discard;         // true to discard data, false to store
         private byte data [];            // the data read from the stream
+        private List<String> lines;      // lines of data read from the stream (lines are separated by CR or LF)
+        private StringBuffer current_line;
+        private int last_data_byte; 
         private Object user_data;        // user info associated with this stream
         private boolean closed;
         
@@ -37,6 +40,9 @@ public class ThreadMultiStreamReader extends Thread
             this.stream = new DataInputStream (stream);
             this.discard = discard;
             data = new byte [0];
+            lines = new ArrayList <> ();
+            current_line = new StringBuffer ();
+            last_data_byte = -1;
             this.user_data = user_data;
             closed = false;
         }
@@ -50,7 +56,17 @@ public class ThreadMultiStreamReader extends Thread
 
             try
             {
-                if (closed) length = 0;
+                if (closed) 
+                {
+                    length = 0;
+                    
+                    // flush any remaining data into the lines array
+                    if (current_line.length() > 0)
+                    {
+                        lines.add (current_line.toString());
+                        current_line.delete(0, current_line.length());
+                    }
+                }
                 else
                 {
                     length = stream.available();
@@ -62,11 +78,36 @@ public class ThreadMultiStreamReader extends Thread
                         length = stream.read (buffer);
                         if ((length > 0) && (! discard))
                         {
+                            // process the new data in the 'data' array
                             offset = data.length;
                             old_data = data;
                             data = new byte [offset + length];
                             for (count=0; count<offset; count++) data [count] = old_data [count];
                             for (count=0; count<length; count++) data [count + offset] = buffer [count];
+                            
+                            // process the new data into the 'lines' array
+                            for (count=0; count<length; count++) 
+                            {
+                                switch (buffer [count])
+                                {
+                                    case '\r':
+                                        lines.add (current_line.toString());
+                                        current_line.delete(0, current_line.length());
+                                        break;
+                                    case '\n':
+                                        // ignore LF in CRLF combination
+                                        if (last_data_byte != '\r')
+                                        {
+                                            lines.add (current_line.toString());
+                                            current_line.delete(0, current_line.length());
+                                        }
+                                        break;
+                                    default:
+                                        current_line.append ((char) buffer[count]);
+                                        break;
+                                }
+                                last_data_byte = buffer [count];
+                            }
                         }
                     }
                 }
@@ -100,6 +141,15 @@ public class ThreadMultiStreamReader extends Thread
             data = new byte [0];
             return ba_stream;
         }
+        
+        public String getNextLine ()
+        throws IOException
+        {
+            if (lines.isEmpty()) throw new IOException ("No data currently available");
+            return lines.remove(0);
+        }
+        
+        public Object getUserData () { return user_data; }
     }
     
     // an array of input streams - contains StreamDetails objects
@@ -146,21 +196,40 @@ public class ThreadMultiStreamReader extends Thread
      * @return a byte stream reader with the data OR null if there is no data */
     public ByteArrayInputStream retrieveData (Object user_data)
     {
-        int index;
         StreamDetails details;
         ByteArrayInputStream ba_stream;
         
         synchronized (input_streams)
         {
             ba_stream = null;
-            index = input_streams.indexOf (user_data);
-            if (index >= 0)
-            {
-                details = input_streams.get(index);
+            details = findStream(user_data);
+            if (details != null)
                 ba_stream = details.createByteReader ();
-            }
         }
         return ba_stream;
+    }
+    
+    /** retrieve the next line of data from a stream monitor - an alternative
+     * interface to retrieveData (both interfaces may be used simultaneously)
+     * @param user_data the object used to identify the stream
+     * @return the next line (lines are delimited by CR / LF / CRLF
+     * @throws IOException if there is no more data to retrieve - there may
+     *         continue to be data at a later time, unless the stream monitor
+     *         has been closed */
+    public String retrieveNextDataLine (Object user_data)
+    throws IOException
+    {
+        StreamDetails details;
+        String line;
+        
+        line = "";
+        synchronized (input_streams)
+        {
+            details = findStream(user_data);
+            if (details == null) throw new IOException ("Can't find stream monitor");
+            line = details.getNextLine();
+        }
+        return line;
     }
     
     /** find out whether is stream monitor has completed reading
@@ -175,12 +244,9 @@ public class ThreadMultiStreamReader extends Thread
         synchronized (input_streams)
         {
             flag = true;
-            index = input_streams.indexOf (user_data);
-            if (index >= 0)
-            {
-                details = input_streams.get(index);
+            details = findStream(user_data);
+            if (details != null)
                 flag = details.isClosed ();
-            }
         }
         return flag;
     }
@@ -189,9 +255,13 @@ public class ThreadMultiStreamReader extends Thread
      * @param user_data the object used to identify the stream */
     public void remove (Object user_data)
     {
+        StreamDetails details;
+        
         synchronized (input_streams)
         {
-            input_streams.remove(user_data);
+            details = findStream(user_data);
+            if (details != null)
+                input_streams.remove(details);
         }
     }
     
@@ -224,6 +294,15 @@ public class ThreadMultiStreamReader extends Thread
                 try { sleep (delay_time); } catch (InterruptedException e) { }
             }
         }
+    }
+    
+    private StreamDetails findStream (Object user_data)
+    {
+        for (StreamDetails details : input_streams)
+        {
+            if (details.getUserData().equals(user_data)) return details;
+        }
+        return null;
     }
 
 }

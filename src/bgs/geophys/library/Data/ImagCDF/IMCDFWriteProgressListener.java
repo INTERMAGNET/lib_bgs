@@ -13,6 +13,10 @@ package bgs.geophys.library.Data.ImagCDF;
 public interface IMCDFWriteProgressListener 
 {
 
-    public void percentComplete (int percent_complete);
+    /** report progress on writing an ImgCDF file
+     * @param percent_complete the percentage completeness for the file being writen
+     * @return the client should return true to continue, false to abort the write operation
+     */
+    public boolean percentComplete (int percent_complete);
     
 }

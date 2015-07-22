@@ -39,7 +39,11 @@ public class FaultReport extends javax.swing.JDialog {
         
 
         stored_exception = user_exception;
-        
+
+        // provide a basic fault reporting service on System.err in case the Swing display doesn't work
+        System.err.println ("A software fault has occurred. Please email the following information to " + email_address);
+        user_exception.printStackTrace();
+
         initComponents();
         
         // override details prompts for memory faults

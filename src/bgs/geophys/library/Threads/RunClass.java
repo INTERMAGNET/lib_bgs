@@ -7,11 +7,17 @@
 package bgs.geophys.library.Threads;
 
 import java.io.*;
+import java.net.URL;
 
 /**
  * A wrapper for RunClassInternal and RunClassExternal that allows
  * you to specify whether the class is run internally or externally
- * using a single argument to the construtor.
+ * using a single argument to the constructor.
+ * 
+ * You can run an external jar internally using:
+ * 
+ *   RunClass.addToClasspath (path-to-jar-file)
+ *   new RunClass (...)
  *
  * @author  smf
  */
@@ -36,6 +42,7 @@ public class RunClass
     static
     {
         stream_reader = new ThreadMultiStreamReader (3);
+        stream_reader.setDaemon(true);
         stream_reader.start();
     }
     
@@ -171,6 +178,16 @@ public class RunClass
         return null;
     }
     
+    public boolean isAlive ()
+    {
+        switch (type)
+        {
+        case INTERNAL: return internal_runner.isAlive();
+        case EXTERNAL: return external_runner.getProcess().isAlive();
+        }
+        return false;
+    }
+    
     /** get the command line that this class runs with
      * @return the command line */
     public String [] getArgs () 
@@ -221,5 +238,23 @@ public class RunClass
             array [count + internal.length] = (Object) external [count];
         return array;
     }
+    
+    /** add a property to the properties that will be set when a class is run either internally or externally */
+    public static void addToProperties (String name, String value)
+    {
+        RunClassInternal.addToProperties(name, value);
+        RunClassExternal.addToProperties(name, value);
+    }
+    
+    public static void removeFromProperties (String name)
+    {
+        RunClassInternal.removeFromProperties(name);
+        RunClassExternal.removeFromProperties(name);
+    }
 
+    /** if you want to run a jar file that isn't on the class path as an internal
+     * process, you need to call this method to add it to the classpath first */
+    public static void addToClasspath (File file)   throws IOException { ClasspathAdder.addFile(file); }
+    public static void addToClasspath (String path) throws IOException { ClasspathAdder.addFile(path); }
+    public static void addToClasspath (URL url)     throws IOException { ClasspathAdder.addURL(url); }
 }

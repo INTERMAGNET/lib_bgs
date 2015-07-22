@@ -38,6 +38,8 @@ public class ImagCDFVariable
     
     // private member data - the data array
     private double data [];
+    private int data_offset;
+    private int data_length;
     
     /** create a ImagCDF variable from the contents of a CDF file
      * @param cdf the open CDF file encapsulated in an ImagCDFLowLevel object
@@ -64,6 +66,8 @@ public class ImagCDFVariable
         elem_rec = suffix;
         
         data = ImagCDFLowLevel.getDataArray (var);
+        data_offset = 0;
+        data_length = data.length;
 
         checkMetadata ();
     }
@@ -86,6 +90,29 @@ public class ImagCDFVariable
                             String elem_rec, double data [])
     throws CDFException
     {
+        this (variable_type, field_nam, valid_min, valid_max, units, fill_val, elem_rec, data, 0, data.length);
+    }
+    
+    /** create an ImagCDFVariable from data and metadata for subsequent writing to a file
+     * @param variable_type the type of variable - geomagnetic element or temperature
+     * @param field_nam set the "Geomagnetic Field Element " and a number or
+     *                  "Temperature" and a number
+     * @param valid_min the smallest possible value that the data can take
+     * @param valid_max the largest possible value that the data can take
+     * @param units name of the units that the data is in
+     * @param fill_val the value that, when present in the data, shows that the data point was not recorded
+     * @param elem_rec for geomagnetic data the element that this data represents.
+     *                 for temperature data the name of the location where temperature was recorded
+     * @param data the data as an array
+     * @param data_offset index into the data array to start writing from
+     * @param data_length number of samples of data to write
+     * @throws CDFException if the elem_rec or samp_per are invalid */
+    public ImagCDFVariable (IMCDFVariableType variable_type, String field_nam,
+                            double valid_min, double valid_max,
+                            String units, double fill_val,
+                            String elem_rec, double data [], int data_offset, int data_length)
+    throws CDFException
+    {
         write_progress_listeners = new ArrayList<> ();
         
         this.variable_type = variable_type;
@@ -96,6 +123,10 @@ public class ImagCDFVariable
         this.fill_val = fill_val;
         this.elem_rec = elem_rec;
         this.data = data;
+        this.data_offset = data_offset;
+        this.data_length = data_length;
+        
+        if (data_offset + data_length > data.length) throw new IllegalArgumentException ("Data length + offset exceed length of data array");
         
         checkMetadata ();
     }
@@ -108,22 +139,26 @@ public class ImagCDFVariable
     {
         write_progress_listeners.remove(listener);
     }
-    private void callWriteProgressListeners (int var_write_count, int n_vars)
+    private boolean callWriteProgressListeners (int var_write_count, int n_vars)
     {
         Iterator<IMCDFWriteProgressListener> i;
         int percent;
+        boolean continue_writing;
         
         i = write_progress_listeners.iterator();
         percent = (var_write_count * 100) / n_vars;
-        while (i.hasNext()) i.next().percentComplete(percent);
+        continue_writing = true;
+        while (i.hasNext()) continue_writing &= i.next().percentComplete(percent);
+        return continue_writing;
     }
 
     /** write this data to a CDF file
      * @param cdf the CDF file to write into
      * @param suffix the suffix for the element name (numbers starting at '1' for temperature elements,
      *               geomagnetic element codes for geomagnetic elements)
+     * @return true if the write completed, false if it was interrupted 
      * @throws CDFException if there is an error */
-    public void write (ImagCDFLowLevel cdf, String suffix)
+    public boolean write (ImagCDFLowLevel cdf, String suffix)
     throws CDFException
     {
         int count;
@@ -148,15 +183,22 @@ public class ImagCDFVariable
         else
             cdf.addVariableAttribute ("LABLAXIS",  var, "Temperature " + suffix);
         
-        callWriteProgressListeners(0, data.length);
-        for (count=0; count<data.length; count++)
-        {
-            cdf.addData (var, count, data[count]);
-            // don't send progress every sample or we'll slow right down!
-            if ((count % 500) == 0)
-                callWriteProgressListeners(count, data.length);
-        }
-        callWriteProgressListeners(data.length, data.length);
+        if (! callWriteProgressListeners(0, data_length)) return false;
+        cdf.addData (var, 0, data, data_offset, data_length);
+//        for (count=0; count<data_length; count++)
+//        {
+//            cdf.addData (var, count, data[count + data_offset]);
+//            // don't send progress every sample or we'll slow right down!
+//            if ((count % 500) == 0)
+//            {
+//                if (! callWriteProgressListeners(count, data_length)) 
+//                {
+//                    return false;
+//                }
+//            }
+//        }
+        if (! callWriteProgressListeners(data_length, data_length)) return false;
+        return true;
     }
     
     public IMCDFVariableType getVariableType () { return variable_type; }
@@ -167,7 +209,20 @@ public class ImagCDFVariable
     public double getFillValue () { return fill_val; }
     public String getElementRecorded () { return elem_rec; }
     
-    public double [] getData () { return data; }
+    public double [] getData () 
+    {
+        int count;
+        double data_subset [];
+        
+        if (data_offset == 0 && data_length == data.length)
+            return data;
+        
+        data_subset = new double [data_length];
+        for (count=0; count<data_length; count++)
+            data_subset [count] = data [count + data_offset];
+        return data_subset;
+    }
+    public int getDataLength () { return data_length; }
 
     public boolean isVectorGeomagneticData ()
     {

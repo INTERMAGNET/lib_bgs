@@ -61,7 +61,7 @@ public class ImagCDFLowLevel
             english_date_format_symbols = new DateFormatSymbols ();
             
         dataDateFormat = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss.SSS zzz", english_date_format_symbols);
-        dataDateFormat.setTimeZone(TimeZone.getTimeZone("gmt"));
+        dataDateFormat.setTimeZone(gmtTimeZone);
     }
     
     
@@ -302,7 +302,7 @@ public class ImagCDFLowLevel
         return var;
     }
        
-    /** add the next sample data to a single data variable in the CDF file 
+    /** put a data sample into a record in the CDF file 
      * @param var the variable to write to
      * @param rec_no the record to write to
      * @param data the data to write
@@ -313,7 +313,31 @@ public class ImagCDFLowLevel
         var.putRecord (rec_no, data);
     }
     
-    /** add the next sample data to a single data variable in the CDF file 
+    /** put multiple data samples into consecutive records in the CDF file 
+     * @param var the variable to write to
+     * @param rec_no the 1st record to write to
+     * @param data the data to write
+     * @throws CDFException if there is an error */
+    public void addData (Variable var, int rec_no, double data [])
+    throws CDFException
+    {
+        addData (var, rec_no, data, 0, data.length);
+    }
+    
+    /** put multiple data samples into consecutive records in the CDF file 
+     * @param var the variable to write to
+     * @param rec_no the 1st record to write to
+     * @param data the data to write
+     * @param data_offset offset in the data array to the first data point to write
+     * @param data_length number of samples to write
+     * @throws CDFException if there is an error */
+    public void addData (Variable var, int rec_no, double data [], int data_offset, int data_length)
+    throws CDFException
+    {
+        var.putHyperData (rec_no, data_length, 1, new long [] {data_offset}, new long [] {data_length}, new long [] {0}, data);
+    }
+    
+    /** put a time stamp into a record in the CDF file 
      * @param var the variable to write to
      * @param rec_no the record to write to
      * @param data the data to write
@@ -324,6 +348,31 @@ public class ImagCDFLowLevel
         var.putRecord (rec_no, data);
     }
 
+    /** put multiple time stamps into consecutive records in the CDF file 
+     * @param var the variable to write to
+     * @param rec_no the 1st record to write to
+     * @param data the data to write
+     * @throws CDFException if there is an error */
+    public void addTimeStamp (Variable var, int rec_no, long data [])
+    throws CDFException
+    {
+        addTimeStamp (var, rec_no, data, 0, data.length);
+    }
+    
+    /** put multiple time stamps into consecutive records in the CDF file 
+     * @param var the variable to write to
+     * @param rec_no the 1st record to write to
+     * @param data the data to write
+     * @param data_offset offset in the data array to the first data point to write
+     * @param data_length number of samples to write
+     * @throws CDFException if there is an error */
+    public void addTimeStamp (Variable var, int rec_no, long data [], int data_offset, int data_length)
+    throws CDFException
+    {
+        var.putHyperData (rec_no, data_length, 1, new long [] {data_offset}, new long [] {data_length}, new long [] {0}, data);
+    }
+
+    
     /** ------------------------------------------------------------------------
      *  ----------------------- Reading from CDF files -------------------------
      *  ------------------------------------------------------------------------*/
@@ -591,7 +640,12 @@ public class ImagCDFLowLevel
     
     public static Date TT2000ToDate (long tt2000)
     {
-        return new Date (CDFTT2000.toGregorianTime(tt2000).getTimeInMillis());
+        GregorianCalendar cal;
+        
+        cal = CDFTT2000.toGregorianTime(tt2000);
+        cal.setTimeZone(gmtTimeZone);
+        return new Date (cal.getTimeInMillis());
+        
     }
     
     /** ------------------------------------------------------------------------

@@ -221,4 +221,14 @@ public class RunClassInternal extends Thread
         return array;
     }
     
+    /** add a property to the properties that will be set when a class is run */
+    public static void addToProperties (String name, String value)
+    {
+        System.setProperty(name, value);
+    }
+    
+    public static void removeFromProperties (String name)
+    {
+        System.clearProperty(name);
+    }
 }

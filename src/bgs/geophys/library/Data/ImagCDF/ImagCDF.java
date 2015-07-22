@@ -345,10 +345,11 @@ implements IMCDFWriteProgressListener
     {
         write_progress_listeners.remove(listener);
     }
-    private void callWriteProgressListeners (int current_data_set_percent)
+    private boolean callWriteProgressListeners (int current_data_set_percent)
     {
         Iterator<IMCDFWriteProgressListener> i;
         int n_data_points_written, percent, count;
+        boolean continue_writing;
         
         // convert the percentage through the current data set to the number of data points written
         // then work out the percentage of all data points written
@@ -364,21 +365,25 @@ implements IMCDFWriteProgressListener
         }
         
         i = write_progress_listeners.iterator();
-        while (i.hasNext()) i.next().percentComplete(percent);
+        continue_writing = true;
+        while (i.hasNext()) continue_writing &= i.next().percentComplete(percent);
+        return continue_writing;
     }
 
     /** write this data to a CDF file
      * @param cdf_file the CDF file to write into
      * @param compress true to compress the CDF file, FALSE not to compress
      * @param overwrite_existing true to overwrite any existing file, false to throw exception if file exists
-     * @throws CDFException if there is an error */
+     * @throws CDFException if there is an error, including user abort */
     public void write (File cdf_file, boolean compress, boolean overwrite_existing)
     throws CDFException
     {
         int count;
+        boolean abort;
         ImagCDFLowLevel cdf;
         List <Integer> lengths;
         
+        abort = false;
         cdf = new ImagCDFLowLevel (cdf_file, 
                                    overwrite_existing ? ImagCDFLowLevel.CDFOpenType.CDFForceCreate : ImagCDFLowLevel.CDFOpenType.CDFCreate,
                                    compress ? ImagCDFLowLevel.CDFCompressType.GZip6 : ImagCDFLowLevel.CDFCompressType.None);
@@ -415,16 +420,16 @@ implements IMCDFWriteProgressListener
             throw new CDFException ("Temperature time stamps array was be the same length as array of temperatures");
         
         // set up variables for minitoring progress - the array containing the length of each sample must correspond to the
-        // order in what the data is written to file
+        // order in which the data is written to file
         lengths = new ArrayList <> ();
         for (count=0; count<elements.length; count++)
-            lengths.add (new Integer(elements[count].getData().length));
+            lengths.add (new Integer(elements[count].getDataLength()));
         lengths.add (new Integer (vector_time_stamps.getNSamples()));
         if (scalar_time_stamps != null)
             lengths.add (new Integer (scalar_time_stamps.getNSamples()));
         for (count=0; count<temperatures.length; count++)
         {
-            lengths.add (new Integer (temperatures[count].getData().length));
+            lengths.add (new Integer (temperatures[count].getDataLength()));
             lengths.add (new Integer (temperature_time_stamps[count].getNSamples()));
         }
         n_samples_per_variable = new int [lengths.size()];
@@ -435,43 +440,76 @@ implements IMCDFWriteProgressListener
             n_data_points_total += lengths.get(count).intValue();
         }
         variable_being_written_index = -1;
-        callWriteProgressListeners (-1);
+        if (! callWriteProgressListeners (-1)) 
+        {
+            abort = true;
+        }
         
         // write the individual variables to the file
-        for (count=0; count<elements.length; count++)
+        for (count=0; (count<elements.length) && (! abort); count++)
         {
             variable_being_written_index ++;
             elements[count].addWriteProgressListener(this);
-            elements[count].write (cdf, elements[count].getElementRecorded());
+            if (! elements[count].write (cdf, elements[count].getElementRecorded())) 
+            {
+                abort = true;
+            }
             elements[count].removeWriteProgressListener(this);
         }
         variable_being_written_index ++;
-        vector_time_stamps.addWriteProgressListener(this);
-        vector_time_stamps.write (cdf);
-        vector_time_stamps.removeWriteProgressListener(this);
+        if (! abort)
+        {
+            vector_time_stamps.addWriteProgressListener(this);
+            if (! vector_time_stamps.write (cdf)) 
+            {
+                abort = true;
+            }
+            vector_time_stamps.removeWriteProgressListener(this);
+        }
         if (scalar_time_stamps != null)
         {
             variable_being_written_index ++;
-            scalar_time_stamps.addWriteProgressListener(this);
-            scalar_time_stamps.write (cdf);
-            scalar_time_stamps.removeWriteProgressListener(this);
+            if (! abort)
+            {
+                scalar_time_stamps.addWriteProgressListener(this);
+                if (! scalar_time_stamps.write (cdf)) 
+                {
+                    abort = true;
+                }
+                scalar_time_stamps.removeWriteProgressListener(this);
+            }
         }
          
-        for (count=0; count<temperatures.length; count++)
+        for (count=0; (count<temperatures.length) && (! abort); count++)
         {
             variable_being_written_index ++;
             temperatures[count].addWriteProgressListener(this);
-            temperatures[count].write(cdf, Integer.toString (count));
+            if (! temperatures[count].write(cdf, Integer.toString (count))) abort = true;
             temperatures[count].removeWriteProgressListener(this);
             variable_being_written_index ++;
-            temperature_time_stamps[count].addWriteProgressListener(this);
-            temperature_time_stamps[count].write (cdf);
-            temperature_time_stamps[count].removeWriteProgressListener(this);
+            if (! abort)
+            {
+                temperature_time_stamps[count].addWriteProgressListener(this);
+                if (! temperature_time_stamps[count].write (cdf)) 
+                {
+                    abort = true;
+                }
+                temperature_time_stamps[count].removeWriteProgressListener(this);
+            }
         }
 
         variable_being_written_index ++;
-        callWriteProgressListeners (101);
+        if (! callWriteProgressListeners (101)) abort = true;
+        
+        // finalise the file
         cdf.close ();
+        
+        // remove the file if the operation was aborted
+        if (abort)
+        {
+            cdf_file.delete();
+            throw new CDFException ("User aborted write operation, " + cdf_file.getName() + " deleted");
+        }
     }
     
     public String getFormatDescription() { return format_description; }
@@ -649,9 +687,9 @@ implements IMCDFWriteProgressListener
 
     // used to receive progress reports from ImagCDFVariable objects when they are writing data
     @Override
-    public void percentComplete(int percent_complete) 
+    public boolean percentComplete(int percent_complete) 
     {
-        callWriteProgressListeners(percent_complete);
+        return callWriteProgressListeners(percent_complete);
     }
     
 }
