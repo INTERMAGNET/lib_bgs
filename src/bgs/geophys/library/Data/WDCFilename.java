@@ -32,7 +32,7 @@ public class WDCFilename extends GeomagDataFilename {
         
         yyyy = new SimpleDateFormat("yyyy");
         yyyy.setTimeZone(DateUtils.gmtTimeZone);
-        yyMM = new SimpleDateFormat("yyyyMM");
+        yyMM = new SimpleDateFormat("yyMM");
         yyMM.setTimeZone(DateUtils.gmtTimeZone);
         cal = new GregorianCalendar (1960, 0, 1);
         cal.setTimeZone(DateUtils.gmtTimeZone);
@@ -130,13 +130,13 @@ public class WDCFilename extends GeomagDataFilename {
             {
                 case 12:
                     date = yyMM.parse (filename.substring(3, 7));
-                    interval = Interval.HOURLY;
+                    interval = Interval.MINUTE;
                     if (! filename.substring (7).equalsIgnoreCase("m.wdc"))
                         throw new ParseException("", 0);
                     break;
                 case 11:
                     date = yyyy.parse (filename.substring(3, 7));
-                    interval = Interval.MINUTE;
+                    interval = Interval.HOURLY;
                     if (! filename.substring (7).equalsIgnoreCase(".wdc"))
                         throw new ParseException("", 0);
                     break;

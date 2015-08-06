@@ -507,7 +507,7 @@ public class WDCHour extends GeomagDataFormat
                 date = headerInputDateFormat.parse(dateString);
                 component = (byte) record.charAt (7);
                 quietDayCode = record.charAt(14);
-                tabBase = Double.parseDouble(record.substring (16, 20));
+                tabBase = Double.parseDouble(record.substring (16, 20).trim());
             }
             catch (ParseException e)
             {
@@ -556,7 +556,7 @@ public class WDCHour extends GeomagDataFormat
             if (startDate [componentIndex] == null)
                 startDate [componentIndex] = date;
             else if (startDate[componentIndex].getTime () !=
-                     (date.getTime() + ((long) dataPtr.size() * 60000l)))
+                     (date.getTime() - ((long) dataPtr.size() * 3600000l)))
                 throw new GeomagDataException ("Non-contiguous date/time at line number " + Integer.toString (lineNumber));
             
             // extract the data and mean
@@ -565,12 +565,12 @@ public class WDCHour extends GeomagDataFormat
                 for (count=0; count<24; count++)
                 {
                     index = 20 + (count * 4);
-                    value = Double.parseDouble (record.substring (count, count+4));
+                    value = Double.parseDouble (record.substring (index, index+4).trim());
                     if (value < 9999.0) value = tabBase + (value * multiplier);
                     else value = MISSING_DATA_SAMPLE;
                     dataPtr.add (new Double (value));
                 }
-                value = Double.parseDouble(record.substring(116, 120));
+                value = Double.parseDouble(record.substring(116, 120).trim());
                 if (value < 9999.0) value = tabBase + (value * multiplier);
                 else value = MISSING_DATA_SAMPLE;
                 meanPtr.add (new Double (value));

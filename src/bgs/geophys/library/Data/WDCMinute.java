@@ -314,8 +314,8 @@ public class WDCMinute extends GeomagDataFormat
             // split out the header fields
             try
             {
-                testLatitude = Double.parseDouble (record.substring (0, 6));
-                testLongitude = Double.parseDouble (record.substring (6, 12));
+                testLatitude = Double.parseDouble (record.substring (0, 6).trim());
+                testLongitude = Double.parseDouble (record.substring (6, 12).trim());
                 year = Integer.parseInt (record.substring (12, 14));
                 if (year >= 60) 
                     dateString = "19" + record.substring (12, 18) + record.substring (19, 21);
@@ -377,7 +377,7 @@ public class WDCMinute extends GeomagDataFormat
             if (startDate [componentIndex] == null)
                 startDate [componentIndex] = date;
             else if (startDate[componentIndex].getTime () !=
-                     (date.getTime() + ((long) dataPtr.size() * 60000l)))
+                     (date.getTime() - ((long) dataPtr.size() * 60000l)))
                 throw new GeomagDataException ("Non-contiguous date/time at line number " + Integer.toString (lineNumber));
             
             // extract the data and mean
@@ -386,11 +386,11 @@ public class WDCMinute extends GeomagDataFormat
                 for (count=0; count<60; count++)
                 {
                     index = 34 + (count * 6);
-                    value = Double.parseDouble (record.substring (count, count+6));
+                    value = Double.parseDouble (record.substring (index, index+6).trim());
                     if (value < 88888.0) value *= multiplier;
                     dataPtr.add (new Double (value));
                 }
-                value = Double.parseDouble(record.substring(393, 399));
+                value = Double.parseDouble(record.substring(394, 400).trim());
                 if (value < 88888.0) value *= multiplier;
                 meanPtr.add (new Double (value));
             }
