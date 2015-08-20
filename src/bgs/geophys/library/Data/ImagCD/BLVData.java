@@ -115,7 +115,7 @@ public class BLVData {
                    BLVObservedValue ov = new BLVObservedValue();
                     ov.readBLV(buf.toCharArray(), this.getComponentOrder(),this.getFormat());
                     addObservedValue(ov);
-   //                 ov.printBLV();
+//                    ov.printBLV();
                     buf = in.readLine();
                     line++;
                 }
@@ -171,8 +171,13 @@ public class BLVData {
     private void checkDiscontinuity(String buf, Integer day, BLVAdoptedValue av) {
       if(buf.charAt(52) == 'd' || buf.charAt(52) == 'D') {
           int last = adoptedValues.size()-1;
-          discontinuities.add(new BLVDiscontinuity(day, av.difference(adoptedValues.get(last))));
+          if(last>-1){
+           discontinuities.add(new BLVDiscontinuity(day, av.difference(adoptedValues.get(last))));
           nSeperatePlots++;
+          }
+          else {
+              getComments().add("Plotting library: Discontinuity on day 1 has not been plotted.\n\n\n\n");
+          }
       }
     }
 
