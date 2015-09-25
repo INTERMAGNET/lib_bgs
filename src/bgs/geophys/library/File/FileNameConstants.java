@@ -30,6 +30,8 @@ public class FileNameConstants
     public static final String GDASVIEW_OPTIONS_FILENAME = "GDASDefaults.txt";
     /* a constant used for the name of the IMAG CD Viewer options file */
     public static final String IMCD_VIEWER_OPTIONS_FILENAME = "ImCdDataViewer.cfg";
+    /* a constant used for the name of the IMAG CD Viewer options file */
+    public static final String IMAG_CDF_BROWSER_OPTIONS_FILENAME = "ImCDFBrowser.cfg";
 
     
     /** given a package name, create a directory name for option / configuration storage.
