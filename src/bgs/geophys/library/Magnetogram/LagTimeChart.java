@@ -36,6 +36,7 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.SeriesException;
 import org.jfree.data.time.Minute;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -232,7 +233,15 @@ public class LagTimeChart
                     if (value < 0) value = 0;
                     if (value > threshold) value = threshold;
                 }
-                time_series.add (new Minute (sample.getDate ()), value);
+                try
+                {
+                    time_series.add (new Minute (sample.getDate ()), value);
+                }
+                catch (SeriesException e)
+                {
+                    // the real-time data appears to contain values with the same time stamps
+                    // ignore these exceptions when they happen
+                }
             }
             dataset.addSeries(time_series);
         }

@@ -96,7 +96,7 @@ implements IMCDFWriteProgressListener
     {
         int count, n_elements, n_temperatures;
         boolean need_scalar_ts;
-        String string;
+        String string, standard_name_string;
         ImagCDFLowLevel cdf;
         IMCDFVariableType field_var_type, temperature_var_type;
         List<String> links, pids;
@@ -126,13 +126,15 @@ implements IMCDFWriteProgressListener
         elevation =                                           cdf.getGlobalAttributeDouble("Elevation",         0, true);
         institution =                                         cdf.getGlobalAttributeString("Institution",       0, true);
         vector_sens_orient =                                  cdf.getGlobalAttributeString("VectorSensOrient",  0, false);
-        standard_level =              new IMCDFStandardLevel (cdf.getGlobalAttributeString("Standardlevel",     0, true));
-        standard_name =                new IMCDFStandardName (cdf.getGlobalAttributeString("StandardName",      0, false));
+        standard_level =              new IMCDFStandardLevel (cdf.getGlobalAttributeString("StandardLevel",     0, true));
+        standard_name_string =                                cdf.getGlobalAttributeString("StandardName",      0, false);
         standard_version =                                    cdf.getGlobalAttributeString("StandardVersion",   0, false);
         partial_stand_desc =                                  cdf.getGlobalAttributeString("PartialStandDesc",  0, false);
         source =                                              cdf.getGlobalAttributeString("Source",            0, true);
         terms_of_use =                                        cdf.getGlobalAttributeString("TermsOfUse",        0, false);
         unique_identifier =                                   cdf.getGlobalAttributeString("UniqueIdentifier",  0, false);
+        if (standard_name_string == null) standard_name = null;
+        else standard_name = new IMCDFStandardName (standard_name_string);
         for (count=0, string=""; string != null; count ++)
         {
             string =                                          cdf.getGlobalAttributeString("ParentIdentifiers", count, false);
