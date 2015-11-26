@@ -414,7 +414,7 @@ public class DateUtils
 
 
 public static Date  TwoDigitCenturyCorrect(Date date){
-    Calendar cal = new GregorianCalendar();
+    Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
     cal.setTime(date);
     int yr = cal.get(Calendar.YEAR);
     if(yr<100) //assume century has been missed off
