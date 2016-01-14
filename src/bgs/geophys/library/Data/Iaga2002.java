@@ -58,6 +58,9 @@ public class Iaga2002 extends GeomagDataFormat
     // these members hold the header in addition to those inherited from DataFormat
     private List<String> raw_header_lines;        // these are the unformatted comments
     
+    // a count of the number of header lines (including the line that holds the column headings)
+    private int n_header_lines;
+    
     // a flag showing whether we need to swap the first two conponents when writing data
     boolean swap_hdzf_to_dhzf;
 
@@ -107,6 +110,7 @@ public class Iaga2002 extends GeomagDataFormat
         for(int i=0;i<comments.size();i++){
             raw_header_lines.add(comments.get(i));
         }
+        n_header_lines = 13 + raw_header_lines.size();
         swap_hdzf_to_dhzf = true;
         initFormatObjects();
     }
@@ -119,10 +123,11 @@ public class Iaga2002 extends GeomagDataFormat
                      String interval_type)
     throws GeomagDataException
     {
-  super (station_code, station_name, latitude, longitude, elevation,
+        super (station_code, station_name, latitude, longitude, elevation,
                comp_code, data_type, null, institute_name, sensor_orientation,
                sample_period_string, interval_type, true, -1);
         raw_header_lines = new ArrayList<String> ();
+        n_header_lines = 13;
         swap_hdzf_to_dhzf = true;
         initFormatObjects();
     }
@@ -149,26 +154,39 @@ public class Iaga2002 extends GeomagDataFormat
      */
     public Iaga2002(String stationCode, String stationName, double latitude, double longitude, double elevation, String compCode, String dataType, String ginCode, String instituteName, String sensorOrientation, String samplePeriodString, String intervalType, boolean allowFourDigitSC, int blocksize) throws GeomagDataException {
         this(stationCode, stationName, latitude, longitude, elevation, compCode, dataType, instituteName, sensorOrientation, samplePeriodString, intervalType);
+        n_header_lines = 13;
         initFormatObjects();
     }
 
-
-
-    
     /** Add a line to the optional header records - the lines should not have a leading '#'
      * @param header the new header, which is added at the end of the exsiting records */
     public void addOptionalHeaderLine (String header)
     {
         raw_header_lines.add (header);
+        n_header_lines ++;
     }
+
+    /** get the total number of header lines (including the line that holds the column hedings
+     * @return the number of heading lines
+     */
+    public int getNHeaderLines () { return n_header_lines; }
 
     /** get the number of raw header lines
      * @return the number of lines */
     public int getNExtraHeaderLines () { return raw_header_lines.size(); }
-
+    
     /** get an individual raw header line
      * @return the line, including leading '#' */
     public String getExtraHeaderLine (int index) { return raw_header_lines.get (index); }
+    
+    /** get the unswapped component codes (if the first two were swapped
+     * @return the component codes */
+    public String getOriginalComponentCodes ()
+    {
+        if (swap_hdzf_to_dhzf && getComponentCodes().substring(0,2).equalsIgnoreCase("HD"))
+            return "DH" + getComponentCodes().substring(2);
+        return getComponentCodes();
+    }
     
     /** Get the numerical value of the "Digital Sampling" header field in milliseconds.
      *  The value -1 is returned if the field was not specified in the header,
@@ -204,7 +222,6 @@ public class Iaga2002 extends GeomagDataFormat
         }
         
     }
-    
 
     /** Write the data in IAGA 2002 format to a new file
      * @param os the output stream to use
@@ -308,6 +325,18 @@ public class Iaga2002 extends GeomagDataFormat
     /////////////////////////////////////////////////////////////////////////////
     ///////////////////////// static methods below here /////////////////////////
     /////////////////////////////////////////////////////////////////////////////
+    
+    /** get the name of the units corresponding to particular geomagnetic elements
+     * @param element string containing the single element character, e.g. H, D, Z, X, Y, ...
+     * @return the name of the units */
+    public static String getUnits (String element)
+    {
+        if ("XYZHEVFSG".indexOf(element.toUpperCase()) >= 0)
+            return "nT";
+        else if ("DI".indexOf(element.toUpperCase()) >= 0)
+            return "Minutes of arc";
+        return "Unknown";
+    }
     
     /** format a mandatory header line
      * @param name the name for the line
