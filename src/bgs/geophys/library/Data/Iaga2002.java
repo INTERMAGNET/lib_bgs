@@ -71,15 +71,8 @@ public class Iaga2002 extends GeomagDataFormat
     private DecimalFormat latFormat;
     private DecimalFormat longFormat;
     private DecimalFormat valueFormat;
-    private static final SimpleDateFormat dataDateFormat;
     private SimpleDateFormat dataDateFormatIncDN;
     
-    // static initialisers - mainly creation of formatting objects
-    static
-    {        
-        dataDateFormat = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss.SSS", DateUtils.english_date_format_symbols);
-        dataDateFormat.setTimeZone(DateUtils.gmtTimeZone);        
-    }
     
     /** Creates a new instance of Iaga2002 by supplying all data
      * @param station_code the 'IAGA code' header field
@@ -413,7 +406,13 @@ public class Iaga2002 extends GeomagDataFormat
         StringTokenizer tokens;
         Iaga2002 iaga2002;
         List<String> raw_header_lines;
+        SimpleDateFormat dataDateFormat;
 
+        // initialise the data formatter used to read date/times - this used to be a static variable
+        // but making it so causes problems if you use the Iaga2002 object in multiple threads
+        dataDateFormat = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss.SSS", DateUtils.english_date_format_symbols);
+        dataDateFormat.setTimeZone(DateUtils.gmtTimeZone);        
+        
         // fill all values with nulls
         institute_name = station_name = station_code = null;
         comp_code = sensor_orientation = sample_period_string = null;
