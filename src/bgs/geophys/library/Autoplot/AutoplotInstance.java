@@ -25,17 +25,57 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * a class to control a running autoplot instance
  * the constructor starts the autoplot instance
+ * comms with the autoplot instance are managed by a separate thread
+ *     request to view data cause a message to be created and passed
+ *     to the thread that manages the comms with autoplot
  *
  * @author smf
  */
-public class AutoplotInstance 
+public class AutoplotInstance
+implements Runnable
 {
+    
+    private class APMessage
+    {
+        private List<String> commands;
+        public APMessage ()
+        {
+            commands = new ArrayList<> ();
+        }
+        public void addCommand (String command) { commands.add (command); }
+        public String removeCommand () { if (commands.isEmpty()) return null; return commands.remove(0); }
+    }
+    
+    private class APMessageQueue
+    {
+        private List<APMessage> messages;
+        public APMessageQueue ()
+        {
+            messages = new ArrayList<> ();
+        }
+        public void addMessage (APMessage message) { messages.add (message); }
+        public boolean hasNext () { return (! messages.isEmpty()); }
+        public APMessage removeMessage () { if (messages.isEmpty()) return null; return messages.remove(0); }
+    }
+    
+    private class APExceptionQueue
+    {
+        private List<Exception> exceptions;
+        public APExceptionQueue ()
+        {
+            exceptions = new ArrayList<> ();
+        }
+        public void addException (Exception exception) { exceptions.add (exception); }
+        public Exception removeException () { if (exceptions.isEmpty()) return null; return exceptions.remove(0); }
+    }
     
     // the string that autoplot emits describing the port its server is running on
     private static final String AP_PORT_SEARCH_STRING = "autoplot is listening on port";
@@ -55,6 +95,13 @@ public class AutoplotInstance
     private BufferedInputStream stream_from_autoplot;
     private OutputStream stream_to_autoplot;
     private boolean debug_comms;
+    
+    // variables used to communicate with autoplot via a thread
+    private Thread ap_comms_thread;
+    private boolean ap_thread_cancel;
+    private final APMessageQueue ap_message_queue;
+    private APExceptionQueue ap_exception_queue;
+    
 
     /** start an instance of autoplot
      * 
@@ -124,6 +171,16 @@ public class AutoplotInstance
         
         // tell autoplot to load the startup script
         sendCommand ("import " + startup_scrpt_name + " as geomag");
+        
+        // pass control to the thread that will communuicate with autoplot
+        // from this point onwards all comms should be through the message queue
+        // using the thread, not direct using sendCommand()
+        this.ap_message_queue = new APMessageQueue ();
+        this.ap_exception_queue = new APExceptionQueue ();
+        this.ap_thread_cancel = false;
+        this.ap_comms_thread = new Thread (this);
+        this.ap_comms_thread.setDaemon(true);
+        this.ap_comms_thread.start();
     }
     
     public boolean isAlive ()
@@ -134,20 +191,36 @@ public class AutoplotInstance
     public void exit ()
     {
         if (debug_comms) System.out.println ("Autoplot: process exit requested");
+        ap_thread_cancel = true;
         // this should do something neat like sending a jython command to allow autoplot to exit neatly
         Process process = (Process) autoplot_process.getThreadOrProcess();
         process.destroy();
-    }
-    
-    public void closeSocket () 
-    throws IOException
-    {
+        
         if (debug_comms) System.out.println ("Autoplot: Socket to Autoplot closed");
-        stream_from_autoplot.close ();
-        stream_to_autoplot.close ();
-        autoplot_socket.close();
+        try
+        {
+            stream_from_autoplot.close ();
+            stream_to_autoplot.close ();
+            autoplot_socket.close();
+        }
+        catch (IOException e) { }
     }
     
+    /** any exceptions the autoplot generates are delivered in the thread that
+     * manages autoplot comms. They are then put in a queue and can be retrieved
+     * using this method
+     * 
+     * @return the earliest exception or null for no exceptions */
+    public Exception getExceptionFromAutoplot ()
+    {
+        Exception exception;
+        synchronized (ap_exception_queue)
+        {
+            exception = ap_exception_queue.removeException();
+        }
+        return exception;
+    }
+ 
     /** load a single IAGA-2002 file (without aggregation). This requires reading
      * the IAGA2002 file so that Autoplot can be instructed how to load it - it
      * would be nicer if there was a way Autoplot could understand how to read it
@@ -161,6 +234,9 @@ public class AutoplotInstance
     public void loadIaga2002 (File iaga_2002_file, boolean reset) 
     throws FileNotFoundException, IOException
     {
+        // start a new message
+        APMessage message = new APMessage ();
+        
         // collect data about the IAGA-2002 file
         FileInputStream is = new FileInputStream (iaga_2002_file);
         Iaga2002 iaga_2002 = Iaga2002.read (is, false, true);
@@ -169,7 +245,7 @@ public class AutoplotInstance
         String title = makeTitle(iaga_2002.getStationName(), iaga_2002.getStationCode(), (int) iaga_2002.getSamplePeriod());
         String component_codes = iaga_2002.getOriginalComponentCodes();
         int n_header_lines = iaga_2002.getNHeaderLines();
-        if (reset) sendCommand ("reset ()");
+        if (reset) message.addCommand("reset ()");
         for (int count=0; count<component_codes.length(); count++)
         {
             // create and send the command to display this element
@@ -187,17 +263,18 @@ public class AutoplotInstance
             uri_builder.addDatValidMax(GeomagDataFormat.getValidMaxOrMin(component, true));
             uri_builder.addDatLabel(component + "(" + Iaga2002.getUnits(component) + ")");
             uri_builder.addDatUnits(Iaga2002.getUnits(component));
-            sendCommand ("plot (" + count + ",'" + uri_builder.getURI() + "')");
+            message.addCommand("plot (" + count + ",'" + uri_builder.getURI() + "')");
 
             // switch off all x-axis disolays except the bottom one
             String dom_plot_name = "dom.plots[" + count + "]";
             if (count < component_codes.length() -1)
             {
-                sendCommand (dom_plot_name + ".controller.plot.xaxis.setVisible (0)");
+                message.addCommand(dom_plot_name + ".controller.plot.xaxis.setVisible (0)");
             }
         }
         
-        sendSizeSettings (component_codes.length());
+        addSizeCommands (message, component_codes.length());
+        sendMessage (message);
     }
     
     /** load data from IAGA-2002 files (with aggregation). This requires reading
@@ -219,6 +296,9 @@ public class AutoplotInstance
                               GeomagDataFilename.Interval interval, boolean reset) 
     throws FileNotFoundException, IOException
     {
+        // start a new message
+        APMessage message = new APMessage ();
+        
         // build a filename for the first file and read it
         GeomagDataFilename.Case filename_case;
         GregorianCalendar cal = new GregorianCalendar (DateUtils.gmtTimeZone);
@@ -295,7 +375,7 @@ public class AutoplotInstance
         String title = makeTitle(iaga_2002.getStationName(), iaga_2002.getStationCode(), (int) iaga_2002.getSamplePeriod());
         String component_codes = iaga_2002.getOriginalComponentCodes();
         int n_header_lines = iaga_2002.getNHeaderLines();
-        if (reset) sendCommand ("reset ()");
+        if (reset) message.addCommand("reset ()");
         for (int count=0; count<component_codes.length(); count++)
         {
             // create and send the command to display this element
@@ -313,17 +393,18 @@ public class AutoplotInstance
             uri_builder.addDatValidMax(GeomagDataFormat.getValidMaxOrMin(component, true));
             uri_builder.addDatLabel(component + "(" + Iaga2002.getUnits(component) + ")");
             uri_builder.addDatUnits(Iaga2002.getUnits(component));
-            sendCommand ("plot (" + count + ",'" + uri_builder.getURI() + "')");
+            message.addCommand("plot (" + count + ",'" + uri_builder.getURI() + "')");
 
             // switch off all x-axis disolays except the bottom one
             String dom_plot_name = "dom.plots[" + count + "]";
             if (count < component_codes.length() -1)
             {
-                sendCommand (dom_plot_name + ".controller.plot.xaxis.setVisible (0)");
+                message.addCommand(dom_plot_name + ".controller.plot.xaxis.setVisible (0)");
             }
         }
         
-        sendSizeSettings (component_codes.length());
+        addSizeCommands (message, component_codes.length());
+        sendMessage (message);
     }
     
     /** load a single ImagCDF file (without aggregation).
@@ -336,6 +417,9 @@ public class AutoplotInstance
     public void loadImagCDF (File imagcdf_file, boolean reset) 
     throws FileNotFoundException, IOException
     {
+        // start a new message
+        APMessage message = new APMessage ();
+        
         String title;
         try
         {
@@ -346,10 +430,12 @@ public class AutoplotInstance
         {
             title = "Geomagnetic observatory data";
         }
-        if (reset) sendCommand ("reset ()");
-        sendCommand ("base_cdf_uri = 'vap+cdf:file:/" + imagcdf_file.getAbsolutePath() + "?'");
-        sendCommand ("geomag_cdf_ds = geomag.getGeomagDataSets (base_cdf_uri)");
-        sendCommand ("geomag.showDSPlot (geomag_cdf_ds, '" + title + "')");
+        if (reset) message.addCommand("reset ()");
+        message.addCommand("base_cdf_uri = 'vap+cdf:file:/" + imagcdf_file.getAbsolutePath() + "?'");
+        message.addCommand("geomag_cdf_ds = geomag.getGeomagDataSets (base_cdf_uri)");
+        message.addCommand("geomag.showDSPlot (geomag_cdf_ds, '" + title + "')");
+        
+        sendMessage (message);
     }
     
     /** load an ImagCDF file (with aggregation).
@@ -369,6 +455,9 @@ public class AutoplotInstance
                              ImagCDFFilename.Interval interval, boolean reset) 
     throws FileNotFoundException, IOException
     {
+        // start a new message
+        APMessage message = new APMessage ();
+        
         // build the filename pattern and timerange to pass to autoplot
         SimpleDateFormat date_format = new SimpleDateFormat ("yyyy-MM-dd");
         date_format.setTimeZone(DateUtils.gmtTimeZone);
@@ -401,7 +490,7 @@ public class AutoplotInstance
         String filename_pattern = iaga_code.toLowerCase() + "_" + filename_time_pattern + "_" + publication_level.toString() + ".cdf";
         
         // build the URI and send commands to autoplot
-        if (reset) sendCommand ("reset ()");
+        if (reset) message.addCommand("reset ()");
         for (int count=0; count<component_codes.length(); count++)
         {
             // create and send the command to display this element
@@ -411,30 +500,31 @@ public class AutoplotInstance
             File file_pattern = new File (folder, filename_pattern);
             AutoplotURIBuilder uri_builder = new AutoplotURIBuilder(AutoplotURIBuilder.URIType.VAP_CDF_FILE, file_pattern.getAbsolutePath(), time_range);
             uri_builder.addCDFVarName(cdf_var_name);
-            sendCommand ("plot (" + count + ",'" + uri_builder.getURI() + "')");
+            message.addCommand("plot (" + count + ",'" + uri_builder.getURI() + "')");
 
             // switch off all x-axis disolays except the bottom one
             String dom_plot_name = "dom.plots[" + count + "]";
             if (count < component_codes.length() -1)
             {
-                sendCommand (dom_plot_name + ".controller.plot.xaxis.setVisible (0)");
+                message.addCommand(dom_plot_name + ".controller.plot.xaxis.setVisible (0)");
             }
         }
 
         String title = makeTitle (null, iaga_code, 0);
-        sendCommand ("dom.plots[0].controller.setTitleAutomatically('" + title + "')");
-        sendSizeSettings (component_codes.length());
+        message.addCommand("dom.plots[0].controller.setTitleAutomatically('" + title + "')");
+        
+        addSizeCommands (message, component_codes.length());
+        sendMessage (message);
         
     }
 
-    
     /** resize the plot elements - the way to do this was worked out emprically -
      * there may be a beter way! Using the layout buttons in autoplot gets the
      * same layout, but I haven't found the Jython interface to simulate the buttons
      * 
      * @param n_elements the number of plots in the autoplot window
      */
-    public void sendSizeSettings (int n_elements)
+    private void addSizeCommands (APMessage message, int n_elements)
     throws IOException
     {
         String top_settings [], bottom_settings [];
@@ -458,8 +548,95 @@ public class AutoplotInstance
             for (int count=0; count<top_settings.length; count++)
             {
                 String dom_plot_name = "dom.plots[" + count + "]";
-                sendCommand (dom_plot_name + ".controller.row.top = '" + top_settings[count] + "'");
-                sendCommand (dom_plot_name + ".controller.row.bottom = '" + bottom_settings[count] + "'");
+                message.addCommand(dom_plot_name + ".controller.row.top = '" + top_settings[count] + "'");
+                message.addCommand (dom_plot_name + ".controller.row.bottom = '" + bottom_settings[count] + "'");
+            }
+        }
+    }
+    
+    private String makeTitle (String obsy_name, String obsy_code, int sample_period)
+    {
+        String title = "Geomagnetic observatory data";
+        if (obsy_name == null)
+        {
+            if (obsy_code != null) title += " for " + obsy_code;
+        }
+        else
+        {
+            if (obsy_code != null) title += " for " + obsy_name + " (" + obsy_code + ")";
+            else title += " for" + obsy_name;
+        }
+        switch (sample_period)
+        {
+            case 1000: title += ", 1-second period"; break; 
+            case 60000: title += ", 1-minute period"; break;
+            case 3600000: title += " 1-hour period"; break;
+            default:
+                if (sample_period > 0)
+                    title += Integer.toString (sample_period / 1000) + "s period";
+                break;
+        }
+        return title;
+    }
+    
+    private void sendMessage (APMessage message)
+    {
+        synchronized (ap_message_queue)
+        {
+            ap_message_queue.addMessage(message);
+        }
+    }
+    
+    
+    /* --------------------------------------------------------------------------------------------------------
+     * --------------------------------------------------------------------------------------------------------
+     * ------------- Code below here is part of the thread that communicates with autoplot --------------------
+     * --------------------------------------------------------------------------------------------------------
+     * -------------------------------------------------------------------------------------------------------- */
+
+    /** thread to manage comms with Autoplot */
+    @Override
+    public void run ()
+    {
+        while (! ap_thread_cancel)
+        {
+            // extract all messages from the message queue - there's no point in
+            // displaying a file if we're going to immediately display another
+            // file which will overwrite the display
+            APMessage message = null;
+            synchronized (ap_message_queue)
+            {
+                while (ap_message_queue.hasNext())
+                    message = ap_message_queue.removeMessage();
+            }
+            
+            // process this message
+            if (message != null)
+            {
+                // extract and process commands from the message, storing any exceptions
+                String command;
+                while ((! ap_thread_cancel) &&
+                        (command = message.removeCommand()) != null)
+                {
+                    try
+                    {
+                        sendCommand (command);
+                    }
+                    catch (IOException exception)
+                    {
+                        synchronized (ap_exception_queue)
+                        {
+                            ap_exception_queue.addException (exception);
+                        }
+                    }
+                }
+            }
+            
+            // sleep for a bit before checking the queue again
+            if (message == null)
+            {
+                try { Thread.sleep (100l); }
+                catch (InterruptedException e) { }
             }
         }
     }
@@ -468,7 +645,7 @@ public class AutoplotInstance
      * 
      * @param command the command, in Jython
      * @throws java.io.IOException if there's an IO error*/
-    public String sendCommand (String command) 
+    private String sendCommand (String command) 
     throws IOException
     {
         if (debug_comms) System.out.println ("Autoplot: sending data [" + command + "]");
@@ -527,29 +704,5 @@ public class AutoplotInstance
         throw new IOException ("Timeout waiting for response from autoplot");
     }
 
-    private String makeTitle (String obsy_name, String obsy_code, int sample_period)
-    {
-        String title = "Geomagnetic observatory data";
-        if (obsy_name == null)
-        {
-            if (obsy_code != null) title += " for " + obsy_code;
-        }
-        else
-        {
-            if (obsy_code != null) title += " for " + obsy_name + " (" + obsy_code + ")";
-            else title += " for" + obsy_name;
-        }
-        switch (sample_period)
-        {
-            case 1000: title += ", 1-second period"; break; 
-            case 60000: title += ", 1-minute period"; break;
-            case 3600000: title += " 1-hour period"; break;
-            default:
-                if (sample_period > 0)
-                    title += Integer.toString (sample_period / 1000) + "s period";
-                break;
-        }
-        return title;
-    }
     
 }

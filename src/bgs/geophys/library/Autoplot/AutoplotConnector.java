@@ -161,15 +161,18 @@ public class AutoplotConnector
         autoplot_instances.remove(ap_instance);
         return ap_instance;
     }
-    /** remove dead autoplot instannces
+    /** remove dead autoplot instances
      * @return the first live instance or null */
     public AutoplotInstance cullAutoplotInstances ()
     {
-        while (getNAutoplotInstances () > 0)
+        for (int count=0; count<getNAutoplotInstances (); count ++)
         {
-            AutoplotInstance ap_instance = getAutoplotInstance (0);
+            AutoplotInstance ap_instance = getAutoplotInstance (count);
             if (! ap_instance.isAlive())
+            {
                 removeAutoplotInstance (ap_instance);
+                count --;
+            }
         }
         if (getNAutoplotInstances() <= 0) return null;
         return getAutoplotInstance(0);
