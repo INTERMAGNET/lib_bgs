@@ -136,34 +136,34 @@ public class ImagCDFFilename
             switch (filename.length())
             {
                 case 13:
-                    date = yyyy.parse (filename.substring(3, 7));
+                    date = yyyy.parse (filename.substring(4, 8));
                     interval = Interval.ANNUAL;
-                    publicationLevel = new IMCDFPublicationLevel (filename.substring (8, 9));
+                    publicationLevel = new IMCDFPublicationLevel (filename.substring (9, 10));
                     break;
                 case 15:
-                    date = yyyyMM.parse (filename.substring(3, 9));
+                    date = yyyyMM.parse (filename.substring(4, 10));
                     interval = Interval.MONTHLY;
-                    publicationLevel = new IMCDFPublicationLevel (filename.substring (10, 11));
+                    publicationLevel = new IMCDFPublicationLevel (filename.substring (11, 12));
                     break;
                 case 17:
-                    date = yyyyMMdd.parse (filename.substring(3, 11));
+                    date = yyyyMMdd.parse (filename.substring(4, 12));
                     interval = Interval.DAILY;
-                    publicationLevel = new IMCDFPublicationLevel (filename.substring (12, 13));
+                    publicationLevel = new IMCDFPublicationLevel (filename.substring (13, 14));
                     break;
                 case 20:
-                    date = yyyyMMdd_HH.parse (filename.substring(3, 14));
+                    date = yyyyMMdd_HH.parse (filename.substring(4, 15));
                     interval = Interval.HOURLY;
-                    publicationLevel = new IMCDFPublicationLevel (filename.substring (15, 16));
+                    publicationLevel = new IMCDFPublicationLevel (filename.substring (16, 17));
                     break;
                 case 22:
-                    date = yyyyMMdd_HHmm.parse (filename.substring(3, 16));
+                    date = yyyyMMdd_HHmm.parse (filename.substring(4, 17));
                     interval = Interval.MINUTE;
-                    publicationLevel = new IMCDFPublicationLevel (filename.substring (17, 18));
+                    publicationLevel = new IMCDFPublicationLevel (filename.substring (18, 19));
                     break;
                 case 24:
-                    date = yyyyMMdd_HHmmss.parse (filename.substring(3, 18));
+                    date = yyyyMMdd_HHmmss.parse (filename.substring(4, 19));
                     interval = Interval.SECOND;
-                    publicationLevel = new IMCDFPublicationLevel (filename.substring (19, 20));
+                    publicationLevel = new IMCDFPublicationLevel (filename.substring (20, 21));
                     break;
                 default:
                     throw new ParseException("", 0);
@@ -200,6 +200,7 @@ public class ImagCDFFilename
         }
         
         filename = this.getObservatoryCode()
+                    + "_"
                     + dateFormat.format(this.getDate())
                     + "_"
                     + publicationLevel.toString()

@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A class that can:
@@ -45,6 +47,9 @@ public class AutoplotConnector
     private int stream_id_counter;
     // a thread that will handle termination
     private AutoplotExitHandler autoplot_exit_handler;
+    
+    // a list of autoplot instances that have been started through runAutoplot()
+    private List<AutoplotInstance> autoplot_instances;
     
     /**
      * install the autoplot jar using a default folder name
@@ -109,6 +114,8 @@ public class AutoplotConnector
         // create and link the exit handler that will shutdown autoplot instances on termination of the JVM
         autoplot_exit_handler = new AutoplotExitHandler();
         Runtime.getRuntime().addShutdownHook(autoplot_exit_handler);
+        
+        autoplot_instances = new ArrayList<> ();
     }
 
     /** start an autoplot instance with the given command line arguments. The arguments to set up a server are added to
@@ -141,8 +148,31 @@ public class AutoplotConnector
         // add this autoplot instance to the list that will be processed by the shutdown handler
         if (kill_on_exit)
             autoplot_exit_handler.addAutoplotInstance(ap_instance);
-        
+
+        autoplot_instances.add (ap_instance);
         return ap_instance;
+    }
+
+    public int getNAutoplotInstances () { return autoplot_instances.size(); }
+    public AutoplotInstance getAutoplotInstance (int index) { return autoplot_instances.get(index); }
+    public AutoplotInstance removeAutoplotInstance (AutoplotInstance ap_instance)
+    {
+        if (ap_instance.isAlive()) ap_instance.exit();
+        autoplot_instances.remove(ap_instance);
+        return ap_instance;
+    }
+    /** remove dead autoplot instannces
+     * @return the first live instance or null */
+    public AutoplotInstance cullAutoplotInstances ()
+    {
+        while (getNAutoplotInstances () > 0)
+        {
+            AutoplotInstance ap_instance = getAutoplotInstance (0);
+            if (! ap_instance.isAlive())
+                removeAutoplotInstance (ap_instance);
+        }
+        if (getNAutoplotInstances() <= 0) return null;
+        return getAutoplotInstance(0);
     }
     
     // copy a file from the enclosing jar (or classes) to a given destination

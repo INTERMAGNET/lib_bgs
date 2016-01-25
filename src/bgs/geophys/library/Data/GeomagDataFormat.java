@@ -980,6 +980,37 @@ public abstract class GeomagDataFormat
         
     }
     
+    /** get the valid maximum or minimum value for an element
+     * @param element string containing the single element character, e.g. H, D, Z, X, Y, ...
+     * @param get_max - true to get maximum value, false to get minimum
+     * @return the valid minimum or maximum - NOTE angles are in minutes of arc */
+    public static double getValidMaxOrMin (String element, boolean get_max)
+    {
+        String uc_element = element.toUpperCase();
+        if ("XYZHEV".indexOf(uc_element) >= 0)
+        {
+            if (get_max) return 88887.0;
+            return -88887.0;
+        }
+        else if ("FSG".indexOf(uc_element) >= 0)
+        {
+            if (get_max) return 88887.0;
+            return 0.0;
+        }
+        else if ("D".indexOf(uc_element) >= 0)
+        {
+            if (get_max) return 360.0 * 60.0;
+            return -180.0 * 60.0;
+        }
+        else if ("I".indexOf(uc_element) >= 0)
+        {
+            if (get_max) return 180.0 * 60.0;
+            return -180.0 * 60.0;
+        }
+        return 0.0;
+    }
+    
+    
     /////////////////////////////////////////////////////////////////////////////
     ////////////////////////// private code below here //////////////////////////
     /////////////////////////////////////////////////////////////////////////////

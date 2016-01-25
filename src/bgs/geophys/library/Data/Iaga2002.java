@@ -378,19 +378,41 @@ public class Iaga2002 extends GeomagDataFormat
     
     /** Creates a new instance of Iaga2002 data by reading it from a file
       * @param is the stream to read from
+      * @return the IAGA2002 object
       * @throws FileNotFoundException if the file was not found
       * @throws IOException if there was an error reading the file
       * @throws GeomagDataException if there was an error in the data format - the
       *         messages associated with the exception will describe the problem */
-    /** file with no elevation is allowed if check_elevation is false, otherwise error
-     * if no elevation   */
     public static Iaga2002 read (InputStream is)
     throws FileNotFoundException, IOException, GeomagDataException
     {
         return read(is, true);
     }
     
+    /** Creates a new instance of Iaga2002 data by reading it from a file
+      * @param is the stream to read from
+      * @param check_elevation true to check thee elevation field in the header
+      * @return the IAGA2002 object
+      * @throws FileNotFoundException if the file was not found
+      * @throws IOException if there was an error reading the file
+      * @throws GeomagDataException if there was an error in the data format - the
+      *         messages associated with the exception will describe the problem */
     public static Iaga2002 read (InputStream is, boolean check_elevation)
+    throws FileNotFoundException, IOException, GeomagDataException
+    {
+        return read (is, check_elevation, false);
+    }
+
+    /** Creates a new instance of Iaga2002 data by reading it from a file
+      * @param is the stream to read from
+      * @param check_elevation true to check thee elevation field in the header
+      * @param read_headers_only if true only read the headers, no data will be read in
+      * @return the IAGA2002 object
+      * @throws FileNotFoundException if the file was not found
+      * @throws IOException if there was an error reading the file
+      * @throws GeomagDataException if there was an error in the data format - the
+      *         messages associated with the exception will describe the problem */
+    public static Iaga2002 read (InputStream is, boolean check_elevation, boolean read_headers_only)
     throws FileNotFoundException, IOException, GeomagDataException
     {
         int count, line_number, day_of_year, data_count, column1, column2;
@@ -533,86 +555,88 @@ public class Iaga2002 extends GeomagDataFormat
         // Finished reading headers        
         
         // Start reading data now
-        if (swap_dhzf_to_hdzf)
+        if (! read_headers_only)
         {
-            column1 = 1;
-            column2 = 0;
-        }
-        else
-        {
-            column1 = 0;
-            column2 = 1;
-        }
-        while ((buffer = reader.readLine()) != null)
-        {
-            line_number ++;
-            // check the length of the line
-            if (buffer.length() != 70) throw new GeomagDataException ("Incorrect line length at line number " + Integer.toString (line_number));
-            
-            // this should be a data line - parse and extract the data fields
-            last_date = date;
-            tokens = new StringTokenizer(buffer);
-            if (tokens.countTokens() < 7)
-                throw new GeomagDataException("Bad data at line number " + Integer.toString(line_number));
-            try { date = dataDateFormat.parse(tokens.nextToken() + " " + tokens.nextToken()); } catch (Exception e) { throw new GeomagDataException("Bad date or time at line number " + Integer.toString(line_number)); }
-            tokens.nextToken(); // ignore the day of year field
-            try {
-                for (count = 0; count<4; count++) {
-                    values [count] = Double.parseDouble(tokens.nextToken());
-                    // adjust missing values
-                    if (values [count] >= 99999.0) values [count] = 99999.0;
-                    else if (values [count] >= 88888.0) values [count] = 88888.0;
-                }
-            } catch (Exception e) { throw new GeomagDataException("Bad component data at line number " + Integer.toString(line_number)); }
-            
-            // calculate and check the sample period
-            try {
-                switch (data_count ++) {
-                    case 0:
-                        // can't do anything yet so record the data
-                        for (count = 0; count<4; count++) value_store [count] = values [count];
-                        break;
-                    case 1:
-                        // calculate the sample period and record the first two data points
-                        sample_period = date.getTime() - last_date.getTime();
-                        iaga2002.addData(last_date, sample_period, 99999.0, 88888.0,
-                                value_store [column1], value_store [column2],
-                                value_store [2], value_store [3]);
-                        iaga2002.addData(date, sample_period, 99999.0, 88888.0,
-                                values [column1], values [column2],
-                                values [2], values [3]);
-                        break;
-                    default:
-                        sample_period = date.getTime() - last_date.getTime();
-                        iaga2002.addData(date, sample_period, 99999.0, 88888.0,
-                                values [column1], values [column2],
-                                values [2], values [3]);
-                        break;
-                }
-            } catch (GeomagDataException e) { throw new GeomagDataException(e.getMessage() + " at line number " + Integer.toString(line_number)); }
-        }
-
-        // check for not enough data
-        switch (data_count)
-        {
-        case 0:
-            throw new GeomagDataException ("No data in file");
-        case 1:
-            // try to guess the sample rate from the 'data interval type' header
-            buffer = interval_type.toUpperCase();
-            if (buffer.indexOf ("1-MINUTE") >= 0) sample_period = 60000l;
-            else if (buffer.indexOf ("1-SECOND") >= 0) sample_period = 100l;
-            else sample_period = -1;
-            if (sample_period <= 0)
-                throw new GeomagDataException ("Unknown sample rate: File must contain valid 'data interval type' header or more than a single sample");
-            else if (date == null)
-                throw new GeomagDataException ("Internal IAGA2002 error: missing sample date");
+            if (swap_dhzf_to_hdzf)
+            {
+                column1 = 1;
+                column2 = 0;
+            }
             else
-                iaga2002.addData(date, sample_period, 99999.0, 88888.0,
-                                 value_store [column1], value_store [column2],
-                                 value_store [2], value_store [3]);
+            {
+                column1 = 0;
+                column2 = 1;
+            }
+            while ((buffer = reader.readLine()) != null)
+            {
+                line_number ++;
+                // check the length of the line
+                if (buffer.length() != 70) throw new GeomagDataException ("Incorrect line length at line number " + Integer.toString (line_number));
+
+                // this should be a data line - parse and extract the data fields
+                last_date = date;
+                tokens = new StringTokenizer(buffer);
+                if (tokens.countTokens() < 7)
+                    throw new GeomagDataException("Bad data at line number " + Integer.toString(line_number));
+                try { date = dataDateFormat.parse(tokens.nextToken() + " " + tokens.nextToken()); } catch (Exception e) { throw new GeomagDataException("Bad date or time at line number " + Integer.toString(line_number)); }
+                tokens.nextToken(); // ignore the day of year field
+                try {
+                    for (count = 0; count<4; count++) {
+                        values [count] = Double.parseDouble(tokens.nextToken());
+                        // adjust missing values
+                        if (values [count] >= 99999.0) values [count] = 99999.0;
+                        else if (values [count] >= 88888.0) values [count] = 88888.0;
+                    }
+                } catch (Exception e) { throw new GeomagDataException("Bad component data at line number " + Integer.toString(line_number)); }
+
+                // calculate and check the sample period
+                try {
+                    switch (data_count ++) {
+                        case 0:
+                            // can't do anything yet so record the data
+                            for (count = 0; count<4; count++) value_store [count] = values [count];
+                            break;
+                        case 1:
+                            // calculate the sample period and record the first two data points
+                            sample_period = date.getTime() - last_date.getTime();
+                            iaga2002.addData(last_date, sample_period, 99999.0, 88888.0,
+                                    value_store [column1], value_store [column2],
+                                    value_store [2], value_store [3]);
+                            iaga2002.addData(date, sample_period, 99999.0, 88888.0,
+                                    values [column1], values [column2],
+                                    values [2], values [3]);
+                            break;
+                        default:
+                            sample_period = date.getTime() - last_date.getTime();
+                            iaga2002.addData(date, sample_period, 99999.0, 88888.0,
+                                    values [column1], values [column2],
+                                    values [2], values [3]);
+                            break;
+                    }
+                } catch (GeomagDataException e) { throw new GeomagDataException(e.getMessage() + " at line number " + Integer.toString(line_number)); }
+            }
+
+            // check for not enough data
+            switch (data_count)
+            {
+            case 0:
+                throw new GeomagDataException ("No data in file");
+            case 1:
+                // try to guess the sample rate from the 'data interval type' header
+                buffer = interval_type.toUpperCase();
+                if (buffer.indexOf ("1-MINUTE") >= 0) sample_period = 60000l;
+                else if (buffer.indexOf ("1-SECOND") >= 0) sample_period = 100l;
+                else sample_period = -1;
+                if (sample_period <= 0)
+                    throw new GeomagDataException ("Unknown sample rate: File must contain valid 'data interval type' header or more than a single sample");
+                else if (date == null)
+                    throw new GeomagDataException ("Internal IAGA2002 error: missing sample date");
+                else
+                    iaga2002.addData(date, sample_period, 99999.0, 88888.0,
+                                     value_store [column1], value_store [column2],
+                                     value_store [2], value_store [3]);
+            }
         }
-        
         
         return iaga2002;
     }

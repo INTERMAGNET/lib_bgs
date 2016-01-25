@@ -5,8 +5,15 @@
  */
 package bgs.geophys.library.Autoplot;
 
+import bgs.geophys.library.Data.GeomagDataFilename;
+import bgs.geophys.library.Data.GeomagDataFormat;
+import bgs.geophys.library.Data.GeomagDataFormat.DurationType;
 import bgs.geophys.library.Data.Iaga2002;
+import bgs.geophys.library.Data.Iaga2002Filename;
+import bgs.geophys.library.Data.ImagCDF.IMCDFPublicationLevel;
 import bgs.geophys.library.Data.ImagCDF.ImagCDF;
+import bgs.geophys.library.Data.ImagCDF.ImagCDFFilename;
+import bgs.geophys.library.Misc.DateUtils;
 import bgs.geophys.library.Threads.RunClass;
 import bgs.geophys.library.Threads.ThreadMultiStreamReader;
 import java.io.BufferedInputStream;
@@ -16,7 +23,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * a class to control a running autoplot instance
@@ -153,7 +163,7 @@ public class AutoplotInstance
     {
         // collect data about the IAGA-2002 file
         FileInputStream is = new FileInputStream (iaga_2002_file);
-        Iaga2002 iaga_2002 = Iaga2002.read (is);
+        Iaga2002 iaga_2002 = Iaga2002.read (is, false, true);
         is.close();
 
         String title = makeTitle(iaga_2002.getStationName(), iaga_2002.getStationCode(), (int) iaga_2002.getSamplePeriod());
@@ -172,8 +182,10 @@ public class AutoplotInstance
             uri_builder.addDatTimeFieldName("field0");
             uri_builder.addDatColumnFieldName(field_name);
             uri_builder.addDatTimeFormat("$Y-$m-$d+$H:$M:$S.$(milli)");
-            uri_builder.addDatFillValue(99999.0);
-            uri_builder.addDatLabel(component);
+            uri_builder.addDatFillValue(Iaga2002.MISSING_DATA_SAMPLE);
+            uri_builder.addDatValidMin(GeomagDataFormat.getValidMaxOrMin(component, false));
+            uri_builder.addDatValidMax(GeomagDataFormat.getValidMaxOrMin(component, true));
+            uri_builder.addDatLabel(component + "(" + Iaga2002.getUnits(component) + ")");
             uri_builder.addDatUnits(Iaga2002.getUnits(component));
             sendCommand ("plot (" + count + ",'" + uri_builder.getURI() + "')");
 
@@ -185,11 +197,248 @@ public class AutoplotInstance
             }
         }
         
-        // resize the plot elements - the way to do this was worked out emprically -
-        // there may be a beter way! Using the layout buttons in autoplot gets the
-        // same layout, but I haven't found the Jython interface to simulate the buttons
+        sendSizeSettings (component_codes.length());
+    }
+    
+    /** load data from IAGA-2002 files (with aggregation). This requires reading
+     * the first IAGA2002 file so that Autoplot can be instructed how to load it - it
+     * would be nicer if there was a way Autoplot could understand how to read the data
+     * without the overhead of having to read it here to get metadata first. Also, there
+     * is an assumption that the IAGA-2002 files are similar - same geomagnetic elements,
+     * same number of comments lines, ... which they may not be.
+     * 
+     * @param folder the folder to load data from
+     * @param iaga_code the station code for the data to load
+     * @param start_date the first piece of data to show - this must correspond to 
+     * @param interval the sample period of the data to look for
+     * @param reset true to reset autoplot before plotting the data
+     * @throws FileNotFoundException
+     * @throws IOException 
+     */
+    public void loadIaga2002 (File folder, String iaga_code, Date start_date, GeomagDataFilename.QualityType quality_type,
+                              GeomagDataFilename.Interval interval, boolean reset) 
+    throws FileNotFoundException, IOException
+    {
+        // build a filename for the first file and read it
+        GeomagDataFilename.Case filename_case;
+        GregorianCalendar cal = new GregorianCalendar (DateUtils.gmtTimeZone);
+        cal.setTime (start_date);
+        Iaga2002Filename iaga_2002_filename = new Iaga2002Filename (iaga_code, start_date, quality_type, interval, 
+                                                                    false, DurationType.DAY, GeomagDataFilename.Case.LOWER);
+        File iaga_2002_file = new File (folder, iaga_2002_filename.getFilename());
+        filename_case = GeomagDataFilename.Case.LOWER;
+        if (! iaga_2002_file.exists())
+        {
+            iaga_2002_filename = new Iaga2002Filename (iaga_code, start_date, quality_type, interval, 
+                                                       false, DurationType.DAY, GeomagDataFilename.Case.UPPER);
+            iaga_2002_file = new File (folder, iaga_2002_filename.getFilename());
+            filename_case = GeomagDataFilename.Case.UPPER;
+            if (! iaga_2002_file.exists())
+                throw new FileNotFoundException ("Unable to find first data file: " + iaga_2002_filename);
+        }
+        FileInputStream is = new FileInputStream (iaga_2002_file);
+        Iaga2002 iaga_2002 = Iaga2002.read (is, false, true);
+        is.close();
+        
+        // build the filename pattern and timerange to pass to autoplot
+        String quality_type_string;
+        switch(quality_type) 
+        {
+            case ADJUSTED: quality_type_string = "a"; break;
+            case DEFINITIVE: quality_type_string = "d"; break;
+            case PROVISIONAL: quality_type_string = "p"; break;
+            case QUASI_DEFINITIVE: quality_type_string = "q"; break;
+            case REPORTED: quality_type_string = "r"; break;
+            case VARIATION: quality_type_string = "v"; break;
+            case TEST: quality_type_string = "t"; break;
+            default: throw new IllegalArgumentException("Invalid quality type");
+        }        
+        String filename_time_pattern, suffix, time_range;
+        SimpleDateFormat date_format = new SimpleDateFormat ("yyyy-MM-dd");
+        date_format.setTimeZone(DateUtils.gmtTimeZone);
+        SimpleDateFormat month_format = new SimpleDateFormat ("yyyy-MM");
+        month_format.setTimeZone(DateUtils.gmtTimeZone);
+        SimpleDateFormat year_format = new SimpleDateFormat ("yyyy");
+        year_format.setTimeZone(DateUtils.gmtTimeZone);
+        switch (interval)
+        {
+            case SECOND:
+                filename_time_pattern = "$Y$m$d";
+                suffix = "sec.sec";
+                time_range = date_format.format (start_date);
+                break;
+            case MINUTE:
+                filename_time_pattern = "$Y$m$d";
+                suffix = "min.min";
+                time_range = date_format.format (start_date);
+                break;
+            case HOURLY:
+                filename_time_pattern = "$Y$m";
+                suffix = "hor.hor";
+                time_range = month_format.format (start_date);
+                break;
+            case DAILY:
+                filename_time_pattern = "$Y";
+                suffix = "day.day";
+                time_range = year_format.format (start_date);
+                break;
+            default:
+                throw new FileNotFoundException ("Iaga2002 interval type not supported: " + interval.toString());
+        }
+        String filename_pattern;
+        if (filename_case == GeomagDataFilename.Case.LOWER)
+            filename_pattern = iaga_code.toLowerCase() + filename_time_pattern + quality_type_string.toLowerCase() + suffix.toLowerCase();
+        else
+            filename_pattern = iaga_code.toUpperCase() + filename_time_pattern + quality_type_string.toUpperCase() + suffix.toUpperCase();
+        
+        // buold the URI and send commands to autoplot
+        String title = makeTitle(iaga_2002.getStationName(), iaga_2002.getStationCode(), (int) iaga_2002.getSamplePeriod());
+        String component_codes = iaga_2002.getOriginalComponentCodes();
+        int n_header_lines = iaga_2002.getNHeaderLines();
+        if (reset) sendCommand ("reset ()");
+        for (int count=0; count<component_codes.length(); count++)
+        {
+            // create and send the command to display this element
+            String component = component_codes.substring(count, count+1);
+            String field_name = "field" + Integer.toString (count +3);
+            File file_pattern = new File (folder, filename_pattern);
+            AutoplotURIBuilder uri_builder = new AutoplotURIBuilder(AutoplotURIBuilder.URIType.VAP_DAT_FILE, file_pattern.getAbsolutePath(), time_range);
+            if (count == 0) uri_builder.addDatTitle(title);
+            uri_builder.addDatSkipLines(n_header_lines);
+            uri_builder.addDatTimeFieldName("field0");
+            uri_builder.addDatColumnFieldName(field_name);
+            uri_builder.addDatTimeFormat("$Y-$m-$d+$H:$M:$S.$(milli)");
+            uri_builder.addDatFillValue(Iaga2002.MISSING_DATA_SAMPLE);
+            uri_builder.addDatValidMin(GeomagDataFormat.getValidMaxOrMin(component, false));
+            uri_builder.addDatValidMax(GeomagDataFormat.getValidMaxOrMin(component, true));
+            uri_builder.addDatLabel(component + "(" + Iaga2002.getUnits(component) + ")");
+            uri_builder.addDatUnits(Iaga2002.getUnits(component));
+            sendCommand ("plot (" + count + ",'" + uri_builder.getURI() + "')");
+
+            // switch off all x-axis disolays except the bottom one
+            String dom_plot_name = "dom.plots[" + count + "]";
+            if (count < component_codes.length() -1)
+            {
+                sendCommand (dom_plot_name + ".controller.plot.xaxis.setVisible (0)");
+            }
+        }
+        
+        sendSizeSettings (component_codes.length());
+    }
+    
+    /** load a single ImagCDF file (without aggregation).
+     * 
+     * @param imagcdf_file the file to load
+     * @param reset true to reset autoplot before plotting the data
+     * @throws FileNotFoundException
+     * @throws IOException 
+     */
+    public void loadImagCDF (File imagcdf_file, boolean reset) 
+    throws FileNotFoundException, IOException
+    {
+        String title;
+        try
+        {
+            ImagCDFFilename cdf_filename = new ImagCDFFilename (imagcdf_file.getName());
+            title = "Geomagnetic observatory data for " + cdf_filename.getObservatoryCode();
+        }
+        catch (ParseException e)
+        {
+            title = "Geomagnetic observatory data";
+        }
+        if (reset) sendCommand ("reset ()");
+        sendCommand ("base_cdf_uri = 'vap+cdf:file:/" + imagcdf_file.getAbsolutePath() + "?'");
+        sendCommand ("geomag_cdf_ds = geomag.getGeomagDataSets (base_cdf_uri)");
+        sendCommand ("geomag.showDSPlot (geomag_cdf_ds, '" + title + "')");
+    }
+    
+    /** load an ImagCDF file (with aggregation).
+     * 
+     * @param folder the folder to load data from
+     * @param iaga_code the station code for the data to load
+     * @param start_date the first piece of data to show
+     * @param component_codes the list of geomagnetic elements in the file
+     * @param publication_level the ImagCDF publication level
+     * @param interval the sample interval for the data
+     * @param reset true to reset autoplot before plotting the data
+     * @throws FileNotFoundException
+     * @throws IOException 
+     */
+    public void loadImagCDF (File folder, String iaga_code, Date start_date, String component_codes,
+                             IMCDFPublicationLevel publication_level,
+                             ImagCDFFilename.Interval interval, boolean reset) 
+    throws FileNotFoundException, IOException
+    {
+        // build the filename pattern and timerange to pass to autoplot
+        SimpleDateFormat date_format = new SimpleDateFormat ("yyyy-MM-dd");
+        date_format.setTimeZone(DateUtils.gmtTimeZone);
+        SimpleDateFormat month_format = new SimpleDateFormat ("yyyy-MM");
+        month_format.setTimeZone(DateUtils.gmtTimeZone);
+        SimpleDateFormat year_format = new SimpleDateFormat ("yyyy");
+        year_format.setTimeZone(DateUtils.gmtTimeZone);
+        String filename_time_pattern, time_range;
+        switch (interval)
+        {
+            case DAILY: 
+                filename_time_pattern = "$Y$m$d";
+                time_range = year_format.format (start_date);
+                break;
+            case HOURLY:
+                filename_time_pattern = "$Y$m$d_$H";
+                time_range = month_format.format (start_date);
+                break;
+            case MINUTE:
+                filename_time_pattern = "$Y$m$d_$H$M";
+                time_range = date_format.format (start_date);
+                break;
+            case SECOND:
+                filename_time_pattern = "$Y$m$d_$H$M$S";
+                time_range = date_format.format (start_date);
+                break;
+            default:
+                throw new FileNotFoundException ("ImagCDFFilename interval type not supported: " + interval.toString());
+        }
+        String filename_pattern = iaga_code.toLowerCase() + "_" + filename_time_pattern + "_" + publication_level.toString() + ".cdf";
+        
+        // build the URI and send commands to autoplot
+        if (reset) sendCommand ("reset ()");
+        for (int count=0; count<component_codes.length(); count++)
+        {
+            // create and send the command to display this element
+            String component = component_codes.substring(count, count+1);
+            String field_name = "field" + Integer.toString (count +3);
+            String cdf_var_name = "GeomagneticField" + component;
+            File file_pattern = new File (folder, filename_pattern);
+            AutoplotURIBuilder uri_builder = new AutoplotURIBuilder(AutoplotURIBuilder.URIType.VAP_CDF_FILE, file_pattern.getAbsolutePath(), time_range);
+            uri_builder.addCDFVarName(cdf_var_name);
+            sendCommand ("plot (" + count + ",'" + uri_builder.getURI() + "')");
+
+            // switch off all x-axis disolays except the bottom one
+            String dom_plot_name = "dom.plots[" + count + "]";
+            if (count < component_codes.length() -1)
+            {
+                sendCommand (dom_plot_name + ".controller.plot.xaxis.setVisible (0)");
+            }
+        }
+
+        String title = makeTitle (null, iaga_code, 0);
+        sendCommand ("dom.plots[0].controller.setTitleAutomatically('" + title + "')");
+        sendSizeSettings (component_codes.length());
+        
+    }
+
+    
+    /** resize the plot elements - the way to do this was worked out emprically -
+     * there may be a beter way! Using the layout buttons in autoplot gets the
+     * same layout, but I haven't found the Jython interface to simulate the buttons
+     * 
+     * @param n_elements the number of plots in the autoplot window
+     */
+    public void sendSizeSettings (int n_elements)
+    throws IOException
+    {
         String top_settings [], bottom_settings [];
-        switch (component_codes.length())
+        switch (n_elements)
         {
             case 3:
                 top_settings = new String []    {"+2.0em",       "37.40%",       "72.50%"};
@@ -215,22 +464,6 @@ public class AutoplotInstance
         }
     }
     
-    /** load an ImagCDF file (with aggregation).
-     * 
-     * @param folder the folder to load data from
-     * @param iaga_code the station code for the data to load
-     * @param start_date the first piece of data to show
-     * @param sample_period the sample period of the data to look for
-     * @param reset true to reset autoplot before plotting the data
-     * @throws FileNotFoundException
-     * @throws IOException 
-     */
-    public void loadImagCDF (File folder, String iaga_code, Date start_date, ImagCDF.FilenameSamplePeriod sample_period, boolean reset) 
-    throws FileNotFoundException, IOException
-    {
-        
-    }
-            
     /** send a command to autoplot
      * 
      * @param command the command, in Jython
@@ -299,7 +532,7 @@ public class AutoplotInstance
         String title = "Geomagnetic observatory data";
         if (obsy_name == null)
         {
-            if (obsy_code != null) title += " for" + obsy_code;
+            if (obsy_code != null) title += " for " + obsy_code;
         }
         else
         {
