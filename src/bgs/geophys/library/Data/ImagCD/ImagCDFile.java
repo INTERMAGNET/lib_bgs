@@ -6,6 +6,7 @@
 
 package bgs.geophys.library.Data.ImagCD;
 
+import bgs.geophys.library.File.ClasspathFileInterface;
 import java.io.*;
 import java.util.*;
 
@@ -98,6 +99,30 @@ public class ImagCDFile
         emptyData ();
         n_days = 31;
         open_file = file;
+ 
+        // attempt to load plain data first, then zipped data
+        errmsg = loadFile(file, false);
+        if (errmsg != null) 
+        {
+            errmsg = loadFile(file, true);
+            if (errmsg != null) file_zipped = true;
+        }
+        return errmsg;
+    }
+    
+    /** load this data object from a classpath file - automatically copes
+     * with zipped data
+     * @param file the classpath file containing IMAG binary data
+     * @return an error message OR null if the data was read OK */
+    public String loadFromFile (ClasspathFileInterface file)
+    {
+        String errmsg;
+        
+        
+        // clear all fields
+        emptyData ();
+        n_days = 31;
+        open_file = null;
  
         // attempt to load plain data first, then zipped data
         errmsg = loadFile(file, false);
@@ -416,13 +441,11 @@ public class ImagCDFile
     ////////////////////////////////////////////////////////////////////
     private String loadFile (File file, boolean is_zipped)
     {
-        int day, dayno;
         String error_message;
         InputStream input_stream;
         FileInputStream file_stream;
         ZipInputStream zip_stream;
         ZipEntry zip_entry;
-        GregorianCalendar calendar;
 
         file_stream = null;
         zip_stream = null;
@@ -438,49 +461,9 @@ public class ImagCDFile
                 zip_entry = zip_stream.getNextEntry ();
             }
             
-            // read the first day of data and check that it is the first day of the month
-            data [0].loadFromFile (input_stream);
-            calendar = new GregorianCalendar (TimeZone.getTimeZone("GMT"));
-            try
-            {
-                calendar.set (GregorianCalendar.HOUR_OF_DAY, 12);
-                calendar.set (GregorianCalendar.MINUTE, 0);
-                calendar.set (GregorianCalendar.SECOND, 0);
-                calendar.set (GregorianCalendar.YEAR, data [0].getYear());
-                dayno = data [0].getDayNumber();
-                calendar.set (GregorianCalendar.DAY_OF_YEAR, dayno);
-                year = calendar.get (GregorianCalendar.YEAR);
-                month = calendar.get (GregorianCalendar.MONTH);
-                day = calendar.get (GregorianCalendar.DAY_OF_MONTH);
-                if (day != 1) throw new ImagCDDataException ("First day in file must be first day of month, not day " + Integer.toString (day));
-            }
-            catch (ArrayIndexOutOfBoundsException e)
-            {
-                throw new ImagCDDataException ("Error with day number or year in first day of data");
-            }
+            // load the data
+            loadStream(input_stream);
             
-            // read the rest of the days for this month
-            for (day=2; day<=31; day++)
-            {
-                dayno ++;
-
-                // update the calendar to check that this day is required
-                try
-                {
-                    calendar.set (GregorianCalendar.DAY_OF_YEAR, dayno);
-                    if (calendar.get (GregorianCalendar.MONTH) != month) n_days = day -1;
-                }
-                catch (ArrayIndexOutOfBoundsException e)
-                {
-                    n_days = day -1;
-                }
-                if (n_days < 31) break;
-                
-                // get the data for this day
-                data [day-1].loadFromFile (input_stream);
-                if (data [day-1].getYear() != year) throw new ImagCDDataException ("Data for day " + Integer.toString (day) + " is for a different year to the previous days");
-                if (data [day-1].getDayNumber() != dayno) throw new ImagCDDataException ("Data for day " + Integer.toString (day) + " has the wrong day number (" + Integer.toString (data [day-1].getDayNumber()) + " should be " + Integer.toString (dayno) + ")");
-            }
         }
         catch (FileNotFoundException e)
         {
@@ -505,6 +488,104 @@ public class ImagCDFile
         catch (IOException e) { }
         
         return error_message;
+    }
+    
+    private String loadFile (ClasspathFileInterface cp_file, boolean is_zipped)
+    {
+        String error_message;
+        InputStream input_stream;
+        ZipInputStream zip_stream;
+        ZipEntry zip_entry;
+
+        zip_stream = null;
+        error_message = null;
+        
+        // open the file and load the data
+        try
+        {
+            input_stream = cp_file.openInputStream ();
+            if (is_zipped)
+            {
+                zip_stream = new ZipInputStream (input_stream);
+                zip_entry = zip_stream.getNextEntry ();
+                loadStream (zip_stream);
+            }
+            else
+                loadStream(input_stream);
+        }
+        catch (FileNotFoundException e)
+        {
+            error_message = "Could not open file " + cp_file.getAbsolutePath ();
+        }
+        catch (IOException e)
+        {
+            error_message = e.getMessage();
+            if (error_message == null) error_message = "IO error with file " + cp_file.getAbsolutePath ();
+        }
+        catch (ImagCDDataException e)
+        {
+            error_message = e.getMessage();
+        }
+        
+        // close the file
+        try
+        {
+            if (zip_stream != null) zip_stream.close();
+        }
+        catch (IOException e) { }
+        
+        return error_message;
+    }
+    
+    private void loadStream (InputStream input_stream) 
+    throws ImagCDDataException
+    {
+        GregorianCalendar calendar;
+        int day, dayno;
+        
+        // read the first day of data and check that it is the first day of the month
+        data [0].loadFromFile (input_stream);
+        calendar = new GregorianCalendar (TimeZone.getTimeZone("GMT"));
+        try
+        {
+            calendar.set (GregorianCalendar.HOUR_OF_DAY, 12);
+            calendar.set (GregorianCalendar.MINUTE, 0);
+            calendar.set (GregorianCalendar.SECOND, 0);
+            calendar.set (GregorianCalendar.YEAR, data [0].getYear());
+            dayno = data [0].getDayNumber();
+            calendar.set (GregorianCalendar.DAY_OF_YEAR, dayno);
+            year = calendar.get (GregorianCalendar.YEAR);
+            month = calendar.get (GregorianCalendar.MONTH);
+            day = calendar.get (GregorianCalendar.DAY_OF_MONTH);
+            if (day != 1) throw new ImagCDDataException ("First day in file must be first day of month, not day " + Integer.toString (day));
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
+            throw new ImagCDDataException ("Error with day number or year in first day of data");
+        }
+
+        // read the rest of the days for this month
+        for (day=2; day<=31; day++)
+        {
+            dayno ++;
+
+            // update the calendar to check that this day is required
+            try
+            {
+                calendar.set (GregorianCalendar.DAY_OF_YEAR, dayno);
+                if (calendar.get (GregorianCalendar.MONTH) != month) n_days = day -1;
+            }
+            catch (ArrayIndexOutOfBoundsException e)
+            {
+                n_days = day -1;
+            }
+            if (n_days < 31) break;
+
+            // get the data for this day
+            data [day-1].loadFromFile (input_stream);
+            if (data [day-1].getYear() != year) throw new ImagCDDataException ("Data for day " + Integer.toString (day) + " is for a different year to the previous days");
+            if (data [day-1].getDayNumber() != dayno) throw new ImagCDDataException ("Data for day " + Integer.toString (day) + " has the wrong day number (" + Integer.toString (data [day-1].getDayNumber()) + " should be " + Integer.toString (dayno) + ")");
+        }
     }
 
     private String writeFile (boolean is_zipped)
