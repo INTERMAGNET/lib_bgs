@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!--
+    An example how to use this DTD from your XML document:
+
+    <?xml version="1.0"?>
+
+    <!DOCTYPE system-list SYSTEM "ViewtraceSystemList.dtd">
+
+    <system-list>
+    ...
+    </system-list>
+-->
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT channel (#PCDATA)>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT channel-group (channel)*>
+<!ATTLIST channel-group
+    name CDATA #IMPLIED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT ping-type (#PCDATA)>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT protocol-name (#PCDATA)>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT ssh-server (#PCDATA)>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT telnet-port (#PCDATA)>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT data-port (#PCDATA)>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT ip-address (#PCDATA)>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT ip-address-priv (#PCDATA)>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT system (channel-group|ping-type|protocol-name|ssh-server|data-port|ip-address)*>
+<!ATTLIST system
+    name CDATA #IMPLIED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT section (system)*>
+<!ATTLIST section
+    name CDATA #IMPLIED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT system-list (section)*>
