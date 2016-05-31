@@ -552,6 +552,16 @@ implements AxisChangeListener
                 if (long_names) name = "Total intensity, F";
                 else name = "F";
                 break;
+            case 'S':
+            case 's': 
+                if (long_names) name = "Total intensity, F (scalar)";
+                else name = "S";
+                break;
+            case 'G':
+            case 'g': 
+                if (long_names) name = "Total intensity, F (diff)";
+                else name = "G";
+                break;
             default:
                 name = "Unknown";
                 break;
@@ -573,6 +583,10 @@ implements AxisChangeListener
             case 'd': return name + " (" + angle_units + ")";
             case 'F':
             case 'f': 
+            case 'S':
+            case 's':
+            case 'G':
+            case 'g':
                 switch (f_type)
                 {
                     case F_TYPE_DIFFERENCE:
