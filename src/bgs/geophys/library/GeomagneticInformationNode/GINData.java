@@ -704,8 +704,9 @@ public class GINData
                         reader = null;
                         file_lock = null;
                         // the mising data values that will be generated where there is a missing
-                        // data file MUST have a valid orientation code
-                        orientation = GeomagAbsoluteValue.ORIENTATION_XYZ;
+                        // data file MUST have a valid orientation code, so we have to guess
+                        if (orientation == GeomagAbsoluteValue.ORIENTATION_UNKNOWN)
+                            orientation = GeomagAbsoluteValue.ORIENTATION_XYZ;
                     }
                 }
                 
