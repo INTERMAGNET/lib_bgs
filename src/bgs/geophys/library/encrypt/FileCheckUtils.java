@@ -27,7 +27,11 @@ import javax.crypto.spec.DESKeySpec;
 // Checkfile(String fName, String mode)
 //           fName = file to be encrypted/decrypted
 //           mode = "check" - decrypt, anything else will encrypt
-//           
+// returns the de-crypted file. It is up to the implementation to delete it
+// as soon as it is finished with, otherwise the decrypted file will be left on disc!
+//  
+// getData will return a String array of decrypted contents - provided the file was originally 
+// encrypted using checkFile.
 /**
  *
  * @author jex
@@ -81,6 +85,8 @@ private static boolean debug = false;
         }
 
     }
+ 
+  
  
   public static ArrayList <String> getData(String fname) throws FileCheckException{
  

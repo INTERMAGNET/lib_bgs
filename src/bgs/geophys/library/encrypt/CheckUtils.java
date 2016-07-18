@@ -19,7 +19,6 @@ class CheckUtils {
    byte[] bkey = new byte[8];
       float f = (float) 0.174;
       String kk = String.format("%d", Math.round(f*2000));
-//      String kk = new String("348");
       Integer g = 74;
       float ff = (float) 7.67;
       String k = kk.concat(String.format("%d", g+1));
