@@ -1,0 +1,25 @@
+Software project description
+============================
+
+Project Name:            lib_bgs
+Main developer(s):       Jane Exton, Tom Shanahan, Simon Flower
+Main user(s):            
+Computer language(s):    Java
+Development environment: Netbeans
+BGS team:                Geomagnetism
+
+
+Description
+-----------
+
+General geomagnetism utilities. Any reusable code should be put in this library.
+
+
+How to install the compiled product
+-----------------------------------
+
+1.) Copy the compiled 'jar' file to
+	/users/geolib/lib
+or
+	\\mhlf\geolib\lib
+(these two links point to the same place)
