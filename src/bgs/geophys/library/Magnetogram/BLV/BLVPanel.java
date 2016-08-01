@@ -32,6 +32,8 @@ import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.event.AxisChangeEvent;
+import org.jfree.chart.event.AxisChangeListener;
 import org.jfree.chart.labels.CustomXYToolTipGenerator;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.labels.XYToolTipGenerator;
@@ -59,7 +61,7 @@ import org.jfree.ui.TextAnchor;
  *
  * @author  jex
  */
-public class BLVPanel extends javax.swing.JPanel {
+public class BLVPanel extends javax.swing.JPanel implements AxisChangeListener {
 
 
 
@@ -251,7 +253,7 @@ public class BLVPanel extends javax.swing.JPanel {
     }
 
     
-        private static JFreeChart createCombinedChart(final BLVData bLV,
+        private  JFreeChart createCombinedChart(final BLVData bLV,
                                                       boolean auto,
                                                       Double scale,
                                                       Integer scrollSteps,
@@ -510,7 +512,7 @@ public class BLVPanel extends javax.swing.JPanel {
 //*
 //* @return The chart.
 //*/
-private static JFreeChart createScatterChart(XYSeriesCollection[] dataset,
+private  JFreeChart createScatterChart(XYSeriesCollection[] dataset,
                              final BLVData bLV, int index,
                              boolean auto, Double scale,
                              Integer scrollSteps,
@@ -662,6 +664,11 @@ Shape tinyDot = new Ellipse2D.Double(0,0,d/2,d/2);
     break;
 
   }
+  
+  // add axis listener
+   rangeAxisObserved.addChangeListener(this);
+   rangeAxisAdopted.addChangeListener(this);
+   
 
 //  XYToolTipGenerator ttg = new BLVXYToolTipGenerator();
   rendererAdopted.setSeriesToolTipGenerator(0,new BLVXYToolTipGenerator("Adopted",bLV.getYear()));
@@ -910,6 +917,20 @@ private void setupScaling(){
     public void setViewAxesCheckBox(javax.swing.JCheckBox viewAxesCheckBox) {
         this.viewAxesCheckBox = viewAxesCheckBox;
     }
+
+  
+    
+ // added because there was a bug in the mouse in jfreechart when it was used to zoom back in
+ // it didn't cope with the plots having more multiple data sets. This code ensures that the zoom
+ // is properly reset to autoscale. isAutoRange() returns 'true' if the zoom has been reset (luckily!)
+ // I couldn't find a neater way of doing it - JE
+	@Override
+	public void axisChanged(AxisChangeEvent ace) {
+                if (((NumberAxis)ace.getAxis()).isAutoRange() ){
+			// redo the plot so that it is correct
+			scalingComboBox.setSelectedIndex(4);  // auto scaling
+		}
+	}
      
 //    /* writes out the scale options on the combo box */
 //    
