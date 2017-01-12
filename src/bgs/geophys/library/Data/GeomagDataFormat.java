@@ -65,6 +65,11 @@ public abstract class GeomagDataFormat
     private String sensorOrientation;   // original orientation of the vector sensor
     private String samplePeriodString;  // description of the original sample period
     private String intervalType;        // description of the data set sample period
+    private Date publicationDate;       // date of data publication - added to IAGA-2002 in 2016:
+                                        // this would take a lot of effort to add to all constructors,
+                                        // so it is set to a default (todays date) in the constructor
+                                        // and a 'setter' is made available if you need to modify the
+                                        // default values
      
     // these members hold the data
     private long samplePeriod;               // Time between samples, in milliseconds
@@ -178,6 +183,7 @@ public abstract class GeomagDataFormat
         this.sensorOrientation = sensorOrientation;
         this.samplePeriodString = samplePeriodString;
         this.intervalType = intervalType;
+        this.publicationDate = new Date ();
         
         // set the data to show it is empty
         samplePeriod = 0;
@@ -528,6 +534,12 @@ public abstract class GeomagDataFormat
 
     /** Get the institute name - may be null */
     public String getIntervalType () { return intervalType; }
+    
+    /** get the publication date */
+    public Date getPublicationDate () { return publicationDate; }
+    
+    /** set the publication date */
+    public void setPublicationDate (Date publicationDate) { this.publicationDate = publicationDate; }
 
     /** Get the sample period - may be 0 if no data has been added */
     public long getSamplePeriod() { return samplePeriod; }

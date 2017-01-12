@@ -12,6 +12,7 @@ import java.text.*;
 import java.io.*;
 import java.nio.*;
 import java.nio.channels.*;
+import java.nio.file.attribute.BasicFileAttributes;
 
 /**
  * Class to hold GIN time series data. Two constructors
@@ -74,6 +75,8 @@ public class GINData
     // type of data (description and code from dictionary segment DATA_TYPE)
     private String data_type_desc;
     private String data_type_code;
+    // modification date of data
+    private Date mod_date;
     // time series array - n data points of type GeomagAbsoluteValue
     private Collection<GeomagAbsoluteValue> data;
     // statistics for the 4 components
@@ -130,6 +133,7 @@ public class GINData
             throw new ParameterException ("Data type does not exist: " + data_type_desc);
         if (data_type_code.equalsIgnoreCase("j"))
             throw new ParameterException ("Data type 'j' not allowed here");
+        mod_date = new Date ();
 
         if (components.length() != 4)
             throw new GINDataException ("Unrecognised component orientation: " + components);
@@ -620,6 +624,12 @@ public class GINData
     {
         return data_type_code;
     }
+    
+    /** get the modification date for this data */
+    public Date getModificationDate ()
+    {
+        return mod_date;
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////
     // private code below here
@@ -645,6 +655,7 @@ public class GINData
         samples = new double [4];
         date_inc = 86400000 / samps_per_day;
         components = null;
+        mod_date = new Date ();
         orientation = GeomagAbsoluteValue.ORIENTATION_UNKNOWN;
         try
         {
@@ -673,6 +684,11 @@ public class GINData
                         // open and lock the file
                         reader = new RandomAccessFile (filename, "r");
                         file_lock = reader.getChannel().lock(0, file_length, true);
+                        
+                        // find the modification date of the file
+                        File file = new File (filename);
+                        long mod_ms = file.lastModified();
+                        if (mod_ms > 0) mod_date = new Date (mod_ms);
                         
                         // read and check the orientation of the data
                         reader.seek (file_length -4);

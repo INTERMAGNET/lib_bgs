@@ -72,6 +72,7 @@ public class Iaga2002 extends GeomagDataFormat
     private DecimalFormat longFormat;
     private DecimalFormat valueFormat;
     private SimpleDateFormat dataDateFormatIncDN;
+    private SimpleDateFormat pubDateFormat;
     
     
     /** Creates a new instance of Iaga2002 by supplying all data
@@ -103,7 +104,7 @@ public class Iaga2002 extends GeomagDataFormat
         for(int i=0;i<comments.size();i++){
             raw_header_lines.add(comments.get(i));
         }
-        n_header_lines = 13 + raw_header_lines.size();
+        n_header_lines = 14 + raw_header_lines.size();
         swap_hdzf_to_dhzf = true;
         initFormatObjects();
     }
@@ -120,7 +121,7 @@ public class Iaga2002 extends GeomagDataFormat
                comp_code, data_type, null, institute_name, sensor_orientation,
                sample_period_string, interval_type, true, -1);
         raw_header_lines = new ArrayList<String> ();
-        n_header_lines = 13;
+        n_header_lines = 14;
         swap_hdzf_to_dhzf = true;
         initFormatObjects();
     }
@@ -145,9 +146,13 @@ public class Iaga2002 extends GeomagDataFormat
      * @param blocksize
      * @throws bgs.geophys.library.Data.GeomagDataException
      */
-    public Iaga2002(String stationCode, String stationName, double latitude, double longitude, double elevation, String compCode, String dataType, String ginCode, String instituteName, String sensorOrientation, String samplePeriodString, String intervalType, boolean allowFourDigitSC, int blocksize) throws GeomagDataException {
-        this(stationCode, stationName, latitude, longitude, elevation, compCode, dataType, instituteName, sensorOrientation, samplePeriodString, intervalType);
-        n_header_lines = 13;
+    public Iaga2002(String stationCode, String stationName, double latitude, double longitude, double elevation, 
+                    String compCode, String dataType, String ginCode, String instituteName, String sensorOrientation, 
+                    String samplePeriodString, String intervalType, boolean allowFourDigitSC, int blocksize) 
+    throws GeomagDataException {
+        this (stationCode, stationName, latitude, longitude, elevation, compCode, dataType, instituteName, 
+              sensorOrientation, samplePeriodString, intervalType);
+        n_header_lines = 14;
         initFormatObjects();
     }
 
@@ -164,6 +169,9 @@ public class Iaga2002 extends GeomagDataFormat
      */
     public int getNHeaderLines () { return n_header_lines; }
 
+    /** get the object used to format publication dates - mainly used internally in this object */
+    public SimpleDateFormat getPublicationDateFormat () { return pubDateFormat; }
+    
     /** get the number of raw header lines
      * @return the number of lines */
     public int getNExtraHeaderLines () { return raw_header_lines.size(); }
@@ -271,6 +279,7 @@ public class Iaga2002 extends GeomagDataFormat
         writeString (os, formatMandatoryHeader ("Digital Sampling", getSamplePeriodString()), termType);
         writeString (os, formatMandatoryHeader ("Data Interval Type", getIntervalType()), termType);
         writeString (os, formatMandatoryHeader ("Data Type", getDataType()), termType);
+        writeString (os, formatMandatoryHeader ("Publication Date", pubDateFormat.format(getPublicationDate())), termType);
         for (count=0; count<raw_header_lines.size(); count++)
             writeString (os, formatOptionalHeader (raw_header_lines.get (count)), termType);
         
@@ -422,7 +431,7 @@ public class Iaga2002 extends GeomagDataFormat
         String buffer, header_name, header_value;
         String institute_name, station_name, station_code;
         String comp_code, sensor_orientation, sample_period_string;
-        String interval_type, data_type;
+        String interval_type, data_type, publication_date_string;
         Date date, last_date;
         BufferedReader reader;
         StringTokenizer tokens;
@@ -440,6 +449,7 @@ public class Iaga2002 extends GeomagDataFormat
         comp_code = sensor_orientation = sample_period_string = null;
         interval_type = data_type = null;
         latitude = longitude = elevation = MISSING_HEADER_VALUE;
+        publication_date_string = null;
         raw_header_lines = new ArrayList<String> ();
         values = new double [4];
         value_store = new double [4];
@@ -495,6 +505,8 @@ public class Iaga2002 extends GeomagDataFormat
                 interval_type = header_value;
             else if (header_name.equalsIgnoreCase("data type"))
                 data_type = header_value;
+            else if (header_name.equalsIgnoreCase("publication date"))
+                publication_date_string = header_value;
             else if (header_name.length() <= 0) {
                 // do nothing
             } else if (header_name.substring(0, 1).equals("#"))
@@ -543,6 +555,14 @@ public class Iaga2002 extends GeomagDataFormat
                             comp_code, data_type, institute_name,
                             sensor_orientation, sample_period_string,
                             interval_type);
+                    if (publication_date_string != null)
+                    {
+                        try
+                        {
+                            iaga2002.setPublicationDate (iaga2002.getPublicationDateFormat().parse(publication_date_string));
+                        }
+                        catch (ParseException e) { /* ignore badly formatted dates */ }
+                    }
                     iaga2002.setSwapHDZFToDHZF(swap_dhzf_to_hdzf);
                 } catch (GeomagDataException e) { throw new GeomagDataException(e.getMessage() + " at line number " + Integer.toString(line_number)); }
                 for (count=0; count<raw_header_lines.size(); count++)
@@ -720,6 +740,8 @@ public class Iaga2002 extends GeomagDataFormat
         valueFormat = new DecimalFormat ("######0.00", Utils.getScientificDecimalFormatSymbols());
         dataDateFormatIncDN = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss.SSS DDD", DateUtils.english_date_format_symbols);
         dataDateFormatIncDN.setTimeZone(DateUtils.gmtTimeZone);
+        pubDateFormat = new SimpleDateFormat ("yyyy-MM-dd", DateUtils.english_date_format_symbols);
+        pubDateFormat.setTimeZone(DateUtils.gmtTimeZone);
     }
         
 }
