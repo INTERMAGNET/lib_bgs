@@ -1,3 +1,4 @@
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -7,6 +8,8 @@ package bgs.geophys.library.encrypt;
 
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -85,8 +88,39 @@ private static boolean debug = false;
         }
 
     }
- 
   
+    //encrypts a string and returns as a byte array
+    public static byte[] checkString(String strToEncrypt) throws FileCheckException {
+        Cipher cipher;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            SecretKey desKey = generateBGGMKey();
+            // Create the cipher 
+            cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, desKey);
+
+            //encrypt the string
+            ByteArrayInputStream bais = new ByteArrayInputStream(strToEncrypt.getBytes());
+            CipherInputStream cis = new CipherInputStream(bais, cipher);          
+
+            //copy to a byte array output straem
+            byte[] b = new byte[8];
+            int i = cis.read(b);
+            while (i != -1) {
+                baos.write(b, 0, i);
+                i = cis.read(b);
+            }
+            bais.close();
+            cis.close();
+        } 
+        catch (Exception e) {            
+            throw new FileCheckException(e);
+        }
+        
+        //return a byte array of the encrypted string
+        byte[] bytes = baos.toByteArray();
+        return bytes;
+    }  
  
   public static ArrayList <String> getData(String fname) throws FileCheckException{
  
