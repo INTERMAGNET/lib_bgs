@@ -81,6 +81,10 @@ private static boolean debug = false;
         i = cis.read(b);
     }
     
+    fis.close();
+    cis.close();
+    fos.close();
+    
     return outFile;
                 
         } catch (Exception e){
@@ -160,7 +164,7 @@ private static boolean debug = false;
         throw new FileCheckException(e);}
     }
     
-    private static String cryptFileName(String datFile)throws FileCheckException{
+     private static String cryptFileName(String datFile)throws FileCheckException{
 
         try{
         String cptFile = new String();
