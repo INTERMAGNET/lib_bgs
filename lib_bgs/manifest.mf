@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.9.4
+Created-By: 1.8.0_31-b13 (Oracle Corporation)
+Bundle-Name: lib_bgs
+Bundle-Version: 1.5.0
+Bundle-Date: 2017-04-21 12:06:20 BST
+Implementation-Title: lib_bgs
+Implementation-Version: 1.5.0
+
