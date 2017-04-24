@@ -16,12 +16,15 @@ A Java library containing classes that may be useful across projects.
 This code is a direct descendent of lib_bgs previously in subversion:-
 http://kwvmxsource.ad.nerc.ac.uk/svn/corporate/Geomag/GenericLibraries/lib_bgs/
 
+Subversion history is preserved in Git.
+
 All new lib_bgs code development should use this git project.
 
 git clone https://kwvmxgit.ad.nerc.ac.uk/geomag_libraries/lib_bgs_mvn.git
 
+Description
+-----------
 General geomagnetism utilities. Any reusable code should be put in this library.
-
 
 How to install the compiled product
 -----------------------------------
