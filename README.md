@@ -28,7 +28,7 @@ Subversion history is preserved in Git.
 
 All new lib_bgs code development should use this git project.
 
-git clone https://kwvmxgit.ad.nerc.ac.uk/geomag_libraries/lib_bgs_mvn.git
+git clone https://kwvmxgit.ad.nerc.ac.uk/geomag_libraries/lib_bgs.git
 
 Description
 -----------
