@@ -2,18 +2,26 @@ Software project description
 ============================
 
 Project Name:            lib_bgs
+
 Main developer(s):       Jane Exton, Simon Flower, Peter Stevenson 
+
 Main user(s):            Jane Exton, Simon Flower, Peter Stevenson, Chris Turbitt
+
 Computer language(s):    Java
+
 Development environment: Netbeans
+
 Build Tool:              Maven
+
 Source Control:          Git
+
 BGS team:                Geomagnetism
 
 
 A Java library containing classes that may be useful across projects.
 
 This code is a direct descendent of lib_bgs previously in subversion:-
+
 http://kwvmxsource.ad.nerc.ac.uk/svn/corporate/Geomag/GenericLibraries/lib_bgs/
 
 Subversion history is preserved in Git.
