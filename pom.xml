@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>uk.ac.bgs.geomag</groupId>
+    <artifactId>lib_bgs</artifactId>
+    <version>1.6-SNAPSHOT</version>    
+    
+    <packaging>jar</packaging>
+    <name>lib_bgs</name>
+    <properties>        
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+    </properties>
+    <organization>
+        <!-- Used as the 'Vendor' for JNLP generation -->
+        <name>British Geological Survey</name>
+    </organization>
+    <!-- Repositories-->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <repositories>
+
+        <repository>
+            <id>third-party</id>
+            <name>third-party</name>
+            <url>http://hwlwebapp/artifactory/third-party</url>
+        </repository>
+    </repositories>
+    <!-- Dependencies -->
+    <dependencies>
+        <dependency>
+            <groupId>jcommon</groupId>
+            <artifactId>jcommon</artifactId>
+            <version>1.0.15</version>
+        </dependency>
+        <dependency>
+            <groupId>cdfjava</groupId>
+            <artifactId>cdfjava</artifactId>
+            <version>v3-6-3-1</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.15</version>
+            <!-- Added exclusions otherwise there are unfindable dependencies 
+                 i.e too old -->
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sun.jmx</groupId>
+                    <artifactId>jmxri</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jdmk</groupId>
+                    <artifactId>jmxtools</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.jms</groupId>
+                    <artifactId>jms</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+       <!--
+        <dependency>
+            <groupId>com.thoughtworks.xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>1.4.3</version>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>com.thoughtworks.xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>1.4.9</version>
+        </dependency>
+        <dependency>
+            <groupId>jfreechart</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.0.12</version>
+        </dependency>
+        <dependency>
+            <groupId>itext</groupId>
+            <artifactId>itext</artifactId>
+            <version>1.4.8</version>
+        </dependency>
+        <dependency>
+            <groupId>jsch</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.14</version>
+        </dependency>
+        <dependency>
+            <groupId>lib_jzlib</groupId>
+            <artifactId>lib_jzlib</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>comm</groupId>
+            <artifactId>comm</artifactId>
+            <version>1.0r</version>
+        </dependency>
+        <dependency>
+            <groupId>servlet-api-fromTomcat6_0_14</groupId>
+            <artifactId>servlet-api-fromTomcat6_0_14</artifactId>
+            <version>servlet-api-fromTomcat6_0_14</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.2</version>
+        </dependency>
+    </dependencies>
+    <!-- DistributionManagement -->
+    <distributionManagement>
+        <repository>
+            <id>libs-release-local</id>
+            <name>libs-release-local</name>
+            <url>http://hwlwebapp/artifactory/libs-release-local</url>
+        </repository>
+        <snapshotRepository>
+            <id>libs_snapshot-local</id>
+            <name>libs_snapshot-local</name>
+            <url>http://hwlwebapp/artifactory/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+</project>
