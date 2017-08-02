@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : ViewtraceSystemList.xml
+    Created on : 03 May 2004, 21:18
+    Author     : Simon Flower
+    Description: System List for the Viewtrace application
+-->
+
+<system-list>
+  <section name="Geomagnetism">
+    <system name="LER GDAS 1 (Primary GDAS system at Lerwick)">
+      <ip-address>leqa.nerc-lerwick.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+      <channel-group name="Raw">
+        <channel>ler gdas1 h</channel>
+        <channel>ler gdas1 d</channel>
+        <channel>ler gdas1 z</channel>
+        <channel>ler gdas1 t</channel>
+        <channel>ler gdas1 f</channel>
+      </channel-group>
+      <channel-group name="Processed">
+        <channel>5</channel>
+        <channel>6</channel>
+        <channel>7</channel>
+        <channel>8</channel>
+        <channel>9</channel>
+        <channel>10</channel>
+      </channel-group>
+    </system>    
+    <system name="LER GDAS 2 (Backup GDAS system at Lerwick)">
+      <ip-address>leqb.nerc-lerwick.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="LER GDAS 3 (Emergency GDAS system at Lerwick)">
+      <ip-address>leqc.nerc-lerwick.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="ESK GDAS 1 (Primary GDAS system at Eskdalemuir)">
+      <ip-address>esqm.nerc-eskdalemuir.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="ESK GDAS 2 (Backup GDAS system at Eskdalemuir)">
+      <ip-address>esqf.nerc-eskdalemuir.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="ESK GDAS 3 (Emergency GDAS system at Eskdalemuir)">
+      <ip-address>esqb.nerc-eskdalemuir.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="ESK GDAS 4 (Test system at Eskdalemuir)">
+      <ip-address>esqc.nerc-eskdalemuir.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="ESK GDAS 5 (Test system at Eskdalemuir)">
+      <ip-address>esqe.nerc-eskdalemuir.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="HAD GDAS 1 (Primary GDAS system at Hartland)">
+      <ip-address>haqe.nerc-hartland.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="HAD GDAS 2 (Backup GDAS system at Hartland)">
+      <ip-address>haqc.nerc-hartland.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="HAD GDAS 3 (Emergency GDAS system at Hartland)">
+      <ip-address>haqd.nerc-hartland.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="ASI (Observatory on Ascension Island)">
+      <ip-address>207.1.160.198</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="PST (Observatory on the Falkland Islands)">
+      <ip-address>63.130.248.243</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="Data Collection 1 (Data collection in Edinburgh)">
+      <ip-address>mhqb.nerc-murchison.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="Data Collection 2 (Data collection in Edinburgh)">
+      <ip-address>mhqj.nerc-murchison.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+  </section>
+
+  <section name="Seismology">
+    <system name="EDI (3 Component seismometer in ROE vault)">
+      <ip-address>obqa.roe.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="ESQ (3 Component seismometer at Eskdalemuir)">
+      <ip-address>esqi.nerc-eskdalemuir.ac.uk</ip-address>
+      <data-port>6001</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="HAQ (3 Component seismometer at Hartland)">
+      <ip-address>haqb.nerc-hartland.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="LNQ2 (Son of Lownet)">
+      <ip-address>mhqc.nerc-murchison.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="KWQ (Keyworth Network)">
+      <ip-address>kwqa.nerc-keyworth.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="LRW (3 Component seismometer at Lerwick)">
+      <ip-address>leqd.nerc-lerwick.ac.uk</ip-address>
+      <data-port>6001</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="MCQ (3 Component seismometer at Michaelchurch, Hereford)">
+      <ip-address>192.171.147.9</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>none</ping-type>
+    </system>
+    <system name="PAQ (3 Component seismometer at Paisley">
+      <ip-address>paqa.geophysics.nerc-murchison.ac.uk</ip-address>
+      <data-port>6001</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>none</ping-type>
+    </system>
+    <system name="BGS Earthworm server">
+      <ip-address>mhub.nerc-murchison.ac.uk</ip-address>
+      <data-port>16022</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>ew</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+  </section>
+
+  <section name="Environmental-monitoring">
+    <system name="Eskdalemuir">
+      <ip-address>esqk.nerc-eskdalemuir.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="Hartland">
+      <ip-address>haqa.nerc-hartland.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="Stoneypath">
+      <ip-address>mhqk.nerc-murchison.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="Environmental Data Collection PC">
+      <ip-address>mhqn.nerc-murchison.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="Port Stanley">
+      <ip-address>63.130.248.244</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+  </section>
+
+  <section name="Development">
+    <system name="mhqa">
+      <ip-address>mhqa.nerc-murchison.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="mhqd">
+      <ip-address>mhqd.nerc-murchison.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+    <system name="mhqf">
+      <ip-address>mhqf.nerc-murchison.ac.uk</ip-address>
+      <data-port>6801</data-port>
+      <telnet-port>23</telnet-port>
+      <ssh-server>mhu73.nmh.ac.uk</ssh-server>
+      <protocol-name>sdas</protocol-name>
+      <ping-type>telnet</ping-type>
+    </system>
+  </section>
+</system-list>
+
