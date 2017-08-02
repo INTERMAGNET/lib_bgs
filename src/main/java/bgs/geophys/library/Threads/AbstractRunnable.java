@@ -4,7 +4,7 @@
  * Created on 29 April 2004, 12:02
  */
 
-package bgs.geophys.library.threads;
+package bgs.geophys.library.Threads;
 
 /**
  *
