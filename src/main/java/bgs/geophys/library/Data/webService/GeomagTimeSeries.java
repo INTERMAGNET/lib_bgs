@@ -1,14 +1,14 @@
 package bgs.geophys.library.Data.webService;
 
+import bgs.geohpys.library.LogConfig.LogConfig;
 import bgs.geophys.library.Data.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.TreeSet;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import org.apache.logging.log4j.Logger;
+
 
 /**
  *
@@ -16,16 +16,18 @@ import org.apache.log4j.PatternLayout;
  */
 public class GeomagTimeSeries extends TreeSet<GeomagDataPoint> {
 
+    private static final Logger LOGGER = LogConfig.getLogger(GeomagTimeSeriesFactory.class);
+// previous logging used this configuration
+//        logger.addAppender(new ConsoleAppender(new PatternLayout("%p: %m %n")));
+// this should be replaced with a log4j2.xml config file somewhere in the classpath
+    
     private GeomagMetadata metadata;    
-    private Logger logger;
     private Components componentsOrientation = Components.ORIENTATION_UNKNOWN;
     private Components defaultOrientation = Components.ORIENTATION_UNKNOWN;
     
 
     public GeomagTimeSeries(GeomagMetadata metadata) {
         this.metadata = metadata;
-        logger = Logger.getLogger(GeomagTimeSeries.class);
-        logger.addAppender(new ConsoleAppender(new PatternLayout("%p: %m %n")));
     }
 
     public <T extends Class> GeomagDataFormat toGeomagDataFormat(T gdfClass, DataInterval intervalType) {
@@ -40,17 +42,17 @@ public class GeomagTimeSeries extends TreeSet<GeomagDataPoint> {
        for(int i=0; i<constructors.length;i++){           
            try{               
                dataFormat = (GeomagDataFormat)constructors[i].newInstance(initargs);
-               logger.debug("GeomagDataFormat object created successfully");
+               LOGGER.debug("GeomagDataFormat object created successfully");
            }catch(IllegalArgumentException e){
                 
            }catch(InstantiationException e){
-               logger.error(e.getMessage());
+               LOGGER.error(e.getMessage(), e);
            }catch(IllegalAccessException e){
-               logger.error(e.getMessage());
+               LOGGER.error(e.getMessage(), e);
            }catch(InvocationTargetException e){
-               logger.error(e.getMessage());
+               LOGGER.error(e.getMessage(), e);
            }catch(ExceptionInInitializerError e){
-               logger.error(e.getMessage());
+               LOGGER.error(e.getMessage(), e);
            }           
        }
        insertData(dataFormat, intervalType.period());
@@ -126,7 +128,7 @@ public class GeomagTimeSeries extends TreeSet<GeomagDataPoint> {
              dataObject.addData(date[0], period, 99999.0,
                  88888.0, c1, c2, c3, c4);
          }catch(GeomagDataException e){
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage(), e);
          }
      }
 

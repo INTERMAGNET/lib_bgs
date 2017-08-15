@@ -5,6 +5,7 @@
 
 package bgs.geophys.library.Data.webService;
 
+import bgs.geohpys.library.LogConfig.LogConfig;
 import bgs.geophys.library.Data.GeomagAbsoluteValue;
 import bgs.geophys.library.Data.GeomagDataFormat;
 import bgs.geophys.library.Data.GeomagDataPoint;
@@ -13,9 +14,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import org.apache.logging.log4j.Logger;
+
 
 /**
  *
@@ -23,14 +23,16 @@ import org.apache.log4j.PatternLayout;
  */
 public class GeomagTimeSeriesFactory {
     
+    private static final Logger LOGGER = LogConfig.getLogger(GeomagTimeSeriesFactory.class);
+// previous logging used this configuration
+//        logger.addAppender(new ConsoleAppender(new PatternLayout("%p: %m %n")));
+// this should be replaced with a log4j2.xml config file somewhere in the classpath
+    
     private SimpleDateFormat DATA_DATE_FORMAT;
-    private Logger logger;
 
     public GeomagTimeSeriesFactory() {
         DATA_DATE_FORMAT = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss.SSS");
         DATA_DATE_FORMAT.setTimeZone(DateUtils.gmtTimeZone);
-        logger = Logger.getLogger(GeomagTimeSeries.class);
-        logger.addAppender(new ConsoleAppender(new PatternLayout("%p: %m %n")));
     }
 
     /**
@@ -65,7 +67,7 @@ public class GeomagTimeSeriesFactory {
                 geomagTS.add(gmdp);
 
             }catch(Exception e){
-                logger.error(e.getMessage());
+                LOGGER.error(e.getMessage(), e);
             }
         }
         return geomagTS;
