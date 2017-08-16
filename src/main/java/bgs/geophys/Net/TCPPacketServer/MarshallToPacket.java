@@ -21,17 +21,20 @@ import java.util.List;
  * Packet contents:
  * 
  * <total-length>:<method-name-len>:<method-name><n-args>:[<arg-type>:<arg-len>:<arg>[<arg-type>:<arg-len>:<arg>[...]]]
+ * <total-length>:<method-name-len>:<method-name>-1:<err-msg-len>:<err-msg>
  * 
  * All data in a packet is ASCII
  * <total-length> is the size of the data in the packets, not including the "<total-length>:" string
  * <method-name> is the name of the method to be called (or, for a return value, the name of the packet that was called
- * <n-args> is the number of arguments in the packet (may be 0)
- * <arg-type> can be String, int or Date, in which case 
- *   <arg> is a string
- * <arg-type> can be ArrayString, ArrayInt or ArrayDate, in which case
- *   <arg> is a list: <n-elements>:<element-length>:<element-data>...
- * <arg-len> is always the total length of the argument (ingle data value or array)
- *   so that the argument data can be easily read because it's length is known in advance
+ * <n-args> is the number of arguments in the packet 0 <= n_args <= number of arguments
+ *   <arg-type> can be String, int or Date, in which case 
+ *     <arg> is a string
+ *   <arg-type> can be ArrayString, ArrayInt or ArrayDate, in which case
+ *     <arg> is a list: <n-elements>:<element-length>:<element-data>...
+ *   <arg-len> is always the total length of the argument (single data value or array)
+ *     so that the argument data can be easily read because it's length is known in advance
+ * <n-args> == -1 - there was an error, in which case the error description follows
+ *    When there is an error, no parameter data is put into the packet
  * 
  * @author smf
  */
@@ -40,12 +43,23 @@ public class MarshallToPacket
 
     private String method_name;
     private List<String> args;
+    private String errmsg;
     
     public MarshallToPacket (String method_name)
     {
+        errmsg = null;
         args = new ArrayList<> ();
         this.method_name = method_name;
     }
+    
+    public void setErrmsg (String errmsg)
+    {
+        this.errmsg = errmsg;
+    }
+    
+    public String getMethodName () { return method_name; }
+    public boolean isError () { return errmsg != null; }
+    public String getErrorMessage () { return errmsg; }
     
     public void addString (String arg)
     {
@@ -106,10 +120,20 @@ public class MarshallToPacket
         buffer.append (method_name.length());
         buffer.append (":");
         buffer.append (method_name);
-        buffer.append (args.size());
-        buffer.append (":");
-        for (String arg : args)
-            buffer.append (arg);
+        if (errmsg != null)
+        {
+            buffer.append ("-1:");
+            buffer.append(errmsg.length());
+            buffer.append (":");
+            buffer.append (errmsg);
+        }
+        else
+        {
+            buffer.append (args.size());
+            buffer.append (":");
+            for (String arg : args)
+                buffer.append (arg);
+        }
         
         String total_length_string = Integer.toString(buffer.length());
         return total_length_string + ":" + buffer.toString();

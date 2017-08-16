@@ -37,7 +37,7 @@ import org.apache.logging.log4j.Logger;
 public class TCPServer
 implements Runnable
 {
-    public static final int DEFAULT_PORT = 1099;
+    public static final int DEFAULT_PORT = 6901;
     
     private static final Logger LOGGER = LogConfig.getLogger(TCPServer.class);
 

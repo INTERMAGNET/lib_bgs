@@ -19,6 +19,7 @@ public class UnMarshallFromPacketIT extends AbstractPacketTest
 {
     
     private UnMarshallFromPacket ufp;
+    private UnMarshallFromPacket ufp2;
     
     public UnMarshallFromPacketIT() 
     throws ParseException
@@ -26,6 +27,7 @@ public class UnMarshallFromPacketIT extends AbstractPacketTest
         super ();
         
         ufp = new UnMarshallFromPacket (mtp.getPacketData());
+        ufp2 = new UnMarshallFromPacket (mtp2.getPacketData());
     }
 
     /**
@@ -36,8 +38,25 @@ public class UnMarshallFromPacketIT extends AbstractPacketTest
     {
         System.out.println("getMethodName");
         assertEquals (METHOD_NAME, ufp.getMethodName());
+        assertEquals (METHOD_NAME_ERR, ufp2.getMethodName());
     }
 
+    @Test
+    public void testIsError ()
+    {
+        System.out.println ("isError");
+        assertEquals (false, ufp.isError());
+        assertEquals (true, ufp2.isError());
+    }
+    
+    @Test
+    public void testGetErrorMessage ()
+    {
+        System.out.println ("getErrorMessage");
+        assertEquals (null, ufp.getErrorMessage());
+        assertEquals (ERRMSG, ufp2.getErrorMessage());
+    }
+    
     /**
      * Test of getNArguments method, of class UnMarshallFromPacket.
      */

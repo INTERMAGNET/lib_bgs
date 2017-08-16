@@ -22,6 +22,7 @@ public abstract class AbstractPacketTest
 {
 
     protected final static String METHOD_NAME = "TestMethod";
+    protected final static String METHOD_NAME_ERR = "TestMethodError";
     protected final static String ARG1 = "String Argument 1";
     protected final static String ARG2 = "String Argument 2";
     protected final static String [] ARG3 = {"String", "Argument", "3"};
@@ -33,7 +34,10 @@ public abstract class AbstractPacketTest
     protected static Date [] ARG9;
     protected final static String ARG10 = "Final argument";
     
+    protected final static String ERRMSG = "There was an error";
+    
     protected MarshallToPacket mtp;
+    protected MarshallToPacket mtp2;
     
     static
     {
@@ -73,6 +77,11 @@ public abstract class AbstractPacketTest
         
         // add a final string so we can clearly see the last argument in the packets
         mtp.addString (ARG10);
+        
+        // create another object to test
+        mtp2 = new MarshallToPacket (METHOD_NAME_ERR);
+        mtp2.setErrmsg (ERRMSG);
+
     }
     
 }

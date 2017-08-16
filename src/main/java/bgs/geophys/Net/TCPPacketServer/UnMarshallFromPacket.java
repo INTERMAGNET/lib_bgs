@@ -157,6 +157,7 @@ public class UnMarshallFromPacket
 
     private String method_name;
     private List<Argument> arguments;
+    private String errmsg;
     
     public UnMarshallFromPacket (String packet) 
     throws ParseException
@@ -179,21 +180,36 @@ public class UnMarshallFromPacket
         int n_args = length_string.getLengthVal();
         pos += length_string.getLengthString().length() +1;
         
-        // extract the arguments from the message data
+        // if n_args is < 0, the packet contains an error message
         arguments = new ArrayList<> ();
-        for (int arg_count = 0; arg_count < n_args; arg_count ++)
+        if (n_args < 0)
         {
-            String arg_type_string = findDelimitedString (packet, pos);
-            int length_string_pos = pos + arg_type_string.length() +1;
-            length_string = extractLengthString (packet, length_string_pos);
-            int argument_pos = length_string_pos + length_string.getLengthString().length() +1;
-            String argument = extractString (packet, total_length, argument_pos, length_string.getLengthVal());
-            arguments.add (new Argument (arg_type_string, argument, pos));
-            pos += arg_type_string.length() +1 + length_string.getLengthString().length() +1 + length_string.getLengthVal();
+            length_string = extractLengthString(packet, pos);
+            pos += length_string.getLengthString().length() +1;
+            errmsg = extractString (packet, total_length, pos, length_string.getLengthVal());
+            pos += length_string.getLengthVal();
+        }
+        else
+        {
+            errmsg = null;
+            
+            // extract the arguments from the message data
+            for (int arg_count = 0; arg_count < n_args; arg_count ++)
+            {
+                String arg_type_string = findDelimitedString (packet, pos);
+                int length_string_pos = pos + arg_type_string.length() +1;
+                length_string = extractLengthString (packet, length_string_pos);
+                int argument_pos = length_string_pos + length_string.getLengthString().length() +1;
+                String argument = extractString (packet, total_length, argument_pos, length_string.getLengthVal());
+                arguments.add (new Argument (arg_type_string, argument, pos));
+                pos += arg_type_string.length() +1 + length_string.getLengthString().length() +1 + length_string.getLengthVal();
+            }
         }
     }
     
     public String getMethodName () { return method_name; }
+    public boolean isError () { return (errmsg != null); }
+    public String getErrorMessage () { return errmsg; }
     public int getNArguments () { return arguments.size(); }
     public ArgType getArgumentType (int index) { return arguments.get(index).getArgumentType(); }
     public String getArgumentString (int index) throws IllegalArgumentException { return arguments.get(index).getArgumentString(); }
