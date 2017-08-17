@@ -3,11 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package bgs.geophys.Net.TCPServer;
+package bgs.geophys.library.Net.TCPServer;
 
+import bgs.geophys.library.Net.TCPServer.TCPServer;
+import bgs.geophys.library.Net.TCPServer.TCPConnectionFactory;
 import bgs.geohpys.library.LogConfig.LogConfig;
-import bgs.geophys.Net.TCPServer.testUtils.TCPConnectionHandler;
-import bgs.geophys.Net.TCPServer.testUtils.TCPConnectionFactoryImpl;
+import bgs.geophys.library.NET.TCPServer.testUtils.TCPConnectionHandler;
+import bgs.geophys.library.NET.TCPServer.testUtils.TCPConnectionFactoryImpl;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;

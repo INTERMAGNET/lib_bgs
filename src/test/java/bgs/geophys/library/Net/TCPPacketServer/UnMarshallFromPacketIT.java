@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package bgs.geophys.Net.TCPPacketServer;
+package bgs.geophys.library.Net.TCPPacketServer;
 
-import bgs.geophys.Net.TCPPacketServer.testUtils.AbstractPacketTest;
+import bgs.geophys.library.Net.TCPPacketServer.UnMarshallFromPacket;
+import bgs.geophys.library.Net.TCPPacketServer.testUtils.AbstractPacketTest;
 import java.text.ParseException;
 import java.util.Date;
 import org.junit.Test;

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package bgs.geophys.Net.TCPServer;
+package bgs.geophys.library.Net.TCPServer;
 
 /**
  * An object that must be extended in order to handle a connection with a

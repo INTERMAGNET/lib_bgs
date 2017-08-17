@@ -1,4 +1,4 @@
-package bgs.geophys.Net.TCPPacketServer.testUtils;
+package bgs.geophys.library.Net.TCPPacketServer.testUtils;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -7,7 +7,7 @@ package bgs.geophys.Net.TCPPacketServer.testUtils;
  */
 
 
-import bgs.geophys.Net.TCPPacketServer.MarshallToPacket;
+import bgs.geophys.library.Net.TCPPacketServer.MarshallToPacket;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;

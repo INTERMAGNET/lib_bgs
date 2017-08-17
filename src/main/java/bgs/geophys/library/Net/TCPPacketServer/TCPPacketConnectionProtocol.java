@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package bgs.geophys.Net.TCPPacketServer;
+package bgs.geophys.library.Net.TCPPacketServer;
 
 import bgs.geohpys.library.LogConfig.LogConfig;
-import bgs.geophys.Net.TCPServer.TCPConnectionProtocol;
+import bgs.geophys.library.Net.TCPServer.TCPConnectionProtocol;
 import java.io.IOException;
 import java.net.Socket;
 import java.text.ParseException;

@@ -1,4 +1,4 @@
-package bgs.geophys.Net.TCPPacketServer;
+package bgs.geophys.library.Net.TCPPacketServer;
 
 /*
  * To change this license header, choose License Headers in Project Properties.

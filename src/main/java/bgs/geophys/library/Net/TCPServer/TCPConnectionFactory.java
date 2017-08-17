@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package bgs.geophys.Net.TCPServer;
+package bgs.geophys.library.Net.TCPServer;
 
 import java.io.IOException;
 import java.net.Socket;

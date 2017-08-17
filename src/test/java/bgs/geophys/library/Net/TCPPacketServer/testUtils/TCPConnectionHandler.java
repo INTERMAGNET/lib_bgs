@@ -3,15 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package bgs.geophys.Net.TCPPacketServer.testUtils;
+package bgs.geophys.library.Net.TCPPacketServer.testUtils;
 
 import bgs.geohpys.library.LogConfig.LogConfig;
-import bgs.geophys.Net.TCPPacketServer.MarshallToPacket;
-import bgs.geophys.Net.TCPPacketServer.TCPPacketConnectionProtocol;
-import bgs.geophys.Net.TCPPacketServer.UnMarshallFromPacket;
-import bgs.geophys.Net.TCPServer.testUtils.*;
-import bgs.geophys.Net.TCPServer.TCPAbstractConnectionHandler;
-import bgs.geophys.Net.TCPServer.TCPConnectionProtocol;
+import bgs.geophys.library.Net.TCPPacketServer.MarshallToPacket;
+import bgs.geophys.library.Net.TCPPacketServer.TCPPacketConnectionProtocol;
+import bgs.geophys.library.Net.TCPPacketServer.UnMarshallFromPacket;
+import bgs.geophys.library.Net.TCPServer.TCPAbstractConnectionHandler;
+import bgs.geophys.library.Net.TCPServer.TCPConnectionProtocol;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
