@@ -30,12 +30,16 @@ All new lib_bgs code development should use this git project.
 
 git clone https://kwvmxgit.ad.nerc.ac.uk/geomag_libraries/lib_bgs.git
 
+
 Description
 -----------
 General geomagnetism utilities. Any reusable code should be put in this library.
 
+
 How to install the compiled product
 -----------------------------------
 
-1.) Copy the compiled 'jar' file to
-	/users/geolib/lib
+From the bottom level project directory give the command 'mvn deploy'. This will compile the code and then install it to the BGS Artifactory server, from where other projects can include it as a dependency. You can find the library under:
+
+    libs-release-local  : uk/ac/bgs : geomag : lib_bgs
+    libs-snapshot-local : uk/ac/bgs : geomag : lib_bgs
