@@ -1,22 +1,15 @@
-Software project description
-============================
+# Software project description
 
-Project Name:            lib_bgs
-
-Main developer(s):       Jane Exton, Simon Flower, Peter Stevenson 
-
-Main user(s):            Jane Exton, Simon Flower, Peter Stevenson, Chris Turbitt
-
-Computer language(s):    Java
-
-Development environment: Netbeans
-
-Build Tool:              Maven
-
-Source Control:          Git
-
-BGS team:                Geomagnetism
-
+|  |  |
+| ------------------------ | ------- |
+| Project Name:            | lib_bgs |
+| Main developer(s):       | Jane Exton, Simon Flower, Peter Stevenson  |
+| Main user(s):            | Jane Exton, Simon Flower, Peter Stevenson, Chris Turbitt |
+| Computer language(s):    | Java |
+| Development environment: | Netbeans |
+| Build Tool:              | Maven |
+| Source Control:          | Git |
+| BGS team:                | Geomagnetism |
 
 A Java library containing classes that may be useful across projects.
 
@@ -31,13 +24,11 @@ All new lib_bgs code development should use this git project.
 git clone https://kwvmxgit.ad.nerc.ac.uk/geomag_libraries/lib_bgs.git
 
 
-Description
------------
+## Description
 General geomagnetism utilities. Any reusable code should be put in this library.
 
 
-How to install the compiled product
------------------------------------
+## How to install the compiled product
 
 From the bottom level project directory give the command 'mvn deploy'. This will compile the code and then install it to the BGS Artifactory server, from where other projects can include it as a dependency. You can find the library under:
 
