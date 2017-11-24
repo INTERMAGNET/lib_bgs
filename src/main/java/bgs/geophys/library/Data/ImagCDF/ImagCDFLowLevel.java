@@ -8,7 +8,6 @@ import gsfc.nssdc.cdf.*;
 import gsfc.nssdc.cdf.util.CDFTT2000;
 import java.io.File;
 import java.text.DateFormatSymbols;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
