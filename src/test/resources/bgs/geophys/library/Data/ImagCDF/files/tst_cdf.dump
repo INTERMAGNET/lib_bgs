@@ -1,0 +1,686 @@
+Dumping cdf from "ImagCDFTestWrite.cdf"...
+File Info
+=========================================
+CDF File:     ImagCDFTestWrite.cdf
+Version:      3.6.1
+Copyright:    
+Common Data Format (CDF)
+(C) Copyright 1990-2015 NASA/GSFC
+Space Physics Data Facility
+NASA/Goddard Space Flight Center
+Greenbelt, Maryland 20771 USA
+(Internet -- GSFC-CDF-SUPPORT@LISTS.NASA.GOV)
+
+Format:       SINGLE
+Encoding:     IBMPC
+Majority:     ROW
+NumrVars:     0
+NumzVars:     8
+NumAttrs:     30 (22 global, 8 variable)
+Compression:  GZIP.6
+Checksum:     None
+LeapSecondLastUpdated:     20150701
+
+Global Attributes (22 attributes)
+=========================================
+FormatDescription (1 entry):
+	0 (CDF_CHAR/22): 	"INTERMAGNET CDF Format"
+FormatVersion (1 entry):
+	0 (CDF_CHAR/3): 	"1.1"
+Title (1 entry):
+	0 (CDF_CHAR/28): 	"Geomagnetic time series data"
+IagaCode (1 entry):
+	0 (CDF_CHAR/3): 	"ABC"
+ElementsRecorded (1 entry):
+	0 (CDF_CHAR/4): 	"XYZS"
+PublicationLevel (1 entry):
+	0 (CDF_CHAR/1): 	"1"
+PublicationDate (1 entry):
+	0 (CDF_TT2000/1): 	2014-12-21T00:00:00.000000000
+ObservatoryName (1 entry):
+	0 (CDF_CHAR/16): 	"Test Observatory"
+Latitude (1 entry):
+	0 (CDF_DOUBLE/1): 	53.5
+Longitude (1 entry):
+	0 (CDF_DOUBLE/1): 	179.4
+Elevation (1 entry):
+	0 (CDF_DOUBLE/1): 	-199.1
+Institution (1 entry):
+	0 (CDF_CHAR/14): 	"Test Institute"
+VectorSensOrient (1 entry):
+	0 (CDF_CHAR/3): 	"PBQ"
+StandardLevel (1 entry):
+	0 (CDF_CHAR/7): 	"Partial"
+StandardName (1 entry):
+	0 (CDF_CHAR/20): 	"INTERMAGNET_1-Second"
+StandardVersion (1 entry):
+	0 (CDF_CHAR/3): 	"1.0"
+PartialStandDesc (1 entry):
+	0 (CDF_CHAR/17): 	"IMO1, IMO2, IMO99"
+Source (1 entry):
+	0 (CDF_CHAR/18): 	"Source of the data"
+TermsOfUse (1 entry):
+	0 (CDF_CHAR/1545): 	"CONDITIONS OF USE FOR DATA PROVIDED THROUGH INTERMAGNET:
+The data made available through INTERMAGNET are provided for
+your use and are not for commercial use or sale or distribution
+to third parties without the written permission of the institute
+(http://www.intermagnet.org/Institutes_e.html) operating
+the observatory. Publications making use of the data
+should include an acknowledgment statement of the form given below.
+A citation reference should be sent to the INTERMAGNET Secretary
+(secretary@intermagnet.org) for inclusion in a publications list
+on the INTERMAGNET website.
+
+     ACKNOWLEDGEMENT OF DATA FROM OBSERVATORIES
+     PARTICIPATING IN INTERMAGNET
+We offer two acknowledgement templates. The first is for cases
+where data from many observatories have been used and it is not
+practical to list them all, or each of their operating institutes.
+The second is for cases where research results have been produced
+using a smaller set of observatories.
+
+     Suggested Acknowledgement Text (template 1)
+The results presented in this paper rely on data collected
+at magnetic observatories. We thank the national institutes that
+support them and INTERMAGNET for promoting high standards of
+magnetic observatory practice (www.intermagnet.org).
+
+     Suggested Acknowledgement Text (template 2)
+The results presented in this paper rely on the data
+collected at <observatory name>. We thank <institute name>,
+for supporting its operation and INTERMAGNET for promoting high
+standards of magnetic observatory practice (www.intermagnet.org).
+"
+UniqueIdentifier (1 entry):
+	0 (CDF_CHAR/12): 	"DOI/10.1.2.3"
+ParentIdentifiers (2 entries):
+	0 (CDF_CHAR/12): 	"DOI/11.1.2.3"
+	1 (CDF_CHAR/10): 	"DOI/12.5.6"
+ReferenceLinks (2 entries):
+	0 (CDF_CHAR/21): 	"http://test.com/first"
+	1 (CDF_CHAR/21): 	"ftp://test.ftp/second"
+
+Variable Attributes (8 attributes)
+=========================================
+FIELDNAM
+VALIDMIN
+VALIDMAX
+UNITS
+FILLVAL
+DEPEND_0
+DISPLAY_TYPE
+LABLAXIS
+
+Variable Information (0 rVariable, 8 zVariables)
+===========================================================
+GeomagneticFieldX     CDF_DOUBLE/1	0:[]	T/  
+GeomagneticFieldY     CDF_DOUBLE/1	0:[]	T/  
+GeomagneticFieldZ     CDF_DOUBLE/1	0:[]	T/  
+GeomagneticFieldS     CDF_DOUBLE/1	0:[]	T/  
+Temperature1          CDF_DOUBLE/1	0:[]	T/  
+GeomagneticVectorTimes CDF_TT2000/1	0:[]	T/  
+GeomagneticScalarTimes CDF_TT2000/1	0:[]	T/  
+Temperature1Times     CDF_TT2000/1	0:[]	T/  
+
+
+Variable (8 variables)
+=========================================
+
+GeomagneticFieldX (No: 0) (Recs: 100)
+-----------------
+Data Type:           CDF_DOUBLE
+Dimensionality:      0:[]	(T/)  
+Pad value:           -1.0e+30
+Written Records:     100/100(max)
+Allocated Records:   100/100(max)
+Blocking Factor:     0 (records)
+Attribute Entries:
+     FIELDNAM        (CDF_CHAR/24): "GeomagneticFieldElementX"
+     VALIDMIN        (CDF_DOUBLE/1): -90000.0
+     VALIDMAX        (CDF_DOUBLE/1): 90000.0
+     UNITS           (CDF_CHAR/2): "nT"
+     FILLVAL         (CDF_DOUBLE/1): 99999.0
+     DEPEND_0        (CDF_CHAR/22): "GeomagneticVectorTimes"
+     DISPLAY_TYPE    (CDF_CHAR/11): "time_series"
+     LABLAXIS        (CDF_CHAR/1): "X"
+Variable Data:
+  Record # 1: 0.0
+  Record # 2: 6.27905
+  Record # 3: 12.5333
+  Record # 4: 18.7381
+  Record # 5: 24.869
+  Record # 6: 30.9017
+  Record # 7: 36.8125
+  Record # 8: 42.5779
+  Record # 9: 48.1754
+  Record # 10: 53.5827
+  Record # 11: 58.7785
+  Record # 12: 63.7424
+  Record # 13: 68.4547
+  Record # 14: 72.8969
+  Record # 15: 77.0513
+  Record # 16: 80.9017
+  Record # 17: 84.4328
+  Record # 18: 87.6307
+  Record # 19: 90.4827
+  Record # 20: 92.9776
+  Record # 21: 95.1057
+  Record # 22: 96.8583
+  Record # 23: 98.2287
+  Record # 24: 99.2115
+  Record # 25: 99.8027
+  Record # 26: 100.0
+  Record # 27: 99.8027
+  Record # 28: 99.2115
+  Record # 29: 98.2287
+  Record # 30: 96.8583
+  Record # 31: 95.1057
+  Record # 32: 92.9776
+  Record # 33: 90.4827
+  Record # 34: 87.6307
+  Record # 35: 84.4328
+  Record # 36: 80.9017
+  Record # 37: 77.0513
+  Record # 38: 72.8969
+  Record # 39: 68.4547
+  Record # 40: 63.7424
+  Record # 41: 58.7785
+  Record # 42: 53.5827
+  Record # 43: 48.1754
+  Record # 44: 42.5779
+  Record # 45: 36.8125
+  Record # 46: 30.9017
+  Record # 47: 24.869
+  Record # 48: 18.7381
+  Record # 49: 12.5333
+  Record # 50: 6.27905
+  Record # 51: 1.22465e-14
+  Record # 52: -6.27905
+  Record # 53: -12.5333
+  Record # 54: -18.7381
+  Record # 55: -24.869
+  Record # 56: -30.9017
+  Record # 57: -36.8125
+  Record # 58: -42.5779
+  Record # 59: -48.1754
+  Record # 60: -53.5827
+  Record # 61: -58.7785
+  Record # 62: -63.7424
+  Record # 63: -68.4547
+  Record # 64: -72.8969
+  Record # 65: -77.0513
+  Record # 66: -80.9017
+  Record # 67: -84.4328
+  Record # 68: -87.6307
+  Record # 69: -90.4827
+  Record # 70: -92.9776
+  Record # 71: -95.1057
+  Record # 72: -96.8583
+  Record # 73: -98.2287
+  Record # 74: -99.2115
+  Record # 75: -99.8027
+  Record # 76: -100.0
+  Record # 77: -99.8027
+  Record # 78: -99.2115
+  Record # 79: -98.2287
+  Record # 80: -96.8583
+  Record # 81: -95.1057
+  Record # 82: -92.9776
+  Record # 83: -90.4827
+  Record # 84: -87.6307
+  Record # 85: -84.4328
+  Record # 86: -80.9017
+  Record # 87: -77.0513
+  Record # 88: -72.8969
+  Record # 89: -68.4547
+  Record # 90: -63.7424
+  Record # 91: -58.7785
+  Record # 92: -53.5827
+  Record # 93: -48.1754
+  Record # 94: -42.5779
+  Record # 95: -36.8125
+  Record # 96: -30.9017
+  Record # 97: -24.869
+  Record # 98: -18.7381
+  Record # 99: -12.5333
+  Record # 100: -6.27905
+
+GeomagneticFieldY (No: 1) (Recs: 100)
+-----------------
+Data Type:           CDF_DOUBLE
+Dimensionality:      0:[]	(T/)  
+Pad value:           -1.0e+30
+Written Records:     100/100(max)
+Allocated Records:   100/100(max)
+Blocking Factor:     0 (records)
+Attribute Entries:
+     FIELDNAM        (CDF_CHAR/24): "GeomagneticFieldElementY"
+     VALIDMIN        (CDF_DOUBLE/1): -90000.0
+     VALIDMAX        (CDF_DOUBLE/1): 90000.0
+     UNITS           (CDF_CHAR/2): "nT"
+     FILLVAL         (CDF_DOUBLE/1): 99999.0
+     DEPEND_0        (CDF_CHAR/22): "GeomagneticVectorTimes"
+     DISPLAY_TYPE    (CDF_CHAR/11): "time_series"
+     LABLAXIS        (CDF_CHAR/1): "Y"
+Variable Data:
+  Record # 1: 0.0
+  Record # 2: 12.5581
+  Record # 3: 25.0666
+  Record # 4: 37.4763
+  Record # 5: 49.738
+  Record # 6: 61.8034
+  Record # 7: 73.6249
+  Record # 8: 85.1559
+  Record # 9: 96.3507
+  Record # 10: 107.165
+  Record # 11: 117.557
+  Record # 12: 127.485
+  Record # 13: 136.909
+  Record # 14: 145.794
+  Record # 15: 154.103
+  Record # 16: 161.803
+  Record # 17: 168.866
+  Record # 18: 175.261
+  Record # 19: 180.965
+  Record # 20: 185.955
+  Record # 21: 190.211
+  Record # 22: 193.717
+  Record # 23: 196.457
+  Record # 24: 198.423
+  Record # 25: 199.605
+  Record # 26: 200.0
+  Record # 27: 199.605
+  Record # 28: 198.423
+  Record # 29: 196.457
+  Record # 30: 193.717
+  Record # 31: 190.211
+  Record # 32: 185.955
+  Record # 33: 180.965
+  Record # 34: 175.261
+  Record # 35: 168.866
+  Record # 36: 161.803
+  Record # 37: 154.103
+  Record # 38: 145.794
+  Record # 39: 136.909
+  Record # 40: 127.485
+  Record # 41: 117.557
+  Record # 42: 107.165
+  Record # 43: 96.3507
+  Record # 44: 85.1559
+  Record # 45: 73.6249
+  Record # 46: 61.8034
+  Record # 47: 49.738
+  Record # 48: 37.4763
+  Record # 49: 25.0666
+  Record # 50: 12.5581
+  Record # 51: 2.44929e-14
+  Record # 52: -12.5581
+  Record # 53: -25.0666
+  Record # 54: -37.4763
+  Record # 55: -49.738
+  Record # 56: -61.8034
+  Record # 57: -73.6249
+  Record # 58: -85.1559
+  Record # 59: -96.3507
+  Record # 60: -107.165
+  Record # 61: -117.557
+  Record # 62: -127.485
+  Record # 63: -136.909
+  Record # 64: -145.794
+  Record # 65: -154.103
+  Record # 66: -161.803
+  Record # 67: -168.866
+  Record # 68: -175.261
+  Record # 69: -180.965
+  Record # 70: -185.955
+  Record # 71: -190.211
+  Record # 72: -193.717
+  Record # 73: -196.457
+  Record # 74: -198.423
+  Record # 75: -199.605
+  Record # 76: -200.0
+  Record # 77: -199.605
+  Record # 78: -198.423
+  Record # 79: -196.457
+  Record # 80: -193.717
+  Record # 81: -190.211
+  Record # 82: -185.955
+  Record # 83: -180.965
+  Record # 84: -175.261
+  Record # 85: -168.866
+  Record # 86: -161.803
+  Record # 87: -154.103
+  Record # 88: -145.794
+  Record # 89: -136.909
+  Record # 90: -127.485
+  Record # 91: -117.557
+  Record # 92: -107.165
+  Record # 93: -96.3507
+  Record # 94: -85.1559
+  Record # 95: -73.6249
+  Record # 96: -61.8034
+  Record # 97: -49.738
+  Record # 98: -37.4763
+  Record # 99: -25.0666
+  Record # 100: -12.5581
+
+GeomagneticFieldZ (No: 2) (Recs: 100)
+-----------------
+Data Type:           CDF_DOUBLE
+Dimensionality:      0:[]	(T/)  
+Pad value:           -1.0e+30
+Written Records:     100/100(max)
+Allocated Records:   100/100(max)
+Blocking Factor:     0 (records)
+Attribute Entries:
+     FIELDNAM        (CDF_CHAR/24): "GeomagneticFieldElementZ"
+     VALIDMIN        (CDF_DOUBLE/1): -90000.0
+     VALIDMAX        (CDF_DOUBLE/1): 90000.0
+     UNITS           (CDF_CHAR/2): "nT"
+     FILLVAL         (CDF_DOUBLE/1): 99999.0
+     DEPEND_0        (CDF_CHAR/22): "GeomagneticVectorTimes"
+     DISPLAY_TYPE    (CDF_CHAR/11): "time_series"
+     LABLAXIS        (CDF_CHAR/1): "Z"
+Variable Data:
+  Record # 1: 0.0
+  Record # 2: 18.8372
+  Record # 3: 37.6
+  Record # 4: 56.2144
+  Record # 5: 74.607
+  Record # 6: 92.7051
+  Record # 7: 110.437
+  Record # 8: 127.734
+  Record # 9: 144.526
+  Record # 10: 160.748
+  Record # 11: 176.336
+  Record # 12: 191.227
+  Record # 13: 205.364
+  Record # 14: 218.691
+  Record # 15: 231.154
+  Record # 16: 242.705
+  Record # 17: 253.298
+  Record # 18: 262.892
+  Record # 19: 271.448
+  Record # 20: 278.933
+  Record # 21: 285.317
+  Record # 22: 290.575
+  Record # 23: 294.686
+  Record # 24: 297.634
+  Record # 25: 299.408
+  Record # 26: 300.0
+  Record # 27: 299.408
+  Record # 28: 297.634
+  Record # 29: 294.686
+  Record # 30: 290.575
+  Record # 31: 285.317
+  Record # 32: 278.933
+  Record # 33: 271.448
+  Record # 34: 262.892
+  Record # 35: 253.298
+  Record # 36: 242.705
+  Record # 37: 231.154
+  Record # 38: 218.691
+  Record # 39: 205.364
+  Record # 40: 191.227
+  Record # 41: 176.336
+  Record # 42: 160.748
+  Record # 43: 144.526
+  Record # 44: 127.734
+  Record # 45: 110.437
+  Record # 46: 92.7051
+  Record # 47: 74.607
+  Record # 48: 56.2144
+  Record # 49: 37.6
+  Record # 50: 18.8372
+  Record # 51: 3.67394e-14
+  Record # 52: -18.8372
+  Record # 53: -37.6
+  Record # 54: -56.2144
+  Record # 55: -74.607
+  Record # 56: -92.7051
+  Record # 57: -110.437
+  Record # 58: -127.734
+  Record # 59: -144.526
+  Record # 60: -160.748
+  Record # 61: -176.336
+  Record # 62: -191.227
+  Record # 63: -205.364
+  Record # 64: -218.691
+  Record # 65: -231.154
+  Record # 66: -242.705
+  Record # 67: -253.298
+  Record # 68: -262.892
+  Record # 69: -271.448
+  Record # 70: -278.933
+  Record # 71: -285.317
+  Record # 72: -290.575
+  Record # 73: -294.686
+  Record # 74: -297.634
+  Record # 75: -299.408
+  Record # 76: -300.0
+  Record # 77: -299.408
+  Record # 78: -297.634
+  Record # 79: -294.686
+  Record # 80: -290.575
+  Record # 81: -285.317
+  Record # 82: -278.933
+  Record # 83: -271.448
+  Record # 84: -262.892
+  Record # 85: -253.298
+  Record # 86: -242.705
+  Record # 87: -231.154
+  Record # 88: -218.691
+  Record # 89: -205.364
+  Record # 90: -191.227
+  Record # 91: -176.336
+  Record # 92: -160.748
+  Record # 93: -144.526
+  Record # 94: -127.734
+  Record # 95: -110.437
+  Record # 96: -92.7051
+  Record # 97: -74.607
+  Record # 98: -56.2144
+  Record # 99: -37.6
+  Record # 100: -18.8372
+
+GeomagneticFieldS (No: 3) (Recs: 10)
+-----------------
+Data Type:           CDF_DOUBLE
+Dimensionality:      0:[]	(T/)  
+Pad value:           -1.0e+30
+Written Records:     10/10(max)
+Allocated Records:   64/64(max)
+Blocking Factor:     0 (records)
+Attribute Entries:
+     FIELDNAM        (CDF_CHAR/24): "GeomagneticFieldElementS"
+     VALIDMIN        (CDF_DOUBLE/1): 0.0
+     VALIDMAX        (CDF_DOUBLE/1): 90000.0
+     UNITS           (CDF_CHAR/2): "nT"
+     FILLVAL         (CDF_DOUBLE/1): 99999.0
+     DEPEND_0        (CDF_CHAR/22): "GeomagneticScalarTimes"
+     DISPLAY_TYPE    (CDF_CHAR/11): "time_series"
+     LABLAXIS        (CDF_CHAR/1): "S"
+Variable Data:
+  Record # 1: 0.0
+  Record # 2: 0.587785
+  Record # 3: 0.951057
+  Record # 4: 0.951057
+  Record # 5: 0.587785
+  Record # 6: 1.22465e-16
+  Record # 7: -0.587785
+  Record # 8: -0.951057
+  Record # 9: -0.951057
+  Record # 10: -0.587785
+
+Temperature1 (No: 4) (Recs: 5)
+------------
+Data Type:           CDF_DOUBLE
+Dimensionality:      0:[]	(T/)  
+Pad value:           -1.0e+30
+Written Records:     5/5(max)
+Allocated Records:   64/64(max)
+Blocking Factor:     0 (records)
+Attribute Entries:
+     FIELDNAM        (CDF_CHAR/12): "Temperature3"
+     VALIDMIN        (CDF_DOUBLE/1): -50.0
+     VALIDMAX        (CDF_DOUBLE/1): 80.0
+     UNITS           (CDF_CHAR/7): "Celcius"
+     FILLVAL         (CDF_DOUBLE/1): 99999.0
+     DEPEND_0        (CDF_CHAR/17): "Temperature1Times"
+     DISPLAY_TYPE    (CDF_CHAR/11): "time_series"
+     LABLAXIS        (CDF_CHAR/13): "Temperature 1"
+Variable Data:
+  Record # 1: 0.0
+  Record # 2: 0.951057
+  Record # 3: 0.587785
+  Record # 4: -0.587785
+  Record # 5: -0.951057
+
+GeomagneticVectorTimes (No: 5) (Recs: 100)
+----------------------
+Data Type:           CDF_TT2000
+Dimensionality:      0:[]	(T/)  
+Pad value:           0000-01-01T00:00:00.000000000
+Written Records:     100/100(max)
+Allocated Records:   100/100(max)
+Blocking Factor:     0 (records)
+Attribute Entries:
+Variable Data:
+  Record # 1: 2014-12-11T00:00:00.000000000
+  Record # 2: 2014-12-11T00:00:01.000000000
+  Record # 3: 2014-12-11T00:00:02.000000000
+  Record # 4: 2014-12-11T00:00:03.000000000
+  Record # 5: 2014-12-11T00:00:04.000000000
+  Record # 6: 2014-12-11T00:00:05.000000000
+  Record # 7: 2014-12-11T00:00:06.000000000
+  Record # 8: 2014-12-11T00:00:07.000000000
+  Record # 9: 2014-12-11T00:00:08.000000000
+  Record # 10: 2014-12-11T00:00:09.000000000
+  Record # 11: 2014-12-11T00:00:10.000000000
+  Record # 12: 2014-12-11T00:00:11.000000000
+  Record # 13: 2014-12-11T00:00:12.000000000
+  Record # 14: 2014-12-11T00:00:13.000000000
+  Record # 15: 2014-12-11T00:00:14.000000000
+  Record # 16: 2014-12-11T00:00:15.000000000
+  Record # 17: 2014-12-11T00:00:16.000000000
+  Record # 18: 2014-12-11T00:00:17.000000000
+  Record # 19: 2014-12-11T00:00:18.000000000
+  Record # 20: 2014-12-11T00:00:19.000000000
+  Record # 21: 2014-12-11T00:00:20.000000000
+  Record # 22: 2014-12-11T00:00:21.000000000
+  Record # 23: 2014-12-11T00:00:22.000000000
+  Record # 24: 2014-12-11T00:00:23.000000000
+  Record # 25: 2014-12-11T00:00:24.000000000
+  Record # 26: 2014-12-11T00:00:25.000000000
+  Record # 27: 2014-12-11T00:00:26.000000000
+  Record # 28: 2014-12-11T00:00:27.000000000
+  Record # 29: 2014-12-11T00:00:28.000000000
+  Record # 30: 2014-12-11T00:00:29.000000000
+  Record # 31: 2014-12-11T00:00:30.000000000
+  Record # 32: 2014-12-11T00:00:31.000000000
+  Record # 33: 2014-12-11T00:00:32.000000000
+  Record # 34: 2014-12-11T00:00:33.000000000
+  Record # 35: 2014-12-11T00:00:34.000000000
+  Record # 36: 2014-12-11T00:00:35.000000000
+  Record # 37: 2014-12-11T00:00:36.000000000
+  Record # 38: 2014-12-11T00:00:37.000000000
+  Record # 39: 2014-12-11T00:00:38.000000000
+  Record # 40: 2014-12-11T00:00:39.000000000
+  Record # 41: 2014-12-11T00:00:40.000000000
+  Record # 42: 2014-12-11T00:00:41.000000000
+  Record # 43: 2014-12-11T00:00:42.000000000
+  Record # 44: 2014-12-11T00:00:43.000000000
+  Record # 45: 2014-12-11T00:00:44.000000000
+  Record # 46: 2014-12-11T00:00:45.000000000
+  Record # 47: 2014-12-11T00:00:46.000000000
+  Record # 48: 2014-12-11T00:00:47.000000000
+  Record # 49: 2014-12-11T00:00:48.000000000
+  Record # 50: 2014-12-11T00:00:49.000000000
+  Record # 51: 2014-12-11T00:00:50.000000000
+  Record # 52: 2014-12-11T00:00:51.000000000
+  Record # 53: 2014-12-11T00:00:52.000000000
+  Record # 54: 2014-12-11T00:00:53.000000000
+  Record # 55: 2014-12-11T00:00:54.000000000
+  Record # 56: 2014-12-11T00:00:55.000000000
+  Record # 57: 2014-12-11T00:00:56.000000000
+  Record # 58: 2014-12-11T00:00:57.000000000
+  Record # 59: 2014-12-11T00:00:58.000000000
+  Record # 60: 2014-12-11T00:00:59.000000000
+  Record # 61: 2014-12-11T00:01:00.000000000
+  Record # 62: 2014-12-11T00:01:01.000000000
+  Record # 63: 2014-12-11T00:01:02.000000000
+  Record # 64: 2014-12-11T00:01:03.000000000
+  Record # 65: 2014-12-11T00:01:04.000000000
+  Record # 66: 2014-12-11T00:01:05.000000000
+  Record # 67: 2014-12-11T00:01:06.000000000
+  Record # 68: 2014-12-11T00:01:07.000000000
+  Record # 69: 2014-12-11T00:01:08.000000000
+  Record # 70: 2014-12-11T00:01:09.000000000
+  Record # 71: 2014-12-11T00:01:10.000000000
+  Record # 72: 2014-12-11T00:01:11.000000000
+  Record # 73: 2014-12-11T00:01:12.000000000
+  Record # 74: 2014-12-11T00:01:13.000000000
+  Record # 75: 2014-12-11T00:01:14.000000000
+  Record # 76: 2014-12-11T00:01:15.000000000
+  Record # 77: 2014-12-11T00:01:16.000000000
+  Record # 78: 2014-12-11T00:01:17.000000000
+  Record # 79: 2014-12-11T00:01:18.000000000
+  Record # 80: 2014-12-11T00:01:19.000000000
+  Record # 81: 2014-12-11T00:01:20.000000000
+  Record # 82: 2014-12-11T00:01:21.000000000
+  Record # 83: 2014-12-11T00:01:22.000000000
+  Record # 84: 2014-12-11T00:01:23.000000000
+  Record # 85: 2014-12-11T00:01:24.000000000
+  Record # 86: 2014-12-11T00:01:25.000000000
+  Record # 87: 2014-12-11T00:01:26.000000000
+  Record # 88: 2014-12-11T00:01:27.000000000
+  Record # 89: 2014-12-11T00:01:28.000000000
+  Record # 90: 2014-12-11T00:01:29.000000000
+  Record # 91: 2014-12-11T00:01:30.000000000
+  Record # 92: 2014-12-11T00:01:31.000000000
+  Record # 93: 2014-12-11T00:01:32.000000000
+  Record # 94: 2014-12-11T00:01:33.000000000
+  Record # 95: 2014-12-11T00:01:34.000000000
+  Record # 96: 2014-12-11T00:01:35.000000000
+  Record # 97: 2014-12-11T00:01:36.000000000
+  Record # 98: 2014-12-11T00:01:37.000000000
+  Record # 99: 2014-12-11T00:01:38.000000000
+  Record # 100: 2014-12-11T00:01:39.000000000
+
+GeomagneticScalarTimes (No: 6) (Recs: 10)
+----------------------
+Data Type:           CDF_TT2000
+Dimensionality:      0:[]	(T/)  
+Pad value:           0000-01-01T00:00:00.000000000
+Written Records:     10/10(max)
+Allocated Records:   64/64(max)
+Blocking Factor:     0 (records)
+Attribute Entries:
+Variable Data:
+  Record # 1: 2014-12-11T00:00:00.000000000
+  Record # 2: 2014-12-11T00:00:10.000000000
+  Record # 3: 2014-12-11T00:00:20.000000000
+  Record # 4: 2014-12-11T00:00:30.000000000
+  Record # 5: 2014-12-11T00:00:40.000000000
+  Record # 6: 2014-12-11T00:00:50.000000000
+  Record # 7: 2014-12-11T00:01:00.000000000
+  Record # 8: 2014-12-11T00:01:10.000000000
+  Record # 9: 2014-12-11T00:01:20.000000000
+  Record # 10: 2014-12-11T00:01:30.000000000
+
+Temperature1Times (No: 7) (Recs: 5)
+-----------------
+Data Type:           CDF_TT2000
+Dimensionality:      0:[]	(T/)  
+Pad value:           0000-01-01T00:00:00.000000000
+Written Records:     5/5(max)
+Allocated Records:   64/64(max)
+Blocking Factor:     0 (records)
+Attribute Entries:
+Variable Data:
+  Record # 1: 2014-12-11T00:00:00.000000000
+  Record # 2: 2014-12-11T00:00:20.000000000
+  Record # 3: 2014-12-11T00:00:40.000000000
+  Record # 4: 2014-12-11T00:01:00.000000000
+  Record # 5: 2014-12-11T00:01:20.000000000
+

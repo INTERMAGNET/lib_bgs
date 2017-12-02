@@ -159,7 +159,7 @@ implements IMCDFWriteProgressListener
             }
 
             // sort out the array of parent identifiers
-            parent_identifiers = new String [links.size()];
+            parent_identifiers = new String [pids.size()];
             count = 0;
             for (String s : pids)
             {
@@ -440,7 +440,7 @@ implements IMCDFWriteProgressListener
             for (count=0; count<parent_identifiers.length; count++)
                 cdf.addGlobalAttribute ("ParentIdentifiers", count, true, parent_identifiers [count]);
             for (count=0; count<reference_links.length; count++)
-                cdf.addGlobalAttribute ("References",        count, true, reference_links [count].toString());
+                cdf.addGlobalAttribute ("ReferenceLinks",    count, true,  reference_links [count].toString());
         
             // set up variables for monitoring progress - the array containing the length of each sample must correspond to the
             // order in which the data is written to file
@@ -479,13 +479,13 @@ implements IMCDFWriteProgressListener
             {
                 variable_being_written_index ++;
                 temperatures[count].addWriteProgressListener(this);
-                if (! temperatures[count].write(cdf, Integer.toString (count))) 
+                if (! temperatures[count].write(cdf, Integer.toString (count +1))) 
                     abort = true;
                 temperatures[count].removeWriteProgressListener(this);
             }
             
             // write the time stamps to file
-            for (count=0; (count<temperatures.length) && (! abort); count++)
+            for (count=0; (count<time_stamps.length) && (! abort); count++)
             {
                 variable_being_written_index ++;
                 time_stamps[count].addWriteProgressListener(this);
@@ -619,7 +619,6 @@ implements IMCDFWriteProgressListener
     public ImagCDFVariable getTemperature (int index) { return temperatures [index]; }
     
     /** generate an IMAG CDF filename 
-     * @param prefix the prefix for the name (including any directory)
      * @param station_code the IAGA station code
      * @param sample_period the sample period of the data
      * @param start_date the start date for the data
@@ -627,7 +626,7 @@ implements IMCDFWriteProgressListener
      * @param force_lower_case set true to force the filename to lower case
      *        (as demanded by the IAGA 2002 format description)
      * @return the file OR null if there is an error */
-    public static String makeFilename (String prefix, String station_code, 
+    public static String makeFilename (String station_code, 
                                        FilenameSamplePeriod sample_period, Date start_date,
                                        IMCDFPublicationLevel pub_level)
     {
