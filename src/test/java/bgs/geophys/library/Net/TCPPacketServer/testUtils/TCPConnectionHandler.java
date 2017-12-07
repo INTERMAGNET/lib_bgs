@@ -5,7 +5,7 @@
  */
 package bgs.geophys.library.Net.TCPPacketServer.testUtils;
 
-import bgs.geohpys.library.LogConfig.LogConfig;
+import bgs.geophys.library.LogConfig.LogConfig;
 import bgs.geophys.library.Net.TCPPacketServer.MarshallToPacket;
 import bgs.geophys.library.Net.TCPPacketServer.TCPPacketConnectionProtocol;
 import bgs.geophys.library.Net.TCPPacketServer.UnMarshallFromPacket;

@@ -5,7 +5,7 @@
 
 package bgs.geophys.library.Data.webService;
 
-import bgs.geohpys.library.LogConfig.LogConfig;
+import bgs.geophys.library.LogConfig.LogConfig;
 import bgs.geophys.library.Data.GeomagAbsoluteValue;
 import bgs.geophys.library.Data.GeomagDataFormat;
 import bgs.geophys.library.Data.GeomagDataPoint;

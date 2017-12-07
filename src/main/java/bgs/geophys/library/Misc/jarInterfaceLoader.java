@@ -4,7 +4,7 @@
  * Created on 18 July 2004, 21:24
  */
 
-package bgs.geophys.library.misc;
+package bgs.geophys.library.Misc;
 
 import java.util.*;
 import java.util.jar.*;

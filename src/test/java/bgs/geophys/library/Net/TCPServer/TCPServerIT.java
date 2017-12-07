@@ -7,7 +7,7 @@ package bgs.geophys.library.Net.TCPServer;
 
 import bgs.geophys.library.Net.TCPServer.TCPServer;
 import bgs.geophys.library.Net.TCPServer.TCPConnectionFactory;
-import bgs.geohpys.library.LogConfig.LogConfig;
+import bgs.geophys.library.LogConfig.LogConfig;
 import bgs.geophys.library.NET.TCPServer.testUtils.TCPConnectionHandler;
 import bgs.geophys.library.NET.TCPServer.testUtils.TCPConnectionFactoryImpl;
 import java.io.BufferedInputStream;

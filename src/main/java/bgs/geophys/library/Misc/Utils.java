@@ -6,11 +6,8 @@
 
 package bgs.geophys.library.Misc;
 
-import java.awt.event.*;
 import java.net.URL;
-import java.text.*;
 import java.util.*;
-import javax.swing.*;
 
 /**
  * General, static utilities (functions)

@@ -5,7 +5,7 @@
  */
 package bgs.geophys.library.NET.TCPServer.testUtils;
 
-import bgs.geohpys.library.LogConfig.LogConfig;
+import bgs.geophys.library.LogConfig.LogConfig;
 import bgs.geophys.library.Net.TCPServer.TCPAbstractConnectionHandler;
 import bgs.geophys.library.Net.TCPServer.TCPConnectionProtocol;
 import java.io.IOException;

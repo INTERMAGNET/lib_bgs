@@ -1,6 +1,6 @@
 package bgs.geophys.library.Data.webService;
 
-import bgs.geohpys.library.LogConfig.LogConfig;
+import bgs.geophys.library.LogConfig.LogConfig;
 import bgs.geophys.library.Data.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

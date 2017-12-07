@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package bgs.geohpys.library.LogConfig;
+package bgs.geophys.library.LogConfig;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;

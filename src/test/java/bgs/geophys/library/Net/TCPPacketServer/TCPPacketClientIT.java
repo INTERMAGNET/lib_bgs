@@ -8,7 +8,7 @@ package bgs.geophys.library.Net.TCPPacketServer;
 import bgs.geophys.library.Net.TCPPacketServer.MarshallToPacket;
 import bgs.geophys.library.Net.TCPPacketServer.UnMarshallFromPacket;
 import bgs.geophys.library.Net.TCPPacketServer.TCPPacketClient;
-import bgs.geohpys.library.LogConfig.LogConfig;
+import bgs.geophys.library.LogConfig.LogConfig;
 import bgs.geophys.library.Net.TCPPacketServer.testUtils.TCPConnectionFactoryImpl;
 import bgs.geophys.library.Net.TCPServer.TCPServer;
 import java.io.IOException;

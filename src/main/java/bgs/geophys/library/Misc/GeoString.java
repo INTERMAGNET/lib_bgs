@@ -7,8 +7,6 @@
 package bgs.geophys.library.Misc;
 
 import bgs.geophys.library.Maths.BGSMath;
-import java.text.*;
-import java.util.*;
 
 /**
  * Some string utilities that are not in the standard Java runtime.
