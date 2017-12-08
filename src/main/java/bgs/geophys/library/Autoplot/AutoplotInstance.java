@@ -431,7 +431,8 @@ implements Runnable
             title = "Geomagnetic observatory data";
         }
         if (reset) message.addCommand("reset ()");
-        message.addCommand("base_cdf_uri = 'vap+cdf:file:/" + imagcdf_file.getAbsolutePath() + "?'");
+        String uri_filename = imagcdf_file.getAbsolutePath().replace("\\", "/");
+        message.addCommand("base_cdf_uri = 'vap+cdf:file:/" + uri_filename + "?'");
         message.addCommand("geomag_cdf_ds = geomag.getGeomagDataSets (base_cdf_uri)");
         message.addCommand("geomag.showDSPlot (geomag_cdf_ds, '" + title + "')");
         

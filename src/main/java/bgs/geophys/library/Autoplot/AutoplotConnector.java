@@ -37,6 +37,9 @@ public class AutoplotConnector
     private static final String AUTOPLOT_SCRIPT_SUFFIX = ".py";
     // the default name of the folder that autoplot will be installed to under the user's home directory
     private static final String DEFAULT_AUTOPLOT_FOLDER_NAME = ".autoplot";
+
+    // view comms with autoplot?
+    private boolean debug_comms;
     
     // where things are in the file system
     private File autoplot_dest_jar;
@@ -53,20 +56,24 @@ public class AutoplotConnector
     
     /**
      * install the autoplot jar using a default folder name
+     * @param debug_comms  true to print transmitted and received messages to/from autoplot on stdout
      * @throws IOException if autoplot can't be found */
-    public AutoplotConnector ()
+    public AutoplotConnector (boolean debug_comms)
     throws IOException
     {
-        this (DEFAULT_AUTOPLOT_FOLDER_NAME);
+        this (debug_comms, DEFAULT_AUTOPLOT_FOLDER_NAME);
     }
     
     /**
      * install the autoplot jar
+     * @param debug_comms  true to print transmitted and received messages to/from autoplot on stdout
      * @param autoplot_folder_name
      * @throws IOException if autoplot can't be found */
-    public AutoplotConnector (String autoplot_folder_name)
+    public AutoplotConnector (boolean debug_comms, String autoplot_folder_name)
     throws IOException
     {
+        this.debug_comms = debug_comms;
+        
         // find user's home folder and create an autoplot sub-folder
         File home_folder = new File (System.getProperty("user.home", "."));
         File autoplot_dest_folder = new File (home_folder, autoplot_folder_name);
@@ -123,14 +130,13 @@ public class AutoplotConnector
      * object that this method returns
      * 
      * @param args the arguments to pass to autoplot (Don't include the "-s <port>" argument)
-     * @param debug_comms  true to print transmitted and received messages to/from autoplot on stdout
      * @param kill_on_exit if true, kill the autoplot instance when this JVM exits
      * @return an object that is used to communicate with the autoplot instance
      * @throws IOException if the autoplot jar can't be found or if a free port can't be found
      * @throws ClassNotFoundException  if the autoplot class can't be found in the jar
      * @throws NoSuchMethodException if the main() method can't be found in the autoplot class
      */
-    public AutoplotInstance runAutoplot (String args [], boolean debug_comms, boolean kill_on_exit)
+    public AutoplotInstance runAutoplot (String args [], boolean kill_on_exit)
     throws IOException, ClassNotFoundException, NoSuchMethodException
     {
         // build the argument list that will be passed to autoplot
