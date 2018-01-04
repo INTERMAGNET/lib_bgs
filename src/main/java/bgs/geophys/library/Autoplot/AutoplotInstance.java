@@ -250,7 +250,6 @@ implements Runnable
         {
             // create and send the command to display this element
             String component = component_codes.substring(count, count+1);
-            String uri_filename = iaga_2002_file.getAbsolutePath().replace("\\", "/");
             String field_name = "field" + Integer.toString (count +3);
             AutoplotURIBuilder uri_builder = new AutoplotURIBuilder(AutoplotURIBuilder.URIType.VAP_DAT_FILE, iaga_2002_file);
             if (count == 0) uri_builder.addDatTitle(title);
@@ -382,7 +381,7 @@ implements Runnable
             String component = component_codes.substring(count, count+1);
             String field_name = "field" + Integer.toString (count +3);
             File file_pattern = new File (folder, filename_pattern);
-            AutoplotURIBuilder uri_builder = new AutoplotURIBuilder(AutoplotURIBuilder.URIType.VAP_DAT_FILE, file_pattern.getAbsolutePath(), time_range);
+            AutoplotURIBuilder uri_builder = new AutoplotURIBuilder(AutoplotURIBuilder.URIType.VAP_DAT_FILE, file_pattern, time_range);
             if (count == 0) uri_builder.addDatTitle(title);
             uri_builder.addDatSkipLines(n_header_lines);
             uri_builder.addDatTimeFieldName("field0");
@@ -499,7 +498,7 @@ implements Runnable
             String field_name = "field" + Integer.toString (count +3);
             String cdf_var_name = "GeomagneticField" + component;
             File file_pattern = new File (folder, filename_pattern);
-            AutoplotURIBuilder uri_builder = new AutoplotURIBuilder(AutoplotURIBuilder.URIType.VAP_CDF_FILE, file_pattern.getAbsolutePath(), time_range);
+            AutoplotURIBuilder uri_builder = new AutoplotURIBuilder(AutoplotURIBuilder.URIType.VAP_CDF_FILE, file_pattern, time_range);
             uri_builder.addCDFVarName(cdf_var_name);
             message.addCommand("plot (" + count + ",'" + uri_builder.getURI() + "')");
 
