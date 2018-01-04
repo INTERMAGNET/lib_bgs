@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.ac.bgs.geomag</groupId>
     <artifactId>lib_bgs</artifactId>
-    <version>1.84-snapshot</version>    
+    <version>1.84-SNAPSHOTt</version>    
     
     <packaging>jar</packaging>
     <name>lib_bgs</name>
