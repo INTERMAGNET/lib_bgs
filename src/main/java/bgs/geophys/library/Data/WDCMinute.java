@@ -314,8 +314,8 @@ public class WDCMinute extends GeomagDataFormat
             // split out the header fields
             try
             {
-                testLatitude = Double.parseDouble (record.substring (0, 6).trim());
-                testLongitude = Double.parseDouble (record.substring (6, 12).trim());
+                testLatitude = 90.0 - (Double.parseDouble (record.substring (0, 6).trim()) / 1000.0);
+                testLongitude = Double.parseDouble (record.substring (6, 12).trim()) / 1000.0;
                 year = Integer.parseInt (record.substring (12, 14));
                 if (year >= 60) 
                     dateString = "19" + record.substring (12, 18) + record.substring (19, 21);
