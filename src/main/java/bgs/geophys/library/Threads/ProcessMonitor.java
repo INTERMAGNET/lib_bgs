@@ -187,7 +187,7 @@ public class ProcessMonitor implements Runnable
         byte chunk [];
         InputStream process_stdout, process_stderr;
         OutputStream process_stdin;
-        
+              
         // connect stdout, stderr and optionally stdin to the new process
         synchronized (process)
         {

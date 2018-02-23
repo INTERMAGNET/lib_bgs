@@ -55,7 +55,7 @@ public class AutoplotURIBuilder
     public AutoplotURIBuilder (URIType uri_type, File file)
     {
         this.uri_type = uri_type;
-        this.location = file.getAbsolutePath().replace ("\\", "/");
+        this.location = file.toURI().toString();
         initialiseOptions();
     }
     
@@ -64,10 +64,10 @@ public class AutoplotURIBuilder
      * @param filename_pattern - the pattern for Autoplot to use to identify data files
      * @param timerange - the initial data to show
      */
-    public AutoplotURIBuilder (URIType uri_type, String filename_pattern, String timerange)
+    public AutoplotURIBuilder (URIType uri_type, File file, String timerange)
     {
         this.uri_type = uri_type;
-        this.location = filename_pattern;
+        this.location = file.toURI().toString();
         initialiseOptions();
         addTimerange (timerange);
     }
@@ -116,7 +116,7 @@ public class AutoplotURIBuilder
         switch (uri_type)
         {
             case VAP_DAT_FILE: 
-                uri = "vap+dat:file:/"; 
+                uri = "vap+dat:"; 
                 uri += location + "?";
                 uri_base_length = uri.length();
                 uri = addOption (uri, "skipLines",  dat_skip_lines,        uri.length() == uri_base_length);
@@ -131,7 +131,7 @@ public class AutoplotURIBuilder
                 uri = addOption (uri, "units",      dat_units,             uri.length() == uri_base_length);
                 break;
             case VAP_CDF_FILE:
-                uri = "vap+cdf:file:/"; 
+                uri = "vap+cdf:"; 
                 uri += location + "?";
                 uri_base_length = uri.length();
                 uri = addOption (uri, null,         cdf_var_name,          uri.length() == uri_base_length);
