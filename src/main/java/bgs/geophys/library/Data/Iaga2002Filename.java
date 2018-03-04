@@ -266,11 +266,11 @@ public class Iaga2002Filename extends GeomagDataFilename {
         
         if ( DurationType.FRAGMENT_OR_UNKNOWN == getDuration() ) {
             switch(this.getInterval()){
-                case MONTHLY: dateFormat = yyyyMM; break;
-                case DAILY:   dateFormat = yyyyMMdd; break;
-                case HOURLY:  dateFormat = yyyyMMddHH; break;
-                case MINUTE:  dateFormat = yyyyMMddHHmm; break;
-                case SECOND:  dateFormat = yyyyMMddHHmmss; break;
+                case MONTHLY: dateFormat = yyyy; break;
+                case DAILY:   dateFormat = yyyy; break;
+                case HOURLY:  dateFormat = yyyyMM; break;
+                case MINUTE:  dateFormat = yyyyMMdd; break;
+                case SECOND:  dateFormat = yyyyMMdd; break;
                 default:      dateFormat = yyyyMMddHHmmss;
             }
         }

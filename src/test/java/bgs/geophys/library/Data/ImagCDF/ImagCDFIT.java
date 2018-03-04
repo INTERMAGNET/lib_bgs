@@ -349,14 +349,18 @@ public class ImagCDFIT {
                                                 TEST_SCALAR_MAX_VAL, TEST_GEOMAG_UNITS, TEST_FILL_VAL, TEST_SCALAR_TS_NAME, 
                                                 TEST_GEOMAG_ELEMENT_NAMES [count], data);
         
+        // with the temperature data, make a variable three times the length of the data we want to use
+        // and only fill the final third - use this to test the index/offset variant of imgCDFVariable creation
         ImagCDFVariable temperatures [] = new ImagCDFVariable [1];
-        data = new double [TEST_TEMPERATURE_DATA_LENGTH];
+        data = new double [TEST_TEMPERATURE_DATA_LENGTH * 3];
         for (int count2=0; count2<data.length; count2 ++)
-            data[count2] = Math.sin ((double) count2 * 2.0 * Math.PI / (double) data.length);
+            data[count2] = TEST_FILL_VAL;
+        for (int count2=0; count2<TEST_TEMPERATURE_DATA_LENGTH; count2 ++)
+            data[(TEST_TEMPERATURE_DATA_LENGTH * 2) + count2] = Math.sin ((double) count2 * 2.0 * Math.PI / (double) TEST_TEMPERATURE_DATA_LENGTH);
         temperatures [0] = new ImagCDFVariable (new IMCDFVariableType (IMCDFVariableType.VariableTypeCode.Temperature),
                                                 TEST_TEMPERATURE_NAME_BASE + count, TEST_TEMPERATURE_MIN_VAL,
                                                 TEST_TEMPERATURE_MAX_VAL, TEST_TEMPERATURE_UNITS, TEST_FILL_VAL, TEST_TEMPERATURE_TS_NAME, 
-                                                "1", data);
+                                                "1", data, TEST_TEMPERATURE_DATA_LENGTH * 2, TEST_TEMPERATURE_DATA_LENGTH);
         
         ImagCDF imag_cdf = new ImagCDF (TEST_IAGA_CODE, TEST_PUB_LEVEL, TEST_PUB_DATE, TEST_OBSERVATORY_NAME,
                                         TEST_LATITUDE, TEST_LONGITUDE, TEST_ELEVATION,
