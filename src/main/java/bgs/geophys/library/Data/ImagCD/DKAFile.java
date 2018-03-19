@@ -134,7 +134,7 @@ public class DKAFile
                 date =  DateUtils.TwoDigitCenturyCorrect(date);
 
                 // ignore the day number
-                tokens.nextToken();
+                tokens.nextToken(" \t");
                 
                 // get and parse the 8 indices - ignore badly formatted indices
                 indices [0] = extractIndex (tokens.nextToken());

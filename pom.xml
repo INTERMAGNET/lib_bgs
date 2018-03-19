@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.ac.bgs.geomag</groupId>
     <artifactId>lib_bgs</artifactId>
-    <version>1.89-SNAPSHOT</version>    
+    <version>1.90-SNAPSHOT</version>    
     
     <packaging>jar</packaging>
     <name>lib_bgs</name>
@@ -97,11 +97,6 @@
             <version>1.4.9</version>
         </dependency>
         <dependency>
-            <groupId>jfreechart</groupId>
-            <artifactId>jfreechart</artifactId>
-            <version>1.0.12</version>
-        </dependency>
-        <dependency>
             <groupId>itext</groupId>
             <artifactId>itext</artifactId>
             <version>1.4.8</version>
@@ -131,6 +126,16 @@
             <artifactId>commons-fileupload</artifactId>
             <version>1.2</version>
         </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.0.19</version>
+        </dependency>
 
         <!-- test dependencies -->
         <dependency>
@@ -138,11 +143,6 @@
             <artifactId>junit</artifactId>
             <version>4.12</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>1.2</version>
         </dependency>
     </dependencies>
     
