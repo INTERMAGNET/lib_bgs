@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.ac.bgs.geomag</groupId>
     <artifactId>lib_bgs</artifactId>
-    <version>1.91-SNAPSHOT</version>    
+    <version>1.92-SNAPSHOT</version>    
     
     <packaging>jar</packaging>
     <name>lib_bgs</name>
@@ -135,6 +135,13 @@
             <groupId>org.jfree</groupId>
             <artifactId>jfreechart</artifactId>
             <version>1.0.19</version>
+        </dependency>
+  
+        <!-- Maven model - allows the pom.xml to be read in the application -->
+        <dependency>
+           <groupId>org.apache.maven</groupId>
+           <artifactId>maven-model</artifactId>
+           <version>3.0.5</version>
         </dependency>
 
         <!-- test dependencies -->
