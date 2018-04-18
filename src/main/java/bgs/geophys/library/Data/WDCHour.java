@@ -503,7 +503,7 @@ public class WDCHour extends GeomagDataFormat
                     default:
                         throw new GeomagDataException ("Bad century / quiet day code: " + record.substring(14, 16));
                 }
-                dateString = centuryString + record.substring (4, 8) + record.substring (9, 11);
+                dateString = centuryString + record.substring (3, 7) + record.substring (8, 10);
                 date = headerInputDateFormat.parse(dateString);
                 component = (byte) record.charAt (7);
                 quietDayCode = record.charAt(14);
@@ -599,6 +599,8 @@ public class WDCHour extends GeomagDataFormat
             startDate[3] = startDate[0];
             for (count=0; count<c1.size(); count++)
                 c4.add (new Double (MISSING_COMPONENT));
+            for (count=0; count<c1Mean.size(); count++)
+                c4Mean.add (new Double (MISSING_COMPONENT));
         }
         
         // check start dates are the same - also
