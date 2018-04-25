@@ -534,6 +534,12 @@ public class ImagCDFLowLevel
             else if (e.getMessage().length() <= 0) errmsg = "Unsatisfied link error (no message in exception)"; 
             else errmsg = e.getMessage();
         }
+        catch (NoClassDefFoundError e)
+        {
+            if (e.getMessage() == null) errmsg = "No class definition found error (no message in exception)"; 
+            else if (e.getMessage().length() <= 0) errmsg = "No class definition found error (no message in exception)"; 
+            else errmsg = e.getMessage();
+        }
         catch (CDFException e)
         {
             if (e.getMessage() == null) errmsg = "CDF exception (no message in exception)"; 
