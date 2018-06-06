@@ -138,15 +138,16 @@ public class MRRDFile
      * @return true if the file could be read */
     private boolean read ()
     {
-        BufferedReader reader;
-        boolean ret_val;
-
-        ret_val = true;
-        reader = null;
+        boolean ret_val = true;
+        BufferedReader reader = null;
         try
         {
             reader = new BufferedReader (new FileReader (mrrd_file));
-            mrrd = date_time_format.parse(reader.readLine());
+            String line = reader.readLine();
+            if (line == null) 
+                ret_val = false;
+            else
+                mrrd = date_time_format.parse(line);
         }
         catch (FileNotFoundException e) { ret_val = false; }
         catch (IOException e) { ret_val = false; }
