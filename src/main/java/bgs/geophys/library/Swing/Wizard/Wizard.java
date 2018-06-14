@@ -267,8 +267,9 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
      * Displays the panel identified by the object passed in. This is the same Object-based
      * identified used when registering the panel.
      * @param id The Object-based identifier of the panel to be displayed.
+     * @param btn_evt - the button event that caused this panel to be set (may be null if a button wasn't used)
      */    
-    public void setCurrentPanel(Object id) 
+    public void setCurrentPanel(Object id, WizardEvents.WizardButtonEvent btn_evt) 
     {
         boolean continue_to_next;
         
@@ -282,18 +283,18 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
         WizardPanelDescriptor oldPanelDescriptor = wizardModel.getCurrentPanelDescriptor();
         if (oldPanelDescriptor != null)
         {
-            if (! oldPanelDescriptor.aboutToHidePanel()) continue_to_next = false;
+            if (! oldPanelDescriptor.aboutToHidePanel(btn_evt)) continue_to_next = false;
         }
         
         if (continue_to_next)
         {
             // set the next panel
             wizardModel.setCurrentPanel(id);
-            wizardModel.getCurrentPanelDescriptor().aboutToDisplayPanel();
+            wizardModel.getCurrentPanelDescriptor().aboutToDisplayPanel(btn_evt);
         
             //  Show the panel in the dialog.
             cardLayout.show(cardPanel, id.toString());
-            wizardModel.getCurrentPanelDescriptor().displayingPanel();        
+            wizardModel.getCurrentPanelDescriptor().displayingPanel(btn_evt);        
         }
     }
     

@@ -155,7 +155,7 @@ public class WizardPanelDescriptor
     /**
      * Call listeners just before the panel is to be displayed.
      */    
-    public void aboutToDisplayPanel() {
+    public void aboutToDisplayPanel(WizardEvents.WizardButtonEvent btn_evt) {
         Iterator<WizardListeners.WizardPanelChangeListener> i;
         WizardEvents events;
         WizardEvents.WizardPanelChangeEvent evt;
@@ -163,13 +163,13 @@ public class WizardPanelDescriptor
         events = new WizardEvents ();
         evt = events.makeWizardPanelChangeEvent(panelIdentifier);
         for (i=panelChangeListeners.iterator(); i.hasNext(); )
-            i.next().aboutToDisplayPanel(evt);
+            i.next().aboutToDisplayPanel(evt, btn_evt);
     }
  
     /**
      * Call listeners when the panel itself is displayed.
      */    
-    public void displayingPanel() {
+    public void displayingPanel(WizardEvents.WizardButtonEvent btn_evt) {
         Iterator<WizardListeners.WizardPanelChangeListener> i;
         WizardEvents events;
         WizardEvents.WizardPanelChangeEvent evt;
@@ -177,7 +177,7 @@ public class WizardPanelDescriptor
         events = new WizardEvents ();
         evt = events.makeWizardPanelChangeEvent(panelIdentifier);
         for (i=panelChangeListeners.iterator(); i.hasNext(); )
-            i.next().displayingPanel(evt);
+            i.next().displayingPanel(evt, btn_evt);
     }
  
     /**
@@ -185,7 +185,7 @@ public class WizardPanelDescriptor
      * @return true if the panel can be hidden (and the next panel displayed)
      *         false to halt the panel change operations
      */    
-    public boolean aboutToHidePanel() {
+    public boolean aboutToHidePanel(WizardEvents.WizardButtonEvent btn_evt) {
         Iterator<WizardListeners.WizardPanelChangeListener> i;
         WizardEvents events;
         WizardEvents.WizardPanelChangeEvent evt;
@@ -196,7 +196,7 @@ public class WizardPanelDescriptor
         ret_val = true;
         for (i=panelChangeListeners.iterator(); i.hasNext(); )
         {
-            if (! i.next().aboutToHidePanel(evt)) ret_val = false;
+            if (! i.next().aboutToHidePanel(evt, btn_evt)) ret_val = false;
         }
         
         return ret_val;

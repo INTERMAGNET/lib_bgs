@@ -17,16 +17,25 @@ public class WizardListeners
      * changes state from one panel to another */
     public interface WizardPanelChangeListener 
     {
-        /** Called just before the panel is to be displayed. */    
-        public void aboutToDisplayPanel (WizardEvents.WizardPanelChangeEvent evt);
+        /** Called just before the panel is to be displayed.
+         * @param evt a description of the window change event
+         * @param btn_evt the button event that caused the window change (null if there wasn't a button event) */
+        public void aboutToDisplayPanel (WizardEvents.WizardPanelChangeEvent evt, 
+                                         WizardEvents.WizardButtonEvent btn_evt);
         
-        /** Called when the panel itself is displayed. */    
-        public void displayingPanel (WizardEvents.WizardPanelChangeEvent evt);
+        /** Called when the panel itself is displayed.
+         * @param evt a description of the window change event
+         * @param btn_evt the button event that caused the window change (null if there wasn't a button event) */
+        public void displayingPanel (WizardEvents.WizardPanelChangeEvent evt, 
+                                     WizardEvents.WizardButtonEvent btn_evt);
  
         /** Called just before the panel is to be hidden. This method provides
          * and opportunity to prevent a panel to panel transition
+         * @param evt a description of the window change event
+         * @param btn_evt the button event that caused the window change (null if there wasn't a button event)
          * @return true to allow the transition operation to continue, false to prevent it */
-        public boolean aboutToHidePanel (WizardEvents.WizardPanelChangeEvent evt);
+        public boolean aboutToHidePanel (WizardEvents.WizardPanelChangeEvent evt, 
+                                         WizardEvents.WizardButtonEvent btn_evt);
     }
 
     /** an interface that forward ActionEvents from any of the

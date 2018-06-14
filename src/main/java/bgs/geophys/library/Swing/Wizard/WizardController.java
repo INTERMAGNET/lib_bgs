@@ -49,18 +49,18 @@ public class WizardController implements ActionListener {
         wizard_events = new WizardEvents ();
         if (evt.getActionCommand().equals(Wizard.CANCEL_BUTTON_ACTION_COMMAND))
         {
-            cancelButtonPressed();
             btn_evt = wizard_events.makeWizardButtonEvent(WizardEvents.BUTTON_CANCEL, evt);
+            cancelButtonPressed();
         }
         else if (evt.getActionCommand().equals(Wizard.BACK_BUTTON_ACTION_COMMAND))
         {
-            backButtonPressed();
             btn_evt = wizard_events.makeWizardButtonEvent(WizardEvents.BUTTON_BACK, evt);
+            backButtonPressed(btn_evt);
         }
         else if (evt.getActionCommand().equals(Wizard.NEXT_BUTTON_ACTION_COMMAND))
         {
-            nextButtonPressed();
             btn_evt = wizard_events.makeWizardButtonEvent(WizardEvents.BUTTON_NEXT, evt);
+            nextButtonPressed(btn_evt);
         }
         else btn_evt = null;
         
@@ -78,7 +78,7 @@ public class WizardController implements ActionListener {
         wizard.close(Wizard.CANCEL_RETURN_CODE);
     }
 
-    private void nextButtonPressed() {
+    private void nextButtonPressed(WizardEvents.WizardButtonEvent btn_evt) {
  
         WizardModel model = wizard.getModel();
         WizardPanelDescriptor descriptor = model.getCurrentPanelDescriptor();
@@ -93,16 +93,16 @@ public class WizardController implements ActionListener {
             WizardPanelDescriptor oldPanelDescriptor = wizard.getModel().getCurrentPanelDescriptor();
             if (oldPanelDescriptor != null)
             {
-                if (oldPanelDescriptor.aboutToHidePanel())
+                if (oldPanelDescriptor.aboutToHidePanel(btn_evt))
                     wizard.close(Wizard.FINISH_RETURN_CODE);
             }
         } else {        
-            wizard.setCurrentPanel(nextPanelDescriptor);
+            wizard.setCurrentPanel(nextPanelDescriptor, btn_evt);
         }
         
     }
 
-    private void backButtonPressed() {
+    private void backButtonPressed(WizardEvents.WizardButtonEvent btn_evt) {
  
         WizardModel model = wizard.getModel();
         WizardPanelDescriptor descriptor = model.getCurrentPanelDescriptor();
@@ -111,7 +111,7 @@ public class WizardController implements ActionListener {
         //  panel, and display it.
         
         Object backPanelDescriptor = descriptor.getBackPanelDescriptor();        
-        wizard.setCurrentPanel(backPanelDescriptor);
+        wizard.setCurrentPanel(backPanelDescriptor, btn_evt);
         
     }
 
