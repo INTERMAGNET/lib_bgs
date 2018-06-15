@@ -95,7 +95,12 @@ public class ImagCDFFilename
             else interval = Interval.UNKNOWN;
             constructFilename(observatoryCode, date, publicationLevel, interval, characterCase);
         }
-        catch (CDFException e) { throw new ParseException ("Can't find sample period from ImagCDF data", -1); }
+        catch (CDFException e) 
+        {
+            if (e.getMessage() != null)
+                throw new ParseException ("Error creating ImagCDF filename: " + e.getMessage(), -1);
+            throw new ParseException ("Error creating ImagCDF filename", -1); 
+        }
     }
     
     // Property accessors

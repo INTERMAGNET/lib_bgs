@@ -4,6 +4,7 @@
  */
 package bgs.geophys.library.Data.ImagCDF;
 
+import bgs.geophys.library.Misc.Utils;
 import gsfc.nssdc.cdf.CDFException;
 import gsfc.nssdc.cdf.Variable;
 import java.util.ArrayList;
@@ -164,7 +165,11 @@ public class ImagCDFVariableTS
         for (count=2; count<time_stamps.length; count++)
         {
             test_diff = time_stamps [count] - time_stamps [count -1];
-            if (test_diff != diff) throw new CDFException ("Time difference not constant");
+            if (test_diff != diff) 
+                // leap seconds could occasionally cause this difference to be one second more than expected
+                test_diff = (time_stamps [count] - time_stamps [count -1]) - 1000000000;
+            if (test_diff != diff) 
+                throw new CDFException ("Time difference not constant (1st = " + diff + "mS, " + Utils.make_ordinal_number(count) + " = " + test_diff + "mS)");
         }
         sample_period = (double) diff / 1000000000.0;
         
